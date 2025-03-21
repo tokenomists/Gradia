@@ -187,135 +187,123 @@ export default function LandingPage() {
       </nav>
 
       {/* Hero Section */}
-      <section className="relative overflow-hidden py-20 px-6 md:px-12 lg:px-24">
-        <motion.div
-          initial="hidden"
-          animate="visible"
-          variants={staggerContainer}
-          className="max-w-6xl mx-auto grid md:grid-cols-2 gap-12 items-center"
+<section className="relative overflow-hidden py-20 px-6 md:px-12 lg:px-24">
+  <motion.div
+    initial="hidden"
+    animate="visible"
+    variants={staggerContainer}
+    className="max-w-6xl mx-auto grid md:grid-cols-2 gap-12 items-center"
+  >
+    <motion.div variants={fadeIn} className="space-y-6">
+      <motion.h1
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.2 }}
+        className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight"
+      >
+        Transform how you
+        <span className="block text-[#d56c4e]">teach and learn</span>
+      </motion.h1>
+      <motion.p
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.4 }}
+        className="text-lg md:text-xl"
+      >
+        Streamline assessments, track progress, and provide personalized feedback for every student with our innovative educational platform.
+      </motion.p>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.6 }}
+        className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4"
+      >
+        <button
+          className="px-8 py-3 rounded-full bg-[#d56c4e] text-white font-medium flex items-center justify-center space-x-2 hover:scale-105 transform transition-transform duration-200"
         >
-          <motion.div variants={fadeIn} className="space-y-6">
-            <motion.h1
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight"
-            >
-              Transform how you
-              <span className="block text-[#d56c4e]">teach and learn</span>
-            </motion.h1>
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.4 }}
-              className="text-lg md:text-xl"
-            >
-              Streamline assessments, track progress, and provide personalized feedback for every student with our innovative educational platform.
-            </motion.p>
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.6 }}
-              className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4"
-            >
-              <motion.button
-                variants={scaleOnHover}
-                initial="rest"
-                whileHover="hover"
-                whileTap={{ scale: 0.95 }}
-                className="px-8 py-3 rounded-full bg-[#d56c4e] text-white font-medium flex items-center justify-center space-x-2"
-                animate="animate"
-              >
-                <span>Try Now</span>
-                <ArrowRight size={18} />
-                <motion.span
-                  variants={CTApulse}
-                  className="absolute inset-0 rounded-full"
-                ></motion.span>
-              </motion.button>
-              <motion.button
-                variants={scaleOnHover}
-                initial="rest"
-                whileHover="hover"
-                whileTap={{ scale: 0.95 }}
-                className="px-8 py-3 rounded-full border-2 border-[#d56c4e] text-[#d56c4e] font-medium flex items-center justify-center space-x-2"
-              >
-                <span>Learn More</span>
-                <ChevronDown size={18} />
-              </motion.button>
-            </motion.div>
-          </motion.div>
+          <span>Try Now</span>
+          <ArrowRight size={18} />
+        </button>
+        <button
+          className="px-8 py-3 rounded-full border-2 border-[#d56c4e] text-[#d56c4e] font-medium flex items-center justify-center space-x-2 hover:scale-105 transform transition-transform duration-200"
+        >
+          <span>Learn More</span>
+          <ChevronDown size={18} />
+        </button>
+      </motion.div>
+    </motion.div>
 
-          {/* Hero image/animation */}
+    {/* Hero image/animation */}
+    <motion.div
+      initial={{ opacity: 0, scale: 0.8 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.8, delay: 0.3 }}
+      className="relative"
+    >
+      <div className="relative backdrop-blur-sm bg-[#fcf9ea]/20 border border-[#e2c3ae]/50 rounded-2xl p-6 shadow-lg transform rotate-2 hover:rotate-0 transition-transform duration-500">
+        <div className="absolute -top-4 -left-4 w-12 h-12 rounded-full bg-[#d56c4e] flex items-center justify-center text-white font-bold text-xl">A+</div>
+        <Image
+          src="/teacher-dashboard.jpg"
+          width={"800"}
+          height={"800"}
+          alt="Platform Dashboard"
+          className="rounded-lg shadow-md"
+        />
+        <div className="mt-4 flex justify-between items-center">
+          <div>
+            <h3 className="font-bold">Assessment Dashboard</h3>
+            <p className="text-sm opacity-75">Track progress in real-time</p>
+          </div>
           <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.8, delay: 0.3 }}
-            className="relative"
+            whileHover={{ rotate: 360 }}
+            transition={{ duration: 1, ease: "easeInOut" }}
+            className="w-10 h-10 rounded-full bg-[#d56c4e] flex items-center justify-center text-white"
           >
-            <div className="relative backdrop-blur-sm bg-[#fcf9ea]/20 border border-[#e2c3ae]/50 rounded-2xl p-6 shadow-lg transform rotate-2 hover:rotate-0 transition-transform duration-500">
-              <div className="absolute -top-4 -left-4 w-12 h-12 rounded-full bg-[#d56c4e] flex items-center justify-center text-white font-bold text-xl">A+</div>
-              <Image
-                src="/teacher-dashboard.jpg"
-                width={"800"}
-                height={"800"}
-                alt="Platform Dashboard"
-                className="rounded-lg shadow-md"
-              />
-              <div className="mt-4 flex justify-between items-center">
-                <div>
-                  <h3 className="font-bold">Assessment Dashboard</h3>
-                  <p className="text-sm opacity-75">Track progress in real-time</p>
-                </div>
-                <motion.div
-                  whileHover={{ rotate: 360 }}
-                  transition={{ duration: 1, ease: "easeInOut" }}
-                  className="w-10 h-10 rounded-full bg-[#d56c4e] flex items-center justify-center text-white"
-                >
-                  <CheckCircle size={20} />
-                </motion.div>
-              </div>
-            </div>
-
-            {/* Floating elements */}
-            <motion.div
-              animate={{
-                y: [0, -15, 0],
-                x: [0, 10, 0],
-                rotate: [0, 5, 0],
-              }}
-              transition={{
-                repeat: Infinity,
-                duration: 5,
-                ease: "easeInOut",
-              }}
-              className="absolute -top-12 right-16 bg-[#fcf9ea] p-3 rounded-lg shadow-lg"
-            >
-              <Clock className="w-8 h-8 text-[#d56c4e]" />
-            </motion.div>
-            
-            <motion.div
-              animate={{
-                y: [0, 15, 0],
-                x: [0, -5, 0],
-                rotate: [0, -3, 0],
-              }}
-              transition={{
-                repeat: Infinity,
-                duration: 4,
-                ease: "easeInOut",
-                delay: 0.5,
-              }}
-              className="absolute -bottom-8 left-12 bg-[#fcf9ea] p-3 rounded-lg shadow-lg"
-            >
-              <Book className="w-8 h-8 text-[#d56c4e]" />
-            </motion.div>
+            <CheckCircle size={20} />
           </motion.div>
-        </motion.div>
-        
-        {/* Background decoration */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] -z-10 opacity-30 blur-3xl bg-gradient-to-br from-[#d56c4e]/30 via-[#e2c3ae]/20 to-transparent rounded-full"></div>
-      </section>
+        </div>
+      </div>
+
+      {/* Floating elements */}
+      <motion.div
+        animate={{
+          y: [0, -15, 0],
+          x: [0, 10, 0],
+          rotate: [0, 5, 0],
+        }}
+        transition={{
+          repeat: Infinity,
+          duration: 5,
+          ease: "easeInOut",
+        }}
+        className="absolute -top-12 right-16 bg-[#fcf9ea] p-3 rounded-lg shadow-lg"
+      >
+        <Clock className="w-8 h-8 text-[#d56c4e]" />
+      </motion.div>
+
+      <motion.div
+        animate={{
+          y: [0, 15, 0],
+          x: [0, -5, 0],
+          rotate: [0, -3, 0],
+        }}
+        transition={{
+          repeat: Infinity,
+          duration: 4,
+          ease: "easeInOut",
+          delay: 0.5,
+        }}
+        className="absolute -bottom-8 left-12 bg-[#fcf9ea] p-3 rounded-lg shadow-lg"
+      >
+        <Book className="w-8 h-8 text-[#d56c4e]" />
+      </motion.div>
+    </motion.div>
+  </motion.div>
+
+  {/* Background decoration */}
+  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] -z-10 opacity-30 blur-3xl bg-gradient-to-br from-[#d56c4e]/30 via-[#e2c3ae]/20 to-transparent rounded-full"></div>
+</section>
+
 
       {/* Features Section (What It Does & How It Helps) */}
       <section id="features" className="py-20 px-6 md:px-12 lg:px-24">
