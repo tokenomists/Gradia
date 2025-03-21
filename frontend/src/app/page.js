@@ -314,41 +314,41 @@ export default function LandingPage() {
 
 
       {/* Features Section (What It Does & How It Helps) */}
-      <section id="features" className="py-20 px-6 md:px-12 lg:px-24 bg-gradient-to-b from-transparent to-[#fcf9ea]/10">
-        <motion.div
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-100px" }}
-          variants={staggerContainer}
-          className="max-w-6xl mx-auto"
-        >
-          <motion.div 
-            variants={fadeIn} 
-            className="text-center mb-16"
-          >
-            <h2 className="text-3xl md:text-5xl font-bold mb-6 relative inline-block">
-              Transforming <span className="text-[#d56c4e]">Education</span>
-              <motion.div 
-                className="absolute -bottom-2 left-0 h-1 bg-gradient-to-r from-[#d56c4e]/20 via-[#d56c4e] to-[#d56c4e]/20 w-full" 
-                initial={{ width: 0 }}
-                whileInView={{ width: "100%" }}
-                transition={{ delay: 0.3, duration: 0.8 }}
-              />
-            </h2>
-            <p className="text-lg md:text-xl max-w-3xl mx-auto leading-relaxed">
-              An intelligent ecosystem where teachers thrive and students flourish, 
-              reimagining how we teach, learn, and grow together.
-            </p>
-          </motion.div>
+<section id="features" className="py-20 px-6 md:px-12 lg:px-24 bg-gradient-to-b from-transparent to-[#fcf9ea]/10">
+  <motion.div
+    initial="hidden"
+    whileInView="visible"
+    viewport={{ once: true, margin: "-100px" }}
+    variants={staggerContainer}
+    className="max-w-6xl mx-auto"
+  >
+    <motion.div 
+      variants={fadeIn} 
+      className="text-center mb-16"
+    >
+      <h2 className="text-3xl md:text-5xl font-bold mb-6 relative inline-block">
+        Transforming <span className="text-[#d56c4e]">Education</span>
+        <motion.div 
+          className="absolute -bottom-2 left-0 h-1 bg-gradient-to-r from-[#d56c4e]/20 via-[#d56c4e] to-[#d56c4e]/20 w-full" 
+          initial={{ width: 0 }}
+          whileInView={{ width: "100%" }}
+          transition={{ delay: 0.3, duration: 0.8 }}
+        />
+      </h2>
+      <p className="text-lg md:text-xl max-w-3xl mx-auto leading-relaxed">
+        An intelligent ecosystem where teachers thrive and students flourish, 
+        reimagining how we teach, learn, and grow together.
+      </p>
+    </motion.div>
 
-          <div className="grid md:grid-cols-2 gap-12 relative">
-            {/* Connecting line between cards */}
-            <motion.div 
-              className="hidden md:block absolute top-1/2 left-1/2 h-px w-16 bg-[#e2c3ae]/50 -translate-x-1/2"
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              transition={{ delay: 0.6 }}
-            />
+    <div className="grid md:grid-cols-2 gap-16 relative">
+      {/* Connecting line between cards */}
+      <motion.div 
+        className="hidden md:block absolute top-1/2 left-1/2 h-px w-16 bg-[#e2c3ae]/50 -translate-x-1/2"
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        transition={{ delay: 0.6 }}
+      />
 
             {/* For Teachers */}
             <motion.div
@@ -430,98 +430,114 @@ export default function LandingPage() {
               </motion.button>
             </motion.div>
 
-            {/* For Students */}
-            <motion.div
-              variants={fadeIn}
-              className="group backdrop-blur-lg bg-gradient-to-br from-[#fcf9ea]/30 to-[#fcf9ea]/10 border border-[#e2c3ae]/50 rounded-3xl p-8 shadow-lg hover:shadow-2xl transition-all duration-500 relative overflow-hidden"
-            >
-              {/* Background pattern */}
-              <div className="absolute -left-24 -bottom-24 w-64 h-64 rounded-full bg-[#d56c4e]/5 blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
-              
-              <motion.div 
-                className="bg-gradient-to-br from-[#d56c4e]/20 to-[#d56c4e]/10 w-20 h-20 rounded-2xl flex items-center justify-center mb-8 group-hover:scale-110 transition-transform duration-300"
-                whileHover={{ rotate: [0, 5, -5, 5, 0] }}
-                transition={{ duration: 0.5 }}
-              >
-                <BookOpen className="w-10 h-10 text-[#d56c4e]" />
-              </motion.div>
-              
-              <h3 className="text-2xl md:text-3xl font-bold mb-6 flex items-center">
-                <span>For Learners</span>
-                <motion.div 
-                  className="ml-3 w-6 h-6 rounded-full bg-[#d56c4e]/10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                  initial={{ scale: 0 }}
-                  whileInView={{ scale: 1 }}
-                  transition={{ delay: 0.4, type: "spring" }}
-                >
-                  <ArrowRight className="w-3 h-3 text-[#d56c4e]" />
-                </motion.div>
-              </h3>
-              
-              <ul className="space-y-6">
-                {[
-                  { 
-                    title: "Tailored Guidance", 
-                    description: "Receive personalized feedback highlighting exactly where to focus and how to improve your understanding" 
-                  },
-                  { 
-                    title: "Progress Visualization", 
-                    description: "Watch your growth unfold through interactive timelines and achievement milestones" 
-                  },
-                  { 
-                    title: "Adaptive Resources", 
-                    description: "Access a curated library of learning materials that automatically adjust to your unique needs" 
-                  },
-                  { 
-                    title: "Seamless Organization", 
-                    description: "Navigate your learning journey with intuitive scheduling and smart deadline management" 
-                  }
-                ].map((item, index) => (
-                  <motion.li 
-                    key={index}
-                    initial={{ x: -10, opacity: 0 }}
-                    whileInView={{ x: 0, opacity: 1 }}
-                    transition={{ delay: 0.3 + (index * 0.1) }}
-                    whileHover={{ x: 5 }} 
-                    className="flex items-start group/item"
-                  >
-                    <div className="mr-4 mt-1 flex-shrink-0">
-                      <motion.div 
-                        className="w-6 h-6 rounded-full border border-[#d56c4e]/30 flex items-center justify-center group-hover/item:bg-[#d56c4e]/10 transition-colors duration-300"
-                        whileHover={{ scale: 1.2 }}
-                      >
-                        <CheckCircle className="w-4 h-4 text-[#d56c4e]" />
-                      </motion.div>
-                    </div>
-                    <div>
-                      <h4 className="font-semibold text-lg mb-1">{item.title}</h4>
-                      <p className="text-sm opacity-80 leading-relaxed">{item.description}</p>
-                    </div>
-                  </motion.li>
-                ))}
-              </ul>
-              
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.98 }}
-                className="mt-8 px-6 py-2 bg-gradient-to-r from-[#d56c4e]/80 to-[#d56c4e] text-white rounded-full text-sm font-medium opacity-0 group-hover:opacity-100 transition-all duration-300"
-              >
-                Start Your Journey
-              </motion.button>
-            </motion.div>
-          </div>
+      {/* For Students - Burnt Paper Style */}
+      <motion.div
+        variants={fadeIn}
+        className="group relative"
+        whileHover={{ rotate: -1, transition: { duration: 0.3 } }}
+      >
+        {/* Paper texture with burnt edges */}
+        <div className="absolute inset-0 bg-gradient-to-br from-[#e2c3ae] via-[#fcf9ea] to-[#e2c3ae] rounded-lg transform -rotate-1 scale-105 shadow-xl"></div>
+        
+        {/* Burnt edges overlay */}
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxmaWx0ZXIgaWQ9Im4iPjxmZVR1cmJ1bGVuY2UgdHlwZT0iZnJhY3RhbE5vaXNlIiBiYXNlRnJlcXVlbmN5PSIwLjAyIiBudW1PY3RhdmVzPSI1IiBzdGl0Y2hUaWxlcz0ic3RpdGNoIi8+PGZlQ29sb3JNYXRyaXggdmFsdWVzPSIwIDAgMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDAgMCAwLjEgMCIvPjwvZmlsdGVyPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbHRlcj0idXJsKCNuKSIgb3BhY2l0eT0iMSIvPjwvc3ZnPg==')] opacity-50 mix-blend-multiply rounded-lg"></div>
+        
+        {/* Burnt corner effects */}
+        <div className="absolute -top-2 -left-2 w-16 h-16 bg-gradient-to-br from-[#4a2511] to-transparent rounded-tl-lg opacity-60 transform -rotate-6"></div>
+        <div className="absolute -top-2 -right-2 w-16 h-16 bg-gradient-to-bl from-[#4a2511] to-transparent rounded-tr-lg opacity-60 transform rotate-6"></div>
+        <div className="absolute -bottom-2 -left-2 w-16 h-16 bg-gradient-to-tr from-[#4a2511] to-transparent rounded-bl-lg opacity-60 transform rotate-6"></div>
+        <div className="absolute -bottom-2 -right-2 w-16 h-16 bg-gradient-to-tl from-[#4a2511] to-transparent rounded-br-lg opacity-60 transform -rotate-6"></div>
+        
+        {/* Main content */}
+        <div className="backdrop-blur-sm bg-[#fcf9ea]/60 border border-[#e2c3ae]/50 rounded-2xl p-8 shadow-lg relative z-10 transform transition-transform duration-500 group-hover:scale-98">
+          {/* Coffee stain effect */}
+          <div className="absolute bottom-8 left-12 w-32 h-32 rounded-full bg-[#734a36]/10 blur-md -z-10"></div>
           
-          {/* Bottom decorative element */}
           <motion.div 
-            className="mt-16 flex justify-center"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.8 }}
+            className="bg-gradient-to-br from-[#d56c4e]/30 to-[#d56c4e]/20 w-20 h-20 rounded-2xl flex items-center justify-center mb-8 group-hover:scale-110 transition-transform duration-300"
+            whileHover={{ rotate: [0, 5, -5, 5, 0] }}
+            transition={{ duration: 0.5 }}
           >
-            <div className="w-24 h-1 bg-gradient-to-r from-transparent via-[#d56c4e]/40 to-transparent rounded-full" />
+            <BookOpen className="w-10 h-10 text-[#d56c4e]" />
           </motion.div>
-        </motion.div>
-      </section>
+          
+          <h3 className="text-2xl md:text-3xl font-bold mb-6 flex items-center text-[#4a2511]">
+            <span>For Learners</span>
+            <motion.div 
+              className="ml-3 w-6 h-6 rounded-full bg-[#d56c4e]/10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+              initial={{ scale: 0 }}
+              whileInView={{ scale: 1 }}
+              transition={{ delay: 0.4, type: "spring" }}
+            >
+              <ArrowRight className="w-3 h-3 text-[#d56c4e]" />
+            </motion.div>
+          </h3>
+          
+          <ul className="space-y-6">
+            {[
+              { 
+                title: "Tailored Guidance", 
+                description: "Receive personalized feedback highlighting exactly where to focus and how to improve your understanding" 
+              },
+              { 
+                title: "Progress Visualization", 
+                description: "Watch your growth unfold through interactive timelines and achievement milestones" 
+              },
+              { 
+                title: "Adaptive Resources", 
+                description: "Access a curated library of learning materials that automatically adjust to your unique needs" 
+              },
+              { 
+                title: "Seamless Organization", 
+                description: "Navigate your learning journey with intuitive scheduling and smart deadline management" 
+              }
+            ].map((item, index) => (
+              <motion.li 
+                key={index}
+                initial={{ x: -10, opacity: 0 }}
+                whileInView={{ x: 0, opacity: 1 }}
+                transition={{ delay: 0.3 + (index * 0.1) }}
+                whileHover={{ x: 5 }} 
+                className="flex items-start group/item"
+              >
+                <div className="mr-4 mt-1 flex-shrink-0">
+                  <motion.div 
+                    className="w-6 h-6 rounded-full border border-[#d56c4e]/50 flex items-center justify-center group-hover/item:bg-[#d56c4e]/10 transition-colors duration-300"
+                    whileHover={{ scale: 1.2 }}
+                  >
+                    <CheckCircle className="w-4 h-4 text-[#d56c4e]" />
+                  </motion.div>
+                </div>
+                <div>
+                  <h4 className="font-semibold text-lg mb-1 text-[#4a2511]">{item.title}</h4>
+                  <p className="text-sm text-[#4a2511]/80 leading-relaxed">{item.description}</p>
+                </div>
+              </motion.li>
+            ))}
+          </ul>
+          
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.98 }}
+            className="mt-8 px-6 py-2 bg-gradient-to-r from-[#d56c4e]/80 to-[#d56c4e] text-white rounded-full text-sm font-medium opacity-0 group-hover:opacity-100 transition-all duration-300"
+          >
+            Start Your Journey
+          </motion.button>
+        </div>
+      </motion.div>
+    </div>
+    
+    {/* Bottom decorative element */}
+    <motion.div 
+      className="mt-16 flex justify-center"
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.8 }}
+    >
+      <div className="w-24 h-1 bg-gradient-to-r from-transparent via-[#d56c4e]/40 to-transparent rounded-full" />
+    </motion.div>
+  </motion.div>
+</section>
 
       {/* How It Works Section */}
       <section id="how-it-works" className="py-20 px-6 md:px-12 lg:px-24 bg-[#e2c3ae]/30">
