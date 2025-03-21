@@ -141,14 +141,14 @@ export default function LandingPage() {
   return (
     <div className={`min-h-screen ${darkMode ? "bg-[#2d2c2a] text-[#fcf9ea]" : "bg-[#edead7] text-[#2d2c2a]"}`}>
       {/* Navbar */}
-      <nav className="sticky top-0 z-50 backdrop-blur-md bg-opacity-70 border-b border-[#e2c3ae] px-6 py-4 flex justify-between items-center">
+      <nav className="sticky top-0 z-50 backdrop-blur-md bg-opacity-70  border-[#e2c3ae] px-6 py-4 flex justify-between items-center">
         <motion.div
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5 }}
           className="flex items-center"
         >
-          <span className="text-2xl font-bold text-[#d56c4e]">Gradia</span>
+          <span className="text-2xl font-bold font-[rage itallic] text-[#d56c4e]">Gradia</span>
         </motion.div>
 
         <motion.div
@@ -182,7 +182,14 @@ export default function LandingPage() {
             whileTap={{ scale: 0.95 }}
             className="px-5 py-2 rounded-full bg-[#d56c4e] text-white font-medium"
           >
-            Login
+            Sign In
+          </motion.button>
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="px-5 py-2 rounded-full bg-[#d56c4e] text-white font-medium"
+          >
+            Sign Up
           </motion.button>
         </motion.div>
       </nav>
@@ -200,7 +207,7 @@ export default function LandingPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight"
+              className="text-4xl md:text-5xl lg:text-[clamp(3rem,5vw,3.5rem)] font-bold leading-tight"
             >
               Transform how you
               <span className="block text-[#d56c4e]">teach and learn</span>
@@ -211,7 +218,7 @@ export default function LandingPage() {
               transition={{ duration: 0.6, delay: 0.4 }}
               className="text-lg md:text-xl"
             >
-              Streamline assessments, track progress, and provide personalized feedback for every student with our innovative educational platform.
+              Streamline assessments, grading, track progress, and provide personalized feedback for every student with our innovative educational platform.
             </motion.p>
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -356,7 +363,7 @@ export default function LandingPage() {
                 whileHover={{ rotate: [0, -5, 5, -5, 0] }}
                 transition={{ duration: 0.5 }}
               >
-                <Users className="w-10 h-10 text-[#d56c4e]" />
+                <Users className="w-10 h-10 text-[#d36b4e]" />
               </motion.div>
               
               <h3 className="text-2xl md:text-3xl font-bold mb-6 flex items-center">
