@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowRight,
   Book,
+  BookOpen,
   CheckCircle,
   Clock,
   Mail,
@@ -187,126 +188,126 @@ export default function LandingPage() {
       </nav>
 
       {/* Hero Section */}
-<section className="relative overflow-hidden py-20 px-6 md:px-12 lg:px-24">
-  <motion.div
-    initial="hidden"
-    animate="visible"
-    variants={staggerContainer}
-    className="max-w-6xl mx-auto grid md:grid-cols-2 gap-12 items-center"
-  >
-    <motion.div variants={fadeIn} className="space-y-6">
-      <motion.h1
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.2 }}
-        className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight"
-      >
-        Transform how you
-        <span className="block text-[#d56c4e]">teach and learn</span>
-      </motion.h1>
-      <motion.p
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.4 }}
-        className="text-lg md:text-xl"
-      >
-        Streamline assessments, track progress, and provide personalized feedback for every student with our innovative educational platform.
-      </motion.p>
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.6 }}
-        className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4"
-      >
-        <button
-          className="px-8 py-3 rounded-full bg-[#d56c4e] text-white font-medium flex items-center justify-center space-x-2 hover:scale-105 transform transition-transform duration-200"
+      <section className="relative overflow-hidden py-20 px-6 md:px-12 lg:px-24">
+        <motion.div
+          initial="hidden"
+          animate="visible"
+          variants={staggerContainer}
+          className="max-w-6xl mx-auto grid md:grid-cols-2 gap-12 items-center"
         >
-          <span>Try Now</span>
-          <ArrowRight size={18} />
-        </button>
-        <button
-          className="px-8 py-3 rounded-full border-2 border-[#d56c4e] text-[#d56c4e] font-medium flex items-center justify-center space-x-2 hover:scale-105 transform transition-transform duration-200"
-        >
-          <span>Learn More</span>
-          <ChevronDown size={18} />
-        </button>
-      </motion.div>
-    </motion.div>
-
-    {/* Hero image/animation */}
-    <motion.div
-      initial={{ opacity: 0, scale: 0.8 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.8, delay: 0.3 }}
-      className="relative"
-    >
-      <div className="relative backdrop-blur-sm bg-[#fcf9ea]/20 border border-[#e2c3ae]/50 rounded-2xl p-6 shadow-lg transform rotate-2 hover:rotate-0 transition-transform duration-500">
-        <div className="absolute -top-4 -left-4 w-12 h-12 rounded-full bg-[#d56c4e] flex items-center justify-center text-white font-bold text-xl">A+</div>
-        <Image
-          src="/teacher-dashboard.jpg"
-          width={"800"}
-          height={"800"}
-          alt="Platform Dashboard"
-          className="rounded-lg shadow-md"
-        />
-        <div className="mt-4 flex justify-between items-center">
-          <div>
-            <h3 className="font-bold">Assessment Dashboard</h3>
-            <p className="text-sm opacity-75">Track progress in real-time</p>
-          </div>
-          <motion.div
-            whileHover={{ rotate: 360 }}
-            transition={{ duration: 1, ease: "easeInOut" }}
-            className="w-10 h-10 rounded-full bg-[#d56c4e] flex items-center justify-center text-white"
-          >
-            <CheckCircle size={20} />
+          <motion.div variants={fadeIn} className="space-y-6">
+            <motion.h1
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight"
+            >
+              Transform how you
+              <span className="block text-[#d56c4e]">teach and learn</span>
+            </motion.h1>
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.4 }}
+              className="text-lg md:text-xl"
+            >
+              Streamline assessments, track progress, and provide personalized feedback for every student with our innovative educational platform.
+            </motion.p>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.6 }}
+              className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4"
+            >
+              <button
+                className="px-8 py-3 rounded-full bg-[#d56c4e] text-white font-medium flex items-center justify-center space-x-2 hover:scale-105 transform transition-transform duration-200"
+              >
+                <span>Try Now</span>
+                <ArrowRight size={18} />
+              </button>
+              <button
+                className="px-8 py-3 rounded-full border-2 border-[#d56c4e] text-[#d56c4e] font-medium flex items-center justify-center space-x-2 hover:scale-105 transform transition-transform duration-200"
+              >
+                <span>Learn More</span>
+                <ChevronDown size={18} />
+              </button>
+            </motion.div>
           </motion.div>
-        </div>
-      </div>
 
-      {/* Floating elements */}
-      <motion.div
-        animate={{
-          y: [0, -15, 0],
-          x: [0, 10, 0],
-          rotate: [0, 5, 0],
-        }}
-        transition={{
-          repeat: Infinity,
-          duration: 5,
-          ease: "easeInOut",
-        }}
-        className="absolute -top-12 right-16 bg-[#fcf9ea] p-3 rounded-lg shadow-lg"
-      >
-        <Clock className="w-8 h-8 text-[#d56c4e]" />
-      </motion.div>
+          {/* Hero image/animation */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.8, delay: 0.3 }}
+            className="relative"
+          >
+            <div className="relative backdrop-blur-sm bg-[#fcf9ea]/20 border border-[#e2c3ae]/50 rounded-2xl p-6 shadow-lg transform rotate-2 hover:rotate-0 transition-transform duration-500">
+              <div className="absolute -top-4 -left-4 w-12 h-12 rounded-full bg-[#d56c4e] flex items-center justify-center text-white font-bold text-xl">A+</div>
+              <Image
+                src="/teacher-dashboard.jpg"
+                width={"800"}
+                height={"800"}
+                alt="Platform Dashboard"
+                className="rounded-lg shadow-md"
+              />
+              <div className="mt-4 flex justify-between items-center">
+                <div>
+                  <h3 className="font-bold">Assessment Dashboard</h3>
+                  <p className="text-sm opacity-75">Track progress in real-time</p>
+                </div>
+                <motion.div
+                  whileHover={{ rotate: 360 }}
+                  transition={{ duration: 1, ease: "easeInOut" }}
+                  className="w-10 h-10 rounded-full bg-[#d56c4e] flex items-center justify-center text-white"
+                >
+                  <CheckCircle size={20} />
+                </motion.div>
+              </div>
+            </div>
 
-      <motion.div
-        animate={{
-          y: [0, 15, 0],
-          x: [0, -5, 0],
-          rotate: [0, -3, 0],
-        }}
-        transition={{
-          repeat: Infinity,
-          duration: 4,
-          ease: "easeInOut",
-          delay: 0.5,
-        }}
-        className="absolute -bottom-8 left-12 bg-[#fcf9ea] p-3 rounded-lg shadow-lg"
-      >
-        <Book className="w-8 h-8 text-[#d56c4e]" />
-      </motion.div>
-    </motion.div>
-  </motion.div>
+            {/* Floating elements */}
+            <motion.div
+              animate={{
+                y: [0, -15, 0],
+                x: [0, 10, 0],
+                rotate: [0, 5, 0],
+              }}
+              transition={{
+                repeat: Infinity,
+                duration: 5,
+                ease: "easeInOut",
+              }}
+              className="absolute -top-12 right-16 bg-[#fcf9ea] p-3 rounded-lg shadow-lg"
+            >
+              <Clock className="w-8 h-8 text-[#d56c4e]" />
+            </motion.div>
 
-  {/* Background decoration */}
-  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] -z-10 opacity-30 blur-3xl bg-gradient-to-br from-[#d56c4e]/30 via-[#e2c3ae]/20 to-transparent rounded-full"></div>
-</section>
+            <motion.div
+              animate={{
+                y: [0, 15, 0],
+                x: [0, -5, 0],
+                rotate: [0, -3, 0],
+              }}
+              transition={{
+                repeat: Infinity,
+                duration: 4,
+                ease: "easeInOut",
+                delay: 0.5,
+              }}
+              className="absolute -bottom-8 left-12 bg-[#fcf9ea] p-3 rounded-lg shadow-lg"
+            >
+              <Book className="w-8 h-8 text-[#d56c4e]" />
+            </motion.div>
+          </motion.div>
+        </motion.div>
+
+        {/* Background decoration */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] -z-10 opacity-30 blur-3xl bg-gradient-to-br from-[#d56c4e]/30 via-[#e2c3ae]/20 to-transparent rounded-full"></div>
+      </section>
 
 
       {/* Features Section (What It Does & How It Helps) */}
-      <section id="features" className="py-20 px-6 md:px-12 lg:px-24">
+      <section id="features" className="py-20 px-6 md:px-12 lg:px-24 bg-gradient-to-b from-transparent to-[#fcf9ea]/10">
         <motion.div
           initial="hidden"
           whileInView="visible"
@@ -314,98 +315,204 @@ export default function LandingPage() {
           variants={staggerContainer}
           className="max-w-6xl mx-auto"
         >
-          <motion.div variants={fadeIn} className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              Designed for <span className="text-[#d56c4e]">Everyone</span>
+          <motion.div 
+            variants={fadeIn} 
+            className="text-center mb-16"
+          >
+            <h2 className="text-3xl md:text-5xl font-bold mb-6 relative inline-block">
+              Transforming <span className="text-[#d56c4e]">Education</span>
+              <motion.div 
+                className="absolute -bottom-2 left-0 h-1 bg-gradient-to-r from-[#d56c4e]/20 via-[#d56c4e] to-[#d56c4e]/20 w-full" 
+                initial={{ width: 0 }}
+                whileInView={{ width: "100%" }}
+                transition={{ delay: 0.3, duration: 0.8 }}
+              />
             </h2>
-            <p className="text-lg max-w-2xl mx-auto">
-              Our platform offers unique benefits for both students and teachers, enhancing the learning experience from every angle.
+            <p className="text-lg md:text-xl max-w-3xl mx-auto leading-relaxed">
+              An intelligent ecosystem where teachers thrive and students flourish, 
+              reimagining how we teach, learn, and grow together.
             </p>
           </motion.div>
 
-          <div className="grid md:grid-cols-2 gap-12">
+          <div className="grid md:grid-cols-2 gap-12 relative">
+            {/* Connecting line between cards */}
+            <motion.div 
+              className="hidden md:block absolute top-1/2 left-1/2 h-px w-16 bg-[#e2c3ae]/50 -translate-x-1/2"
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              transition={{ delay: 0.6 }}
+            />
+
             {/* For Teachers */}
             <motion.div
               variants={fadeIn}
-              className="backdrop-blur-sm bg-[#fcf9ea]/20 border border-[#e2c3ae]/50 rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow duration-300"
+              className="group backdrop-blur-lg bg-gradient-to-br from-[#fcf9ea]/30 to-[#fcf9ea]/10 border border-[#e2c3ae]/50 rounded-3xl p-8 shadow-lg hover:shadow-2xl transition-all duration-500 relative overflow-hidden"
             >
-              <div className="bg-[#d56c4e]/10 w-16 h-16 rounded-full flex items-center justify-center mb-6">
-                <Users className="w-8 h-8 text-[#d56c4e]" />
-              </div>
-              <h3 className="text-2xl font-bold mb-4">For Teachers</h3>
-              <ul className="space-y-4">
-                <motion.li 
-                  whileHover={{ x: 5 }} 
-                  className="flex items-start"
+              {/* Background pattern */}
+              <div className="absolute -right-24 -bottom-24 w-64 h-64 rounded-full bg-[#d56c4e]/5 blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+              
+              <motion.div 
+                className="bg-gradient-to-br from-[#d56c4e]/20 to-[#d56c4e]/10 w-20 h-20 rounded-2xl flex items-center justify-center mb-8 group-hover:scale-110 transition-transform duration-300"
+                whileHover={{ rotate: [0, -5, 5, -5, 0] }}
+                transition={{ duration: 0.5 }}
+              >
+                <Users className="w-10 h-10 text-[#d56c4e]" />
+              </motion.div>
+              
+              <h3 className="text-2xl md:text-3xl font-bold mb-6 flex items-center">
+                <span>For Educators</span>
+                <motion.div 
+                  className="ml-3 w-6 h-6 rounded-full bg-[#d56c4e]/10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                  initial={{ scale: 0 }}
+                  whileInView={{ scale: 1 }}
+                  transition={{ delay: 0.4, type: "spring" }}
                 >
-                  <CheckCircle className="w-6 h-6 text-[#d56c4e] mt-0.5 mr-2 flex-shrink-0" />
-                  <p>Create tests and assignments in minutes with AI assistance</p>
-                </motion.li>
-                <motion.li 
-                  whileHover={{ x: 5 }} 
-                  className="flex items-start"
-                >
-                  <CheckCircle className="w-6 h-6 text-[#d56c4e] mt-0.5 mr-2 flex-shrink-0" />
-                  <p>Track individual and class-wide performance with intuitive analytics</p>
-                </motion.li>
-                <motion.li 
-                  whileHover={{ x: 5 }} 
-                  className="flex items-start"
-                >
-                  <CheckCircle className="w-6 h-6 text-[#d56c4e] mt-0.5 mr-2 flex-shrink-0" />
-                  <p>Identify learning gaps and receive suggestions for targeted intervention</p>
-                </motion.li>
-                <motion.li 
-                  whileHover={{ x: 5 }} 
-                  className="flex items-start"
-                >
-                  <CheckCircle className="w-6 h-6 text-[#d56c4e] mt-0.5 mr-2 flex-shrink-0" />
-                  <p>Reduce grading time by up to 70% with automated assessment tools</p>
-                </motion.li>
+                  <ArrowRight className="w-3 h-3 text-[#d56c4e]" />
+                </motion.div>
+              </h3>
+              
+              <ul className="space-y-6">
+                {[
+                  { 
+                    title: "AI-Powered Creation", 
+                    description: "Design tests and assignments in minutes with intelligent assistance tailored to your curriculum" 
+                  },
+                  { 
+                    title: "Insightful Analytics", 
+                    description: "Visualize individual and class performance with dynamic dashboards that reveal learning patterns" 
+                  },
+                  { 
+                    title: "Gap Analysis", 
+                    description: "Automatically identify knowledge gaps and receive personalized intervention strategies" 
+                  },
+                  { 
+                    title: "Time Reclaimed", 
+                    description: "Reduce grading workload by 70% with smart assessment tools that provide deeper feedback" 
+                  }
+                ].map((item, index) => (
+                  <motion.li 
+                    key={index}
+                    initial={{ x: -10, opacity: 0 }}
+                    whileInView={{ x: 0, opacity: 1 }}
+                    transition={{ delay: 0.2 + (index * 0.1) }}
+                    whileHover={{ x: 5 }} 
+                    className="flex items-start group/item"
+                  >
+                    <div className="mr-4 mt-1 flex-shrink-0">
+                      <motion.div 
+                        className="w-6 h-6 rounded-full border border-[#d56c4e]/30 flex items-center justify-center group-hover/item:bg-[#d56c4e]/10 transition-colors duration-300"
+                        whileHover={{ scale: 1.2 }}
+                      >
+                        <CheckCircle className="w-4 h-4 text-[#d56c4e]" />
+                      </motion.div>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-lg mb-1">{item.title}</h4>
+                      <p className="text-sm opacity-80 leading-relaxed">{item.description}</p>
+                    </div>
+                  </motion.li>
+                ))}
               </ul>
+              
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.98 }}
+                className="mt-8 px-6 py-2 bg-gradient-to-r from-[#d56c4e]/80 to-[#d56c4e] text-white rounded-full text-sm font-medium opacity-0 group-hover:opacity-100 transition-all duration-300"
+              >
+                Discover Educator Tools
+              </motion.button>
             </motion.div>
 
             {/* For Students */}
             <motion.div
               variants={fadeIn}
-              className="backdrop-blur-sm bg-[#fcf9ea]/20 border border-[#e2c3ae]/50 rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow duration-300"
+              className="group backdrop-blur-lg bg-gradient-to-br from-[#fcf9ea]/30 to-[#fcf9ea]/10 border border-[#e2c3ae]/50 rounded-3xl p-8 shadow-lg hover:shadow-2xl transition-all duration-500 relative overflow-hidden"
             >
-              <div className="bg-[#d56c4e]/10 w-16 h-16 rounded-full flex items-center justify-center mb-6">
-                <Book className="w-8 h-8 text-[#d56c4e]" />
-              </div>
-              <h3 className="text-2xl font-bold mb-4">For Students</h3>
-              <ul className="space-y-4">
-                <motion.li 
-                  whileHover={{ x: 5 }} 
-                  className="flex items-start"
+              {/* Background pattern */}
+              <div className="absolute -left-24 -bottom-24 w-64 h-64 rounded-full bg-[#d56c4e]/5 blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+              
+              <motion.div 
+                className="bg-gradient-to-br from-[#d56c4e]/20 to-[#d56c4e]/10 w-20 h-20 rounded-2xl flex items-center justify-center mb-8 group-hover:scale-110 transition-transform duration-300"
+                whileHover={{ rotate: [0, 5, -5, 5, 0] }}
+                transition={{ duration: 0.5 }}
+              >
+                <BookOpen className="w-10 h-10 text-[#d56c4e]" />
+              </motion.div>
+              
+              <h3 className="text-2xl md:text-3xl font-bold mb-6 flex items-center">
+                <span>For Learners</span>
+                <motion.div 
+                  className="ml-3 w-6 h-6 rounded-full bg-[#d56c4e]/10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                  initial={{ scale: 0 }}
+                  whileInView={{ scale: 1 }}
+                  transition={{ delay: 0.4, type: "spring" }}
                 >
-                  <CheckCircle className="w-6 h-6 text-[#d56c4e] mt-0.5 mr-2 flex-shrink-0" />
-                  <p>Receive personalized feedback that highlights specific areas for improvement</p>
-                </motion.li>
-                <motion.li 
-                  whileHover={{ x: 5 }} 
-                  className="flex items-start"
-                >
-                  <CheckCircle className="w-6 h-6 text-[#d56c4e] mt-0.5 mr-2 flex-shrink-0" />
-                  <p>Track progress over time with interactive visual dashboards</p>
-                </motion.li>
-                <motion.li 
-                  whileHover={{ x: 5 }} 
-                  className="flex items-start"
-                >
-                  <CheckCircle className="w-6 h-6 text-[#d56c4e] mt-0.5 mr-2 flex-shrink-0" />
-                  <p>Access targeted practice resources based on identified learning gaps</p>
-                </motion.li>
-                <motion.li 
-                  whileHover={{ x: 5 }} 
-                  className="flex items-start"
-                >
-                  <CheckCircle className="w-6 h-6 text-[#d56c4e] mt-0.5 mr-2 flex-shrink-0" />
-                  <p>Stay organized with upcoming test reminders and assignment deadlines</p>
-                </motion.li>
+                  <ArrowRight className="w-3 h-3 text-[#d56c4e]" />
+                </motion.div>
+              </h3>
+              
+              <ul className="space-y-6">
+                {[
+                  { 
+                    title: "Tailored Guidance", 
+                    description: "Receive personalized feedback highlighting exactly where to focus and how to improve your understanding" 
+                  },
+                  { 
+                    title: "Progress Visualization", 
+                    description: "Watch your growth unfold through interactive timelines and achievement milestones" 
+                  },
+                  { 
+                    title: "Adaptive Resources", 
+                    description: "Access a curated library of learning materials that automatically adjust to your unique needs" 
+                  },
+                  { 
+                    title: "Seamless Organization", 
+                    description: "Navigate your learning journey with intuitive scheduling and smart deadline management" 
+                  }
+                ].map((item, index) => (
+                  <motion.li 
+                    key={index}
+                    initial={{ x: -10, opacity: 0 }}
+                    whileInView={{ x: 0, opacity: 1 }}
+                    transition={{ delay: 0.3 + (index * 0.1) }}
+                    whileHover={{ x: 5 }} 
+                    className="flex items-start group/item"
+                  >
+                    <div className="mr-4 mt-1 flex-shrink-0">
+                      <motion.div 
+                        className="w-6 h-6 rounded-full border border-[#d56c4e]/30 flex items-center justify-center group-hover/item:bg-[#d56c4e]/10 transition-colors duration-300"
+                        whileHover={{ scale: 1.2 }}
+                      >
+                        <CheckCircle className="w-4 h-4 text-[#d56c4e]" />
+                      </motion.div>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-lg mb-1">{item.title}</h4>
+                      <p className="text-sm opacity-80 leading-relaxed">{item.description}</p>
+                    </div>
+                  </motion.li>
+                ))}
               </ul>
+              
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.98 }}
+                className="mt-8 px-6 py-2 bg-gradient-to-r from-[#d56c4e]/80 to-[#d56c4e] text-white rounded-full text-sm font-medium opacity-0 group-hover:opacity-100 transition-all duration-300"
+              >
+                Start Your Journey
+              </motion.button>
             </motion.div>
           </div>
+          
+          {/* Bottom decorative element */}
+          <motion.div 
+            className="mt-16 flex justify-center"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.8 }}
+          >
+            <div className="w-24 h-1 bg-gradient-to-r from-transparent via-[#d56c4e]/40 to-transparent rounded-full" />
+          </motion.div>
         </motion.div>
       </section>
 
