@@ -16,6 +16,7 @@ import {
   Moon,
 } from "lucide-react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 export default function LandingPage() {
   const [darkMode, setDarkMode] = useState(false);
@@ -26,6 +27,7 @@ export default function LandingPage() {
     email: "",
     message: "",
   });
+  const router = useRouter();
 
   const toggleDarkMode = () => {
     setDarkMode(!darkMode);
@@ -178,6 +180,8 @@ export default function LandingPage() {
             {darkMode ? <Sun size={20} /> : <Moon size={20} />}
           </motion.button>
           <motion.button
+            type="button"
+            onClick={() => {router.push('/signin')}}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             className={`px-5 py-2 font-medium ${darkMode ? "text-white" : "text-[#2d2c2a"}`}
@@ -185,6 +189,8 @@ export default function LandingPage() {
             Sign In
           </motion.button>
           <motion.button
+            type='button'
+            onClick={() => {router.push('/signup')}}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             className="px-5 py-2 rounded-full bg-[#d56c4e] text-white font-medium"

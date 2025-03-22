@@ -57,7 +57,10 @@ export default {
   			lg: 'var(--radius)',
   			md: 'calc(var(--radius) - 2px)',
   			sm: 'calc(var(--radius) - 4px)'
-  		}
+  		}, 
+		boxShadow: {
+            'siginTabSwitch': '0 5px 10px rgba(50, 50, 50, 0.3)',
+        },
   	}
   },
   plugins: [require("tailwindcss-animate")],
