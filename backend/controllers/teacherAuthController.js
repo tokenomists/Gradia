@@ -9,9 +9,9 @@ const generateToken = (id) => {
 // 📌 Teacher Sign-up
 export const registerTeacher = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { fname, lname, email, password } = req.body;
 
-    if (!name || !email || !password) {
+    if (!email || !password) {
       return res.status(400).json({ message: "All fields are required" });
     }
 
@@ -20,7 +20,11 @@ export const registerTeacher = async (req, res) => {
       return res.status(400).json({ message: "Teacher already exists" });
     }
 
-    const teacher = await Teacher.create({ name, email, password });
+    if(fname && lname) {
+      const teacher = await Teacher.create({ fname, lname, email, password });
+    } else {
+      const teacher = await Teacher.create({ email, password});
+    }
     res.status(201).json({ message: "Teacher registered successfully", token: generateToken(teacher._id) });
 
   } catch (error) {

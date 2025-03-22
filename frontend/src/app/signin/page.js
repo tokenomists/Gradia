@@ -433,7 +433,7 @@ export default function Login() {
                         <input 
                           type="text"
                           name="email"
-                          placeholder="email"
+                          placeholder="Email"
                           value={formData.email}
                           onChange={handleInputChange}
                           onFocus={() => handleInputFocus('email', true)}
@@ -563,8 +563,8 @@ export default function Login() {
                 
                 <div className="text-center">
                   <span className="text-gray-600 text-sm">Don't have an account? </span>
-                  <Link 
-                    href="#" 
+                  <button
+                    onClick={() => router.push('/signup')}
                     className="text-[#d56c4e] hover:text-[#d56c4e]/70 text-sm font-medium transition-colors relative inline-block group"
                   >
                     Sign Up
@@ -574,7 +574,7 @@ export default function Login() {
                       whileHover={{ scaleX: 1 }}
                       transition={{ duration: 0.3 }}
                     />
-                  </Link>
+                  </button>
                 </div>
                 
                 {/* Google button */}

@@ -9,9 +9,9 @@ const generateToken = (id) => {
 // 📌 Student Sign-up
 export const registerStudent = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { fname, lname, email, password } = req.body;
 
-    if (!name || !email || !password) {
+    if (!email || !password) {
       return res.status(400).json({ message: "All fields are required" });
     }
 
@@ -20,7 +20,11 @@ export const registerStudent = async (req, res) => {
       return res.status(400).json({ message: "Student already exists" });
     }
 
-    const student = await Student.create({ name, email, password });
+    if(fname && lname) {
+      const student = await Student.create({ fname, lname, email, password });
+    } else {
+      const student = await Student.create({ email, password });
+    }
     res.status(201).json({ message: "Student registered successfully", token: generateToken(student._id) });
 
   } catch (error) {
