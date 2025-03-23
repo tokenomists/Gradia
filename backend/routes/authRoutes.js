@@ -1,12 +1,18 @@
 import express from 'express';
 const router = express.Router();
 import passport from 'passport';
-import { registerStudent, loginStudent } from '../controllers/studentAuthController.js';
-import { registerTeacher, loginTeacher } from '../controllers/teacherAuthController.js';
+import { registerStudent, loginStudent, getStudentProfile } from '../controllers/studentAuthController.js';
+import { registerTeacher, loginTeacher, getTeacherProfile } from '../controllers/teacherAuthController.js';
 import Student from '../models/Student.js';
 import Teacher from '../models/Teacher.js';
 
 const CLIENT_URL = process.env.FRONTEND_URL || "http://localhost:3000";
+
+// Get student details
+router.get('/student/profile', getStudentProfile);
+
+// Get teacher details
+router.get('/teacher/profile', getTeacherProfile);
 
 // Student Google Auth
 router.get(
@@ -19,7 +25,7 @@ router.get(
   passport.authenticate("student-google", { failureRedirect: `${CLIENT_URL}/signin` }),
   (req, res) => {
     const { token } = req.user;
-    console.log(token);
+    
     res.cookie("token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
@@ -92,14 +98,11 @@ router.get(
 );
 
 router.get("/check", async (req, res) => {
-  console.log("Cookies received:", req.cookies);
-
   if (Object.entries(req.cookies).length > 0) {
     const Model = req.cookies.role === "student" ? Student : Teacher;
     
     try {
       const user = await Model.findOne({ email: req.cookies.email });
-      console.log("User found:", user);
 
       if (!user) {
         return res.json({ isAuthenticated: false });
@@ -110,8 +113,8 @@ router.get("/check", async (req, res) => {
         role: req.cookies.role,
         email: user.email,
         token: req.cookies.token,
-        name: `${user.fname} ${user.lname}`,
-        profilePic: req.cookies.profilePicture,
+        name: (user.lname === undefined ? user.fname : `${user.fname} ${user.lname}`),
+        profilePic: user.profilePicture,
       });
     } catch (error) {
       console.error("Error fetching user:", error);

@@ -151,7 +151,7 @@ export default function Signup() {
     e.preventDefault();
     
     const { fname, lname, email, password, confirmPassword } = formData;
-    console.log("Form data:", formData);
+    
     // Validation
     if (!fname || !lname || !email || !password || !confirmPassword) {
       setError('Please fill in all fields');

@@ -16,8 +16,27 @@ import {
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { UserDropdown } from '@/components/dashboard/UserDropdown.jsx';
+import { isAuthenticated } from '@/utils/auth.js';
 
 export default function StudentDashboard() {
+  const [user, setUser] = useState({
+    isLoggedIn: false,
+    role: 'student',
+    email: '',
+    name: '',
+    profilePic: '',
+  });
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const userData = await isAuthenticated();
+      console.log("User Data:", userData);
+      setUser(userData);
+    };
+
+    fetchUser();
+  }, []);
+
   // Animation variants
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -144,7 +163,7 @@ export default function StudentDashboard() {
             transition={{ duration: 0.5 }}
             className="text-3xl font-bold text-gray-800"
         >
-            Good morning, Tokenomists
+            Welcome back, {user.name}
         </motion.h2>
         <motion.button 
             whileHover={{ scale: 1.05, boxShadow: "0px 0px 8px rgba(213, 108, 78, 0.6)" }}

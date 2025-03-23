@@ -52,12 +52,12 @@ const setupGoogleAuth = (userType) => {
 };
 
 passport.serializeUser((user, done) => {
-  console.log("Serializing user:", user);
+  // console.log("Serializing user:", user);
   done(null, { id: user._id, email: user.email, fname: user.fname, lname: user.lname, token: user.token });
 });
 
 passport.deserializeUser((obj, done) => {
-  console.log("Deserializing user:", obj);
+  // console.log("Deserializing user:", obj);
   done(null, obj);
 });
 

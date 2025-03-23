@@ -97,8 +97,16 @@ export const loginStudent = async (req, res) => {
 
 export const getStudentProfile = async (req, res) => {
     const { email, token } = req.cookies;
+
+    const student = await Student.findOne({ email });
+    if (!student) {
+      return res.status(400).json({ success: false, message: "Student not found! Invalid email" });
+    }
+    
+    console.log(student);
+
     if(token) {
-        return res.status(200).json({ email: email, password: token });
+        return res.status(200).json({ email: email,  });
     }
     res.status(403).json({message: "Unauthorized - No token found!"});
 };

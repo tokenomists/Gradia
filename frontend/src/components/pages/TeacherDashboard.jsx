@@ -7,6 +7,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { UserDropdown } from '@/components/dashboard/UserDropdown.jsx';
+import { isAuthenticated } from '@/utils/auth';
 
 // Sample data for demonstration
 const classesData = [
@@ -47,7 +48,23 @@ const teacherQuotes = [
 export default function TeacherDashboard() {
   const [currentQuote, setCurrentQuote] = useState('');
   const [expandedTest, setExpandedTest] = useState(null);
-  const router = useRouter(); 
+  const [user, setUser] = useState({
+      isLoggedIn: false,
+      role: 'teacher',
+      email: '',
+      name: '',
+      profilePic: '',
+    });
+  
+    useEffect(() => {
+      const fetchUser = async () => {
+        const userData = await isAuthenticated();
+        console.log("User Data:", userData);
+        setUser(userData);
+      };
+  
+      fetchUser();
+    }, []);
 
   // Rotate quotes every 10 seconds
   useEffect(() => {
@@ -103,7 +120,7 @@ export default function TeacherDashboard() {
             transition={{ duration: 0.5 }}
             className="mb-6 md:mb-0"
         >
-            <h1 className="text-3xl font-bold text-gray-800 mb-2">Good afternoon, Tokenomists</h1>
+            <h1 className="text-3xl font-bold text-gray-800 mb-2">Good afternoon, {user.name}</h1>
             <p className="text-gray-600 italic">"{currentQuote}"</p>
         </motion.div>
         

@@ -149,8 +149,6 @@ export default function Login() {
         password: formData.password
       });
   
-      console.log("Login Response:", response.data); // 🛠 Debugging
-  
       if (response.data.success && response.data.token) {  
         setTimeout(() => {
           router.push(`/`);

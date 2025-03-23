@@ -3,6 +3,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { User, Settings, LogOut } from "lucide-react";
 import { logout, isAuthenticated } from "../../utils/auth.js";
 import { useRouter } from "next/navigation";
+import Image from "next/image.js";
+
 export const UserDropdown = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [user, setUser] = useState(null);
@@ -73,7 +75,7 @@ export const UserDropdown = () => {
         className="bg-white rounded-full w-10 h-10 flex items-center justify-center cursor-pointer overflow-hidden"
       >
         {user?.profilePic ? (
-          <img src={user.profilePic} width={20} height={20} alt="User Profile" className="w-full h-full rounded-full" />
+          <Image src={user.profilePic} width={20} height={20} alt="User Profile" className="w-full h-full rounded-full" />
         ) : (
           <User className="text-[#d56c4e]" size={20} />
         )}

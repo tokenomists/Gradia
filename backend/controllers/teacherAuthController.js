@@ -66,3 +66,19 @@ export const loginTeacher = async (req, res) => {
     res.status(500).json({ success: false, message: "Error logging in", error: error.message });
   }
 };
+
+export const getTeacherProfile = async (req, res) => {
+  const { email, token } = req.cookies;
+
+  const teacher = await Teacher.findOne({ email });
+  if (!teacher) {
+    return res.status(400).json({ success: false, message: "Teacher not found! Invalid email" });
+  }
+  
+  console.log(teacher);
+
+  if(token) {
+      return res.status(200).json({ email: email,  });
+  }
+  res.status(403).json({message: "Unauthorized - No token found!"});
+};
