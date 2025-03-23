@@ -11,10 +11,7 @@ const OAuthSuccess = () => {
     const role = searchParams.get("role");
 
     if (token) {
-      localStorage.setItem("authToken", token);
-      localStorage.setItem("userRole", role);
-      
-      // ✅ Redirect to dashboard after login
+      // Redirect to dashboard after login
       router.push(`/${role}/dashboard`);
     } else {
       router.push("/signin");

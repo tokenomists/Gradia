@@ -140,17 +140,21 @@ export default function Login() {
       shakeAnimation();
       return;
     }
-    
+  
     setIsLoading(true);
-    
+  
     try {
       const response = await instance.post(`/api/auth/${activeTab}/login`, {
         email: formData.email,
         password: formData.password
       });
-
-      if (response.data.success) {
-        router.push(`/${activeTab}/dashboard`);
+  
+      console.log("Login Response:", response.data); // 🛠 Debugging
+  
+      if (response.data.success && response.data.token) {  
+        setTimeout(() => {
+          router.push(`/${activeTab}/dashboard`);
+        }, 100); 
       } else {
         setError(response.data.message || 'Login failed');
       }

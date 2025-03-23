@@ -20,12 +20,17 @@ export const registerStudent = async (req, res) => {
       return res.status(400).json({ message: "Student already exists" });
     }
 
-    if(fname && lname) {
-      const student = await Student.create({ fname, lname, email, password });
-    } else {
-      const student = await Student.create({ email, password });
-    }
-    res.status(201).json({ message: "Student registered successfully", token: generateToken(student._id) });
+    const student = await Student.create({ fname, lname, email, password });
+
+    const token = generateToken(student._id);
+    res.cookie("token", token, {
+      httpOnly: true,  // Prevents access via JavaScript for security
+      secure: process.env.NODE_ENV === "production",  // Use secure cookies in production
+      sameSite: "Strict",  // Prevent CSRF attacks
+      maxAge: 3600000,  // Cookie expiration time (1 hour)
+    });
+    
+    res.status(201).json({ message: "Student registered successfully", token: token });
 
   } catch (error) {
     res.status(500).json({ message: "Error registering student", error: error.message });
@@ -56,14 +61,14 @@ export const loginStudent = async (req, res) => {
         maxAge: 3600000,
     });
 
-    res.cookie("email", email, {
-        httpOnly: true, // Allow client-side access if needed (consider security implications)
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "Strict",
-        maxAge: 3600000, // 1 hour (same as token)
+    res.cookie("role", "student", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "Strict",
+      maxAge: 3600000,
     });
 
-    res.status(200).json({ success: true, message: "Student logged in successfully" });
+    res.status(200).json({ success: true, message: "Student logged in successfully", token: token });
   } catch (error) {
     res.status(500).json({ success: false, message: "Error logging in", error: error.message });
   }

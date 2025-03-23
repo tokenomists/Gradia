@@ -1,8 +1,8 @@
 import passport from "passport";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
-import dotenv from "dotenv";
 import Student from "../models/Student.js";
 import Teacher from "../models/Teacher.js";
+import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
 
 dotenv.config();
@@ -11,7 +11,7 @@ const generateToken = (id, role) => jwt.sign({ id, role }, process.env.JWT_SECRE
 
 const setupGoogleAuth = (userType) => {
   passport.use(
-    `${userType}-google`, // ✅ Correct strategy name
+    `${userType}-google`, // Strategy name
     new GoogleStrategy(
       {
         clientID: process.env.GOOGLE_CLIENT_ID,
@@ -27,7 +27,8 @@ const setupGoogleAuth = (userType) => {
 
           if (!user) {
             user = await Model.create({
-              name: profile.displayName,
+              fname: profile.name.givenName,
+              lname: profile.name.familyName,
               email: profile.emails[0].value,
               googleId: profile.id,
             });
@@ -36,6 +37,12 @@ const setupGoogleAuth = (userType) => {
           }
 
           const token = generateToken(user._id, userType);
+
+          // res.cookie("token", token, {
+          //   httpOnly: true,
+          //   sameSite: true,
+          //   maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+          // });
           
           return done(null, { user, token }); // Send JWT token with respons
         } catch (error) {
@@ -46,7 +53,6 @@ const setupGoogleAuth = (userType) => {
   );
 };
 
-// ✅ Ensure passport.serialize/deserialize are defined
 passport.serializeUser((user, done) => {
   done(null, user);
 });

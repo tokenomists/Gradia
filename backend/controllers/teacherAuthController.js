@@ -20,12 +20,9 @@ export const registerTeacher = async (req, res) => {
       return res.status(400).json({ message: "Teacher already exists" });
     }
 
-    if(fname && lname) {
-      const teacher = await Teacher.create({ fname, lname, email, password });
-    } else {
-      const teacher = await Teacher.create({ email, password});
-    }
-    res.status(201).json({ message: "Teacher registered successfully", token: generateToken(teacher._id) });
+    await Teacher.create({ fname, lname, email, password });    
+
+    res.status(201).json({ message: "Teacher registered successfully" });
 
   } catch (error) {
     res.status(500).json({ message: "Error registering teacher", error: error.message });
@@ -56,14 +53,14 @@ export const loginTeacher = async (req, res) => {
         maxAge: 3600000,
     });
 
-    res.cookie("email", email, {
-        httpOnly: true, // Allow client-side access if needed (consider security implications)
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "Strict",
-        maxAge: 3600000, // 1 hour (same as token)
-    });
+    res.cookie("role", "teacher", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "Strict",
+      maxAge: 3600000,
+   });
 
-    res.status(200).json({ success: true, message: "Teacher logged in successfully" });
+    res.status(200).json({ success: true, message: "Teacher logged in successfully", token: token });
 
   } catch (error) {
     res.status(500).json({ success: false, message: "Error logging in", error: error.message });

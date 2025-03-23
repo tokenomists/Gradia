@@ -2,8 +2,8 @@ import mongoose from "mongoose";
 import bcrypt from 'bcryptjs';
 
 const StudentSchema = new mongoose.Schema({
-  fname: { type: String },
-  lname: { type: String },
+  fname: { type: String, required: true },
+  lname: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   password: { type: String }, // Only required for email/password auth
   googleId: { type: String }, // Used for Google OAuth authentication

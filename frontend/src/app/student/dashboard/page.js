@@ -16,6 +16,8 @@ import {
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { isAuthenticated } from '../../../utils/auth.js';
+import { UserDropdown } from '@/components/dashboard/UserDropdown.jsx';
+import AuthGuard from '@/components/auth/AuthGaurd.jsx';
 
 export default function StudentDashboard() {
   // Animation variants
@@ -110,208 +112,205 @@ export default function StudentDashboard() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#fcf9ea]">
-      {/* Navbar */}
-      <nav className="bg-[#d56c4e] text-white px-6 py-4 flex justify-between items-center">
-        <div className="flex items-center">
-          <motion.h1 
-            initial={{ x: -20, opacity: 0 }} 
-            animate={{ x: 0, opacity: 1 }}
-            transition={{ duration: 0.5 }}
-            className="text-3xl font-serif italic font-bold"
-          >
-            Gradia
-          </motion.h1>
-        </div>
-        <div className="flex space-x-6 items-center">
-          <motion.span 
-            whileHover={{ scale: 1.05 }}
-            className="cursor-pointer font-medium"
-          >
-            Practice
-          </motion.span>
-          <motion.span 
-            whileHover={{ scale: 1.05 }}
-            className="cursor-pointer font-medium"
-          >
-            Performance
-          </motion.span>
-          <motion.div 
-            whileHover={{ scale: 1.1 }}
-            className="bg-white rounded-full w-10 h-10 flex items-center justify-center"
-          >
-            <User className="text-[#d56c4e]" size={20} />
-          </motion.div>
-        </div>
-      </nav>
-
-      {/* Main Content */}
-      <div className="px-6 py-8 max-w-7xl mx-auto">
-        {/* Welcome Section */}
-        <div className="flex justify-between items-center mb-8">
-          <motion.h2 
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="text-3xl font-bold text-gray-800"
-          >
-            Good morning, Tokenomists
-          </motion.h2>
-          <motion.button 
-            whileHover={{ scale: 1.05, boxShadow: "0px 0px 8px rgba(213, 108, 78, 0.6)" }}
-            className="flex items-center bg-[#e2c3ae] hover:bg-[#d5b5a0] text-gray-800 px-4 py-2 rounded-lg font-medium shadow-sm transition-all duration-300"
-          >
-            <User size={18} className="mr-2" />
-            Join Class
-          </motion.button>
-        </div>
-
-        {/* Upcoming Tests Section */}
-        <motion.div 
-          variants={containerVariants}
-          initial="hidden"
-          animate="show"
-          className="mb-8"
-        >
-          <motion.h3 
-            variants={itemVariants}
-            className="text-xl font-semibold text-gray-800 mb-4"
-          >
-            Upcoming Tests & Evaluations
-          </motion.h3>
-          <div className="grid md:grid-cols-2 gap-6">
-            {upcomingTests.map((test) => (
-              <motion.div 
-                key={test.id}
-                variants={itemVariants}
-                whileHover={{ 
-                  y: -5, 
-                  boxShadow: "0px 10px 20px rgba(0, 0, 0, 0.1)",
-                  transition: { type: "spring", stiffness: 300, damping: 15 }
-                }}
-                className="bg-[#e2c3ae] rounded-xl p-6 shadow-md"
-              >
-                <h4 className="font-semibold text-lg text-gray-800">{test.name}</h4>
-                <p className="text-gray-600 mt-1">{test.description}</p>
-                <div className="flex justify-between items-center mt-6">
-                  <div className="flex items-center">
-                    <Clock size={18} className="text-gray-600 mr-2" />
-                    <span className="text-gray-700">{test.duration}</span>
-                  </div>
-                  {test.status === 'ready' ? (
-                    <motion.button 
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      className="bg-white text-gray-800 px-6 py-2 rounded-full font-medium shadow-sm hover:shadow-md transition-all duration-300"
-                    >
-                      Start
-                    </motion.button>
-                  ) : (
-                    <span className="bg-gray-200 text-gray-500 px-6 py-2 rounded-full font-medium">
-                      Scheduled
-                    </span>
-                  )}
-                </div>
-              </motion.div>
-            ))}
+    <AuthGuard>
+      <div className="min-h-screen bg-[#fcf9ea]">
+        {/* Navbar */}
+        <nav className="bg-[#d56c4e] text-white px-6 py-4 flex justify-between items-center">
+          <div className="flex items-center">
+            <motion.h1 
+              initial={{ x: -20, opacity: 0 }} 
+              animate={{ x: 0, opacity: 1 }}
+              transition={{ duration: 0.5 }}
+              className="text-3xl font-serif italic font-bold"
+            >
+              Gradia
+            </motion.h1>
           </div>
-        </motion.div>
+          <div className="flex space-x-6 items-center">
+            <motion.span 
+              whileHover={{ scale: 1.05 }}
+              className="cursor-pointer font-medium"
+            >
+              Practice
+            </motion.span>
+            <motion.span 
+              whileHover={{ scale: 1.05 }}
+              className="cursor-pointer font-medium"
+            >
+              Performance
+            </motion.span>
+            <UserDropdown />
+          </div>
+        </nav>
 
-        <div className="grid md:grid-cols-2 gap-8">
-          {/* Past Tests Section */}
+        {/* Main Content */}
+        <div className="px-6 py-8 max-w-7xl mx-auto">
+          {/* Welcome Section */}
+          <div className="flex justify-between items-center mb-8">
+            <motion.h2 
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="text-3xl font-bold text-gray-800"
+            >
+              Good morning, Tokenomists
+            </motion.h2>
+            <motion.button 
+              whileHover={{ scale: 1.05, boxShadow: "0px 0px 8px rgba(213, 108, 78, 0.6)" }}
+              className="flex items-center bg-[#e2c3ae] hover:bg-[#d5b5a0] text-gray-800 px-4 py-2 rounded-lg font-medium shadow-sm transition-all duration-300"
+            >
+              <User size={18} className="mr-2" />
+              Join Class
+            </motion.button>
+          </div>
+
+          {/* Upcoming Tests Section */}
           <motion.div 
             variants={containerVariants}
             initial="hidden"
             animate="show"
-            className="bg-[#edead7] rounded-xl p-6 shadow-md"
+            className="mb-8"
           >
             <motion.h3 
               variants={itemVariants}
               className="text-xl font-semibold text-gray-800 mb-4"
             >
-              Past Tests & Evaluations
+              Upcoming Tests & Evaluations
             </motion.h3>
-            <div className="space-y-6">
-              {pastTests.map((test, index) => (
+            <div className="grid md:grid-cols-2 gap-6">
+              {upcomingTests.map((test) => (
                 <motion.div 
                   key={test.id}
                   variants={itemVariants}
-                  className={`${index !== pastTests.length - 1 ? "border-b border-gray-300 pb-4" : ""}`}
+                  whileHover={{ 
+                    y: -5, 
+                    boxShadow: "0px 10px 20px rgba(0, 0, 0, 0.1)",
+                    transition: { type: "spring", stiffness: 300, damping: 15 }
+                  }}
+                  className="bg-[#e2c3ae] rounded-xl p-6 shadow-md"
                 >
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <h4 className="font-semibold text-gray-800">{test.name}</h4>
-                      <p className="text-gray-600 mt-1">{test.description}</p>
+                  <h4 className="font-semibold text-lg text-gray-800">{test.name}</h4>
+                  <p className="text-gray-600 mt-1">{test.description}</p>
+                  <div className="flex justify-between items-center mt-6">
+                    <div className="flex items-center">
+                      <Clock size={18} className="text-gray-600 mr-2" />
+                      <span className="text-gray-700">{test.duration}</span>
                     </div>
-                    <div className="text-xl font-bold text-gray-800">
-                      {test.score}%
-                    </div>
+                    {test.status === 'ready' ? (
+                      <motion.button 
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        className="bg-white text-gray-800 px-6 py-2 rounded-full font-medium shadow-sm hover:shadow-md transition-all duration-300"
+                      >
+                        Start
+                      </motion.button>
+                    ) : (
+                      <span className="bg-gray-200 text-gray-500 px-6 py-2 rounded-full font-medium">
+                        Scheduled
+                      </span>
+                    )}
                   </div>
                 </motion.div>
               ))}
             </div>
           </motion.div>
 
-          {/* Performance Analysis Section */}
-          <motion.div 
-            variants={containerVariants}
-            initial="hidden"
-            animate="show"
-            className="bg-[#edead7] rounded-xl p-6 shadow-md"
-          >
-            <motion.h3 
-              variants={itemVariants}
-              className="text-xl font-semibold text-gray-800 mb-4"
+          <div className="grid md:grid-cols-2 gap-8">
+            {/* Past Tests Section */}
+            <motion.div 
+              variants={containerVariants}
+              initial="hidden"
+              animate="show"
+              className="bg-[#edead7] rounded-xl p-6 shadow-md"
             >
-              Performance Analysis
-            </motion.h3>
-            <div className="h-48 w-full">
-              <div className="relative h-full">
-                <div className="absolute left-0 h-full flex flex-col justify-between py-2">
-                  {[100, 80, 60, 40, 20, 0].map((value) => (
-                    <div key={value} className="text-gray-500 text-sm">{value}</div>
-                  ))}
-                </div>
-                <div className="pl-8 h-full">
-                  <svg width="100%" height="100%" viewBox="0 0 500 180">
-                    <polyline
-                      fill="none"
-                      stroke="#d56c4e"
-                      strokeWidth="3"
-                      points={performanceData.map((p, i) => `${i * 70 + 10},${180 - p.score * 1.8}`).join(' ')}
-                    />
-                    {performanceData.map((p, i) => (
-                      <circle
-                        key={i}
-                        cx={i * 70 + 10}
-                        cy={180 - p.score * 1.8}
-                        r="4"
-                        fill="#d56c4e"
-                      />
+              <motion.h3 
+                variants={itemVariants}
+                className="text-xl font-semibold text-gray-800 mb-4"
+              >
+                Past Tests & Evaluations
+              </motion.h3>
+              <div className="space-y-6">
+                {pastTests.map((test, index) => (
+                  <motion.div 
+                    key={test.id}
+                    variants={itemVariants}
+                    className={`${index !== pastTests.length - 1 ? "border-b border-gray-300 pb-4" : ""}`}
+                  >
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <h4 className="font-semibold text-gray-800">{test.name}</h4>
+                        <p className="text-gray-600 mt-1">{test.description}</p>
+                      </div>
+                      <div className="text-xl font-bold text-gray-800">
+                        {test.score}%
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
+
+            {/* Performance Analysis Section */}
+            <motion.div 
+              variants={containerVariants}
+              initial="hidden"
+              animate="show"
+              className="bg-[#edead7] rounded-xl p-6 shadow-md"
+            >
+              <motion.h3 
+                variants={itemVariants}
+                className="text-xl font-semibold text-gray-800 mb-4"
+              >
+                Performance Analysis
+              </motion.h3>
+              <div className="h-48 w-full">
+                <div className="relative h-full">
+                  <div className="absolute left-0 h-full flex flex-col justify-between py-2">
+                    {[100, 80, 60, 40, 20, 0].map((value) => (
+                      <div key={value} className="text-gray-500 text-sm">{value}</div>
                     ))}
-                  </svg>
+                  </div>
+                  <div className="pl-8 h-full">
+                    <svg width="100%" height="100%" viewBox="0 0 500 180">
+                      <polyline
+                        fill="none"
+                        stroke="#d56c4e"
+                        strokeWidth="3"
+                        points={performanceData.map((p, i) => `${i * 70 + 10},${180 - p.score * 1.8}`).join(' ')}
+                      />
+                      {performanceData.map((p, i) => (
+                        <circle
+                          key={i}
+                          cx={i * 70 + 10}
+                          cy={180 - p.score * 1.8}
+                          r="4"
+                          fill="#d56c4e"
+                        />
+                      ))}
+                    </svg>
+                  </div>
                 </div>
               </div>
-            </div>
-            <div className="text-center text-sm text-gray-500 mt-2">SCORE PERCENTAGES</div>
-            <div className="mt-4 text-gray-600">
-              <p>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. 
-                Sed eget augue malesuada, hendrerit augue et, varius erat. 
-                Praesent molestie massa imperdiet, pharetra ante vel, 
-                convallis augue...
-              </p>
-              <motion.button 
-                whileHover={{ scale: 1.03 }}
-                className="mt-4 flex items-center text-[#d56c4e] font-medium"
-              >
-                View detailed insights
-                <ChevronRight size={16} className="ml-1" />
-              </motion.button>
-            </div>
-          </motion.div>
+              <div className="text-center text-sm text-gray-500 mt-2">SCORE PERCENTAGES</div>
+              <div className="mt-4 text-gray-600">
+                <p>
+                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. 
+                  Sed eget augue malesuada, hendrerit augue et, varius erat. 
+                  Praesent molestie massa imperdiet, pharetra ante vel, 
+                  convallis augue...
+                </p>
+                <motion.button 
+                  whileHover={{ scale: 1.03 }}
+                  className="mt-4 flex items-center text-[#d56c4e] font-medium"
+                >
+                  View detailed insights
+                  <ChevronRight size={16} className="ml-1" />
+                </motion.button>
+              </div>
+            </motion.div>
+          </div>
         </div>
       </div>
-    </div>
+    </AuthGuard>
   );
 }

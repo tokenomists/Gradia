@@ -1,0 +1,98 @@
+import React, { useState, useRef, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { User, Settings, LogOut, ChevronDown } from 'lucide-react';
+import { logout } from '../../utils/auth.js'
+import { useRouter } from 'next/navigation';
+
+export const UserDropdown = () => {
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef(null);
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    await logout();
+    router.push("/"); // Redirect to Home page
+    router.refresh();
+  };
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+    
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+  
+  const dropdownVariants = {
+    hidden: { opacity: 0, y: -5, scale: 0.95 },
+    visible: { 
+      opacity: 1, 
+      y: 0, 
+      scale: 1,
+      transition: {
+        type: 'spring',
+        stiffness: 300,
+        damping: 20
+      }
+    },
+    exit: { 
+      opacity: 0, 
+      y: -5, 
+      scale: 0.95,
+      transition: { duration: 0.2 }
+    }
+  };
+
+  const menuItems = [
+    { icon: <User size={16} />, label: 'Profile', action: () => console.log('Profile clicked') },
+    { icon: <Settings size={16} />, label: 'Settings', action: () => console.log('Settings clicked') },
+    { icon: <LogOut size={16} />, label: 'Logout', action: handleLogout }
+  ];
+
+  return (
+    <div className="relative" ref={dropdownRef}>
+      <motion.div 
+        whileHover={{ scale: 1.1 }}
+        onClick={() => setIsOpen(!isOpen)}
+        className="bg-white rounded-full w-10 h-10 flex items-center justify-center cursor-pointer"
+      >
+        <User className="text-[#d56c4e]" size={20} />
+      </motion.div>
+      
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            variants={dropdownVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg overflow-hidden z-50"
+          >
+            <div className="py-1">
+              {menuItems.map((item, index) => (
+                <motion.div
+                  key={index}
+                  whileHover={{ 
+                    backgroundColor: "#f8f0e6",
+                    transition: { duration: 0.2 }
+                  }}
+                  className="px-4 py-3 flex items-center cursor-pointer text-gray-700 hover:text-[#d56c4e] transition-colors duration-200"
+                  onClick={item.action}
+                >
+                  <span className="mr-3 text-gray-500">{item.icon}</span>
+                  <span className="font-medium">{item.label}</span>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
