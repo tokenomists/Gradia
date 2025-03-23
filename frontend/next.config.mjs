@@ -4,6 +4,14 @@ const nextConfig = {
   swcMinify: true,
   images: {
     domains: ['localhost', 'images.unsplash.com'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'lh3.googleusercontent.com',
+        port: '',
+        pathname: '/**',
+      }
+    ]
   },
 };
 

@@ -1,17 +1,21 @@
-import { Inter } from 'next/font/google';
-import './globals.css';
+// frontend/src/app/layout.js
+"use client";
+import { ErrorProvider } from '@/contexts/ErrorContext';
+import './globals.css'; // Your global CSS if you have one
 
-const inter = Inter({ subsets: ['latin'] });
-
-export const metadata = {
-  title: 'Gradia | AI-Powered Teacher Assistant Platform',
-  description: 'Revolutionize grading with AI-powered feedback',
-};
+// export const metadata = {
+//   title: 'Your App Name',
+//   description: 'Your app description',
+// };
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body className={`${inter.className} bg-white`}>{children}</body>
+      <body>
+        <ErrorProvider>
+          {children}
+        </ErrorProvider>
+      </body>
     </html>
   );
 }

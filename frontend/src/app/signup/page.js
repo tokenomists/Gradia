@@ -22,6 +22,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import GoogleLoginButton from '@/components/auth/GoogleLoginButton';
 import instance from '@/utils/axios';
+import { useError } from '@/contexts/ErrorContext';
 
 export default function Signup() {
   const [activeTab, setActiveTab] = useState('student');
@@ -50,6 +51,7 @@ export default function Signup() {
   const controls = useAnimationControls();
   const logoControls = useAnimationControls();
   const router = useRouter();
+  const { showError } = useError();
 
   useEffect(() => {
     // Initial entrance animation
@@ -151,7 +153,7 @@ export default function Signup() {
     e.preventDefault();
     
     const { fname, lname, email, password, confirmPassword } = formData;
-    console.log("Form data:", formData);
+    
     // Validation
     if (!fname || !lname || !email || !password || !confirmPassword) {
       setError('Please fill in all fields');
@@ -181,28 +183,40 @@ export default function Signup() {
         password: formData.password
       });
 
-      if (response.data.success) {
+      const data = response.data;
+
+      if (response.status === 201) {
         setSuccess(true);
         
         // Redirect to login after successful signup
         setTimeout(() => {
           router.push('/signin');
         }, 1500);
+      } else if (data.error === 'ROLE_CONFLICT') {
+        showError(data.message);
+        router.push('/');
       } else {
-        setError(response.data.message || 'Signup failed');
+        setError(data.message || 'Registration failed');
       }
     } catch (error) {
       console.error("Signup error:", error);
-      setError(
-        error.response?.data?.message || 
-        error.response?.data?.error ||
-        error.message || 
-        'An error occurred during signup'
-      );
+      
+      // Check if the error is a role conflict
+      if (error.response?.data?.error === 'ROLE_CONFLICT') {
+        showError(error.response.data.message);
+        router.push('/');
+      } else {
+        setError(
+          error.response?.data?.message || 
+          error.response?.data?.error ||
+          error.message || 
+          'An error occurred during signup'
+        );
+      }
     } finally {
       setIsLoading(false);
     }
-  };
+};
 
   // Calculate direction for animations
   const determineDirection = (newTab) => {

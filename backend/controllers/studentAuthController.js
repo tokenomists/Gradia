@@ -1,4 +1,5 @@
 import Student from "../models/Student.js";
+import Teacher from '../models/Teacher.js';
 import jwt from 'jsonwebtoken'
 import bcrypt from "bcryptjs";
 
@@ -20,15 +21,44 @@ export const registerStudent = async (req, res) => {
       return res.status(400).json({ message: "Student already exists" });
     }
 
-    if(fname && lname) {
-      const student = await Student.create({ fname, lname, email, password });
-    } else {
-      const student = await Student.create({ email, password });
+    const existingTeacher = await Teacher.findOne({ email });
+    if(existingTeacher) {
+      return res.status(400).json({ message: "This email is already registered as a Teacher." });
     }
-    res.status(201).json({ message: "Student registered successfully", token: generateToken(student._id) });
+
+    const student = await Student.create({ fname, lname, email, password });
+
+    const token = generateToken(student._id);
+    res.cookie("token", token, {
+      httpOnly: true,  // Prevents access via JavaScript for security
+      secure: process.env.NODE_ENV === "production",  // Use secure cookies in production
+      sameSite: "Strict",  // Prevent CSRF attacks
+      maxAge: 3600000,  // Cookie expiration time (1 hour)
+    });
+    
+    res.cookie("role", "student", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "Strict",
+      maxAge: 3600000,
+    });
+
+    res.cookie("email", email, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "Strict",
+      maxAge: 3600000,
+    });
+    
+    res.status(201).json({ message: "Student registered successfully", token: token });
 
   } catch (error) {
-    res.status(500).json({ message: "Error registering student", error: error.message });
+    res.status(500).json({ 
+      success: false,
+      error: 'SERVER_ERROR',
+      message: "Error registering student", 
+      details: error.message 
+    });
   }
 };
 
@@ -56,14 +86,21 @@ export const loginStudent = async (req, res) => {
         maxAge: 3600000,
     });
 
-    res.cookie("email", email, {
-        httpOnly: true, // Allow client-side access if needed (consider security implications)
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "Strict",
-        maxAge: 3600000, // 1 hour (same as token)
+    res.cookie("role", "student", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "Strict",
+      maxAge: 3600000,
     });
 
-    res.status(200).json({ success: true, message: "Student logged in successfully" });
+    res.cookie("email", email, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "Strict",
+      maxAge: 3600000,
+    });
+
+    res.status(200).json({ success: true, message: "Student logged in successfully", token: token });
   } catch (error) {
     res.status(500).json({ success: false, message: "Error logging in", error: error.message });
   }
@@ -71,8 +108,16 @@ export const loginStudent = async (req, res) => {
 
 export const getStudentProfile = async (req, res) => {
     const { email, token } = req.cookies;
+
+    const student = await Student.findOne({ email });
+    if (!student) {
+      return res.status(400).json({ success: false, message: "Student not found! Invalid email" });
+    }
+    
+    console.log(student);
+
     if(token) {
-        return res.status(200).json({ email: email, password: token });
+        return res.status(200).json({ email: email,  });
     }
     res.status(403).json({message: "Unauthorized - No token found!"});
 };

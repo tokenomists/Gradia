@@ -7,6 +7,7 @@ const TeacherSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   password: { type: String }, // Only required for email/password auth
   googleId: { type: String }, // Used for Google OAuth authentication
+  profilePicture: { type: String }, // URL to profile picture
   // classes: [{ type: mongoose.Schema.Types.ObjectId, ref: "Class" }], // List of created classes
 }, {
     timestamps: true,
