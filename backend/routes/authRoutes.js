@@ -22,33 +22,49 @@ router.get(
 
 router.get(
   "/student/google/callback",
-  passport.authenticate("student-google", { failureRedirect: `${CLIENT_URL}/signin` }),
-  (req, res) => {
-    const { token } = req.user;
-    
-    res.cookie("token", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "Strict",
-      maxAge: 3600000,
-    });
+  (req, res, next) => {
+    passport.authenticate("student-google", (err, userData) => {
+      if (err) {
+        // Handle server error
+        return res.redirect(`${CLIENT_URL}/?error=AUTH_ERROR&message=${encodeURIComponent('Authentication failed. Please try again.')}`);
+      }
+      
+      if (!userData) {
+        return res.redirect(`${CLIENT_URL}/?error=AUTH_ERROR&message=${encodeURIComponent('Authentication failed. Please try again.')}`);
+      }
+      
+      // Check if this is an error response from our strategy
+      if (userData.error) {
+        return res.redirect(`${CLIENT_URL}/?error=${userData.errorCode}&message=${encodeURIComponent(userData.message)}`);
+      }
+      
+      // Success, set cookies and redirect
+      const { token, email } = userData;
+      
+      res.cookie("token", token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "Strict",
+        maxAge: 3600000,
+      });
 
-    res.cookie("role", "student", {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "Strict",
-      maxAge: 3600000,
-    });
+      res.cookie("role", "student", {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "Strict",
+        maxAge: 3600000,
+      });
 
-    res.cookie("email", req.user.email, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "Strict",
-      maxAge: 3600000,
-    });
+      res.cookie("email", email, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "Strict",
+        maxAge: 3600000,
+      });
 
-    // Redirect to frontend with token
-    res.redirect(`${CLIENT_URL}/oauth-success?token=${token}&role=student`);
+      // Redirect to success page
+      res.redirect(`${CLIENT_URL}/oauth-success?token=${token}&role=student`);
+    })(req, res, next);
   }
 );
   
@@ -60,40 +76,56 @@ router.get(
 
 router.get(
   "/teacher/google/callback",
-  passport.authenticate("teacher-google", { failureRedirect: `${CLIENT_URL}` }),
-  (req, res) => {
-    const { token } = req.user;
-    
-    res.cookie("token", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "Strict",
-      maxAge: 3600000,
-    });
+  (req, res, next) => {
+    passport.authenticate("teacher-google", (err, userData) => {
+      if (err) {
+        // Handle server error
+        return res.redirect(`${CLIENT_URL}/?error=AUTH_ERROR&message=${encodeURIComponent('Authentication failed. Please try again.')}`);
+      }
+      
+      if (!userData) {
+        return res.redirect(`${CLIENT_URL}/?error=AUTH_ERROR&message=${encodeURIComponent('Authentication failed. Please try again.')}`);
+      }
+      
+      // Check if this is an error response from our strategy
+      if (userData.error) {
+        return res.redirect(`${CLIENT_URL}/?error=${userData.errorCode}&message=${encodeURIComponent(userData.message)}`);
+      }
+      
+      // Success, set cookies and redirect
+      const { token, email, picture } = userData;
+      
+      res.cookie("token", token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "Strict",
+        maxAge: 3600000,
+      });
 
-    res.cookie("role", "teacher", {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "Strict",
-      maxAge: 3600000,
-    });
+      res.cookie("role", "teacher", {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "Strict",
+        maxAge: 3600000,
+      });
 
-    res.cookie("email", req.user.email, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "Strict",
-      maxAge: 3600000,
-    });
+      res.cookie("email", email, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "Strict",
+        maxAge: 3600000,
+      });
 
-    res.cookie("profilePicture", req.user.picture, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "Strict",
-      maxAge: 3600000,
-    });
+      res.cookie("profilePicture", picture, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "Strict",
+        maxAge: 3600000,
+      });
 
-    // Redirect to frontend with token
-    res.redirect(`${CLIENT_URL}/oauth-success?token=${token}&role=teacher`);
+      // Redirect to success page
+      res.redirect(`${CLIENT_URL}/oauth-success?token=${token}&role=teacher`);
+    })(req, res, next);
   }
 );
 

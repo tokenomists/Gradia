@@ -1,4 +1,5 @@
 import Teacher from "../models/Teacher.js";
+import Student from "../models/Student.js";
 import jwt from 'jsonwebtoken';
 import bcrypt from "bcryptjs";
 
@@ -20,12 +21,22 @@ export const registerTeacher = async (req, res) => {
       return res.status(400).json({ message: "Teacher already exists" });
     }
 
+    const existingStudent = await Student.findOne({ email });
+    if (existingStudent) {
+      return res.status(400).json({ message: "This email is already registered as a student" });
+    }
+
     await Teacher.create({ fname, lname, email, password });    
 
     res.status(201).json({ message: "Teacher registered successfully" });
 
   } catch (error) {
-    res.status(500).json({ message: "Error registering teacher", error: error.message });
+    res.status(500).json({ 
+      success: false,
+      error: 'SERVER_ERROR',
+      message: "Error registering student", 
+      details: error.message 
+    });
   }
 };
 

@@ -9,9 +9,11 @@ dotenv.config();
 
 const generateToken = (id, role) => jwt.sign({ id, role }, process.env.JWT_SECRET, { expiresIn: "7d" });
 
+// In passport.js, modify the setupGoogleAuth function:
+
 const setupGoogleAuth = (userType) => {
   passport.use(
-    `${userType}-google`, // Strategy name
+    `${userType}-google`,
     new GoogleStrategy(
       {
         clientID: process.env.GOOGLE_CLIENT_ID,
@@ -24,27 +26,55 @@ const setupGoogleAuth = (userType) => {
         try {
           const { given_name, family_name, email, picture } = profile._json;
           console.log("Profile:", profile);
+          
+          // Fix: Add await to properly check for existing users in other role
+          const OtherModel = userType === "student" ? Teacher : Student;
+          let existingInOther = await OtherModel.findOne({ email: email });
+          
+          if(existingInOther) {
+            // Return standardized error response
+            return done(null, {
+              error: true,
+              errorCode: 'ROLE_CONFLICT',
+              message: `This email is already registered as a ${userType === "student" ? "teacher" : "student"}.`
+            });
+          }
 
           const Model = userType === "student" ? Student : Teacher;
           let user = await Model.findOne({ googleId: profile.id });
 
           if (!user) {
-            user = await Model.create({
-              fname: given_name,
-              lname: family_name,
-              email: email,
-              googleId: profile.id,
-              profilePicture: picture,
-            });
+            // Also check by email for manual registrations
+            user = await Model.findOne({ email: email });
             
-            await user.save();
+            if (!user) {
+              user = await Model.create({
+                fname: given_name,
+                lname: family_name === undefined ? "" : family_name,
+                email: email,
+                googleId: profile.id,
+                profilePicture: picture,
+              });
+              
+              await user.save();
+            } else {
+              // Update the Google ID for the existing email user
+              user.googleId = profile.id;
+              user.profilePicture = user.profilePicture || picture;
+              await user.save();
+            }
           }
 
           const token = generateToken(user._id, userType);
           
-          return done(null, { user, token, email }); // Send JWT token with respons
+          return done(null, { user, token, email });
         } catch (error) {
-          return done(error, null);
+          console.error("OAuth error:", error);
+          return done(null, {
+            error: true,
+            errorCode: 'AUTH_ERROR',
+            message: 'Authentication failed. Please try again.'
+          });
         }
       }
     )
