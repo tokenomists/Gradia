@@ -1,17 +1,27 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { User, Settings, LogOut, ChevronDown } from 'lucide-react';
-import { logout } from '../../utils/auth.js'
-import { useRouter } from 'next/navigation';
-
+import React, { useState, useRef, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { User, Settings, LogOut } from "lucide-react";
+import { logout, isAuthenticated } from "../../utils/auth.js";
+import { useRouter } from "next/navigation";
 export const UserDropdown = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [user, setUser] = useState(null);
   const dropdownRef = useRef(null);
   const router = useRouter();
 
+  useEffect(() => {
+    const fetchUser = async () => {
+      const userData = await isAuthenticated();
+      console.log("User Data:", userData);
+      setUser(userData);
+    };
+
+    fetchUser();
+  }, []);
+
   const handleLogout = async () => {
     await logout();
-    router.push("/"); // Redirect to Home page
+    router.push("/");
     router.refresh();
   };
 
@@ -22,49 +32,53 @@ export const UserDropdown = () => {
         setIsOpen(false);
       }
     };
-    
-    document.addEventListener('mousedown', handleClickOutside);
+
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
-  
+
   const dropdownVariants = {
     hidden: { opacity: 0, y: -5, scale: 0.95 },
-    visible: { 
-      opacity: 1, 
-      y: 0, 
+    visible: {
+      opacity: 1,
+      y: 0,
       scale: 1,
       transition: {
-        type: 'spring',
+        type: "spring",
         stiffness: 300,
-        damping: 20
-      }
+        damping: 20,
+      },
     },
-    exit: { 
-      opacity: 0, 
-      y: -5, 
+    exit: {
+      opacity: 0,
+      y: -5,
       scale: 0.95,
-      transition: { duration: 0.2 }
-    }
+      transition: { duration: 0.2 },
+    },
   };
 
   const menuItems = [
-    { icon: <User size={16} />, label: 'Profile', action: () => console.log('Profile clicked') },
-    { icon: <Settings size={16} />, label: 'Settings', action: () => console.log('Settings clicked') },
-    { icon: <LogOut size={16} />, label: 'Logout', action: handleLogout }
+    { icon: <User size={16} />, label: "Profile", action: () => console.log("Profile clicked") },
+    { icon: <Settings size={16} />, label: "Settings", action: () => console.log("Settings clicked") },
+    { icon: <LogOut size={16} />, label: "Logout", action: handleLogout },
   ];
 
   return (
     <div className="relative" ref={dropdownRef}>
-      <motion.div 
+      <motion.div
         whileHover={{ scale: 1.1 }}
         onClick={() => setIsOpen(!isOpen)}
-        className="bg-white rounded-full w-10 h-10 flex items-center justify-center cursor-pointer"
+        className="bg-white rounded-full w-10 h-10 flex items-center justify-center cursor-pointer overflow-hidden"
       >
-        <User className="text-[#d56c4e]" size={20} />
+        {user?.profilePic ? (
+          <img src={user.profilePic} width={20} height={20} alt="User Profile" className="w-full h-full rounded-full" />
+        ) : (
+          <User className="text-[#d56c4e]" size={20} />
+        )}
       </motion.div>
-      
+
       <AnimatePresence>
         {isOpen && (
           <motion.div
@@ -78,9 +92,9 @@ export const UserDropdown = () => {
               {menuItems.map((item, index) => (
                 <motion.div
                   key={index}
-                  whileHover={{ 
+                  whileHover={{
                     backgroundColor: "#f8f0e6",
-                    transition: { duration: 0.2 }
+                    transition: { duration: 0.2 },
                   }}
                   className="px-4 py-3 flex items-center cursor-pointer text-gray-700 hover:text-[#d56c4e] transition-colors duration-200"
                   onClick={item.action}

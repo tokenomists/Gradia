@@ -153,7 +153,7 @@ export default function Login() {
   
       if (response.data.success && response.data.token) {  
         setTimeout(() => {
-          router.push(`/${activeTab}/dashboard`);
+          router.push(`/`);
         }, 100); 
       } else {
         setError(response.data.message || 'Login failed');

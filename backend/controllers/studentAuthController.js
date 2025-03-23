@@ -30,6 +30,20 @@ export const registerStudent = async (req, res) => {
       maxAge: 3600000,  // Cookie expiration time (1 hour)
     });
     
+    res.cookie("role", "student", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "Strict",
+      maxAge: 3600000,
+    });
+
+    res.cookie("email", email, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "Strict",
+      maxAge: 3600000,
+    });
+    
     res.status(201).json({ message: "Student registered successfully", token: token });
 
   } catch (error) {
@@ -62,6 +76,13 @@ export const loginStudent = async (req, res) => {
     });
 
     res.cookie("role", "student", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "Strict",
+      maxAge: 3600000,
+    });
+
+    res.cookie("email", email, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "Strict",

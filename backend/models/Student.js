@@ -3,10 +3,11 @@ import bcrypt from 'bcryptjs';
 
 const StudentSchema = new mongoose.Schema({
   fname: { type: String, required: true },
-  lname: { type: String, required: true },
+  lname: { type: String, required: false, default: "" },
   email: { type: String, required: true, unique: true },
   password: { type: String }, // Only required for email/password auth
   googleId: { type: String }, // Used for Google OAuth authentication
+  profilePicture: { type: String }, // URL to profile picture
   // classes: [{ type: mongoose.Schema.Types.ObjectId, ref: "Class" }], // List of joined classes
 }, {
     timestamps: true,

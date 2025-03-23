@@ -22,29 +22,27 @@ const setupGoogleAuth = (userType) => {
       },
       async (req, accessToken, refreshToken, profile, done) => {
         try {
+          const { given_name, family_name, email, picture } = profile._json;
+          console.log("Profile:", profile);
+
           const Model = userType === "student" ? Student : Teacher;
           let user = await Model.findOne({ googleId: profile.id });
 
           if (!user) {
             user = await Model.create({
-              fname: profile.name.givenName,
-              lname: profile.name.familyName,
-              email: profile.emails[0].value,
+              fname: given_name,
+              lname: family_name,
+              email: email,
               googleId: profile.id,
+              profilePicture: picture,
             });
             
             await user.save();
           }
 
           const token = generateToken(user._id, userType);
-
-          // res.cookie("token", token, {
-          //   httpOnly: true,
-          //   sameSite: true,
-          //   maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-          // });
           
-          return done(null, { user, token }); // Send JWT token with respons
+          return done(null, { user, token, email }); // Send JWT token with respons
         } catch (error) {
           return done(error, null);
         }
@@ -54,11 +52,14 @@ const setupGoogleAuth = (userType) => {
 };
 
 passport.serializeUser((user, done) => {
-  done(null, user);
+  console.log("Serializing user:", user);
+  done(null, { id: user._id, email: user.email, fname: user.fname, lname: user.lname, token: user.token });
 });
 
-passport.deserializeUser((user, done) => {
-  done(null, user);
+passport.deserializeUser((obj, done) => {
+  console.log("Deserializing user:", obj);
+  done(null, obj);
 });
+
 
 export { setupGoogleAuth };
