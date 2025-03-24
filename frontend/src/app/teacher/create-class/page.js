@@ -169,7 +169,7 @@ export default function CreateClass() {
       {/* Main Content */}
       <div className="max-w-3xl mx-auto px-4 py-8">
         <div className="flex items-center mb-6">
-          <Link href="/teacher/dashboard" className="flex items-center text-gray-700 hover:text-[#e07a5f]">
+          <Link href="/" className="flex items-center text-gray-700 hover:text-[#e07a5f]">
             <ArrowLeft className="mr-2" size={20} />
             <span>Back to Dashboard</span>
           </Link>

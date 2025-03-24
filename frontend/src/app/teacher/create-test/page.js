@@ -31,16 +31,21 @@ export default function CreateTest() {
     { id: 3, name: 'CS301 - Database Systems' }
   ]);
 
-  useEffect(async () => {
-    const { isLoggedIn, role } = await isAuthenticated();
-    if(!isLoggedIn) {
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { isLoggedIn, role } = await isAuthenticated();
+      if (!isLoggedIn) {
         localStorage.setItem("notification", JSON.stringify({ type: "error", message: "Login to access protected pages!" }));
         window.location.href = '/';
-    } else if(role !== 'teacher') {
+      } else if (role !== 'teacher') {
         localStorage.setItem("notification", JSON.stringify({ type: "error", message: "Students cannot access pages related to teacher!" }));
-        window.location.href= '/';
-    }
+        window.location.href = '/';
+      }
+    };
+  
+    checkAuth();
   }, []);
+  
 
   // Calculate duration when start and end times change
   useEffect(() => {

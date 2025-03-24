@@ -71,6 +71,13 @@ export const loginTeacher = async (req, res) => {
       maxAge: 3600000,
    });
 
+   res.cookie("email", email, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "Strict",
+    maxAge: 3600000,
+  });
+
     res.status(200).json({ success: true, message: "Teacher logged in successfully", token: token });
 
   } catch (error) {
