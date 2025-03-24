@@ -46,15 +46,16 @@ const teacherQuotes = [
 ];
 
 export default function TeacherDashboard() {
-  const [currentQuote, setCurrentQuote] = useState('');
-  const [expandedTest, setExpandedTest] = useState(null);
-  const [user, setUser] = useState({
-      isLoggedIn: false,
-      role: 'teacher',
-      email: '',
-      name: '',
-      profilePic: '',
+    const [currentQuote, setCurrentQuote] = useState('');
+    const [expandedTest, setExpandedTest] = useState(null);
+    const [user, setUser] = useState({
+        isLoggedIn: false,
+        role: 'teacher',
+        email: '',
+        name: '',
+        profilePic: '',
     });
+    const router = useRouter();    
   
     useEffect(() => {
       const fetchUser = async () => {
@@ -135,6 +136,7 @@ export default function TeacherDashboard() {
             </motion.button>
             
             <motion.button
+            onClick={() => {router.push('/teacher/create-class')}}
             whileHover={{ scale: 1.05, boxShadow: "0px 5px 15px rgba(0, 0, 0, 0.1)" }}
             whileTap={{ scale: 0.95 }}
             className="bg-[#e2c3ae] hover:bg-[#d5b69d] text-gray-800 font-medium py-2 px-4 rounded-lg flex items-center gap-2"

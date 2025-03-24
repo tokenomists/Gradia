@@ -165,7 +165,8 @@ export default function StudentDashboard() {
         >
             Welcome back, {user.name}
         </motion.h2>
-        <motion.button 
+        <motion.button
+            onClick={() => {router.push('/student/join-class')}}
             whileHover={{ scale: 1.05, boxShadow: "0px 0px 8px rgba(213, 108, 78, 0.6)" }}
             className="flex items-center bg-[#e2c3ae] hover:bg-[#d5b5a0] text-gray-800 px-4 py-2 rounded-lg font-medium shadow-sm transition-all duration-300"
         >
