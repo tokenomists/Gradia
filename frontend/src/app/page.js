@@ -7,6 +7,7 @@ import LandingPage from "@/components/pages/LandingPage";
 import StudentDashboard from "@/components/pages/StudentDashboard";
 import TeacherDashboard from "@/components/pages/TeacherDashboard";
 import { useError } from "@/contexts/ErrorContext";
+import { useSuccess } from "@/contexts/SuccessContext";
 
 const Home = () => {
   const [auth, setAuth] = useState(null);
@@ -14,7 +15,37 @@ const Home = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { showError } = useError();
-  
+  const { showSuccess } = useSuccess();
+  const [isPageLoaded, setIsPageLoaded] = useState(false);
+
+  useEffect(() => {
+    // Set page as fully loaded
+    setIsPageLoaded(true);
+  }, []);
+
+  useEffect(() => {
+    if (isPageLoaded) {
+      // Retrieve the notification from local storage
+      const notification = localStorage.getItem("notification");
+
+      if (notification) {
+        const { type, message } = JSON.parse(notification);
+
+        // Display the appropriate message
+        if (type === "error") {
+          showError(message);
+        } else if (type === "success") {
+          showSuccess(message);
+        }
+
+        // Clear the notification from storage
+        localStorage.removeItem("notification");
+      }
+    }
+  }, [isPageLoaded, showError, showSuccess]);
+
+
+
   useEffect(() => {
     // Check for error parameters in the URL
     const error = searchParams.get('error');
@@ -27,7 +58,20 @@ const Home = () => {
       // Remove the error parameters from the URL by redirecting
       window.history.replaceState({}, '', '/');
     }
-  }, [searchParams, showError]);
+
+    // Check for success parameters in the URL
+    const success = searchParams.get('success');
+    const successMessage = searchParams.get('message');
+
+    if (success && successMessage) {
+      // Show the success message
+      showSuccess(decodeURIComponent(successMessage));
+      
+      // Remove the success parameters from the URL by redirecting
+      window.history.replaceState({}, '', '/');
+    }
+
+  }, [searchParams, showError, showSuccess]);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -43,7 +87,17 @@ const Home = () => {
     checkAuth();
   }, []);
 
-  if (auth === null) return <div className="flex justify-center items-center min-h-screen">Loading...</div>;
+  if (auth === null) return (
+    <div
+      className="flex justify-center items-center min-h-screen"
+      style={{ backgroundColor: "#edead7" }}
+    >
+      <div className="flex flex-col items-center space-y-4">
+        <div className="animate-spin w-12 h-12 border-t-4 border-gray-800 rounded-full"></div>
+        <p className="text-xl text-gray-800 font-semibold">Loading...</p>
+      </div>
+    </div>
+  );
 
   return auth ? (role === 'student' ? <StudentDashboard /> : <TeacherDashboard />) : <LandingPage />;
 };

@@ -1,3 +1,4 @@
+import Class from "./Class.js";
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 
@@ -8,7 +9,7 @@ const TeacherSchema = new mongoose.Schema({
   password: { type: String }, // Only required for email/password auth
   googleId: { type: String }, // Used for Google OAuth authentication
   profilePicture: { type: String }, // URL to profile picture
-  // classes: [{ type: mongoose.Schema.Types.ObjectId, ref: "Class" }], // List of created classes
+  classes: [{ type: mongoose.Schema.Types.ObjectId, ref: "Class" }], // List of created classes
 }, {
     timestamps: true,
     collection: "teachers"

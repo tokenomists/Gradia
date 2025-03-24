@@ -23,8 +23,9 @@ export const UserDropdown = () => {
 
   const handleLogout = async () => {
     await logout();
+    localStorage.setItem("notification", JSON.stringify({ type: "success", message: "Successfully logged out!" }));
     router.push("/");
-    router.refresh();
+    // router.refresh();
   };
 
   // Close dropdown when clicking outside

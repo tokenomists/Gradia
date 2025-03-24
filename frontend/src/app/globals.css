@@ -20,6 +20,10 @@
   background: #b3593f;
 }
 
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
 /* Custom selection color */
 ::selection {
   background: #d56c4e;

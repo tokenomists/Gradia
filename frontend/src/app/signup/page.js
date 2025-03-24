@@ -193,7 +193,8 @@ export default function Signup() {
           router.push('/signin');
         }, 1500);
       } else if (data.error === 'ROLE_CONFLICT') {
-        showError(data.message);
+        // showError(data.message);
+        localStorage.setItem("notification", JSON.stringify({ type: "warning", message: data.message }));
         router.push('/');
       } else {
         setError(data.message || 'Registration failed');
@@ -203,7 +204,8 @@ export default function Signup() {
       
       // Check if the error is a role conflict
       if (error.response?.data?.error === 'ROLE_CONFLICT') {
-        showError(error.response.data.message);
+        // showError(error.response.data.message);
+        localStorage.setItem("notification", JSON.stringify({ type: "warning", message: error.response.data.message }));
         router.push('/');
       } else {
         setError(
