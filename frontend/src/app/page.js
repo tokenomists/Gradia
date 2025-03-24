@@ -7,6 +7,7 @@ import LandingPage from "@/components/pages/LandingPage";
 import StudentDashboard from "@/components/pages/StudentDashboard";
 import TeacherDashboard from "@/components/pages/TeacherDashboard";
 import { useError } from "@/contexts/ErrorContext";
+import { useSuccess } from "@/contexts/SuccessContext";
 
 const Home = () => {
   const [auth, setAuth] = useState(null);
@@ -14,6 +15,7 @@ const Home = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { showError } = useError();
+  const { showSuccess } = useSuccess();
   
   useEffect(() => {
     // Check for error parameters in the URL
@@ -27,7 +29,20 @@ const Home = () => {
       // Remove the error parameters from the URL by redirecting
       window.history.replaceState({}, '', '/');
     }
-  }, [searchParams, showError]);
+
+    // Check for success parameters in the URL
+    const success = searchParams.get('success');
+    const successMessage = searchParams.get('message');
+
+    if (success && successMessage) {
+      // Show the success message
+      showSuccess(decodeURIComponent(successMessage));
+      
+      // Remove the success parameters from the URL by redirecting
+      window.history.replaceState({}, '', '/');
+    }
+
+  }, [searchParams, showError, showSuccess]);
 
   useEffect(() => {
     const checkAuth = async () => {

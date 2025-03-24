@@ -6,6 +6,8 @@ import { ArrowLeft } from 'lucide-react';
 import instance from '@/utils/axios.js';
 import { UserDropdown } from '@/components/dashboard/UserDropdown';
 import { useError } from '@/contexts/ErrorContext';
+import { useSuccess } from '@/contexts/SuccessContext';
+import { isAuthenticated } from '@/utils/auth';
 
 export default function JoinClass() {
   const [classCode, setClassCode] = useState('');
@@ -13,6 +15,7 @@ export default function JoinClass() {
   
   const router = useRouter();
   const { showError } = useError();
+  const { showSuccess } = useSuccess();
   
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -30,6 +33,7 @@ export default function JoinClass() {
       });
       
       if (response.data.success) {
+        showSuccess("Successfully joined class")
         router.push('/'); // Redirect to dashboard on success
       } else {
         showError(response.data.message || 'Failed to join class');

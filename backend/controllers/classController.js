@@ -137,12 +137,16 @@ export const joinClass = async (req, res) => {
     // Add student to class
     classToJoin.students.push(student._id);
     
+    // Also add class to student's classes array
+    student.classes.push(classToJoin._id);
+
     // Remove from invited emails if present
     if (classToJoin.invitedEmails.includes(student.email)) {
       classToJoin.invitedEmails = classToJoin.invitedEmails.filter(email => email !== student.email);
     }
     
     await classToJoin.save();
+    await student.save();
     
     res.status(200).json({ 
       success: true, 
