@@ -127,6 +127,7 @@ export default function TeacherDashboard() {
         
         <div className="flex space-x-4">
             <motion.button
+            onClick={() => {router.push('/teacher/create-test')}}
             whileHover={{ scale: 1.05, boxShadow: "0px 5px 15px rgba(0, 0, 0, 0.1)" }}
             whileTap={{ scale: 0.95 }}
             className="bg-[#e2c3ae] hover:bg-[#d5b69d] text-gray-800 font-medium py-2 px-4 rounded-lg flex items-center gap-2"
