@@ -322,7 +322,7 @@ export default function Login() {
         <AnimatePresence>
           {error && (
             <motion.div 
-              className="bg-red-50 border border-red-100 text-red-600 px-4 py-3 mx-6 mb-6 rounded-lg flex items-center gap-2"
+              className="bg-red-100 border border-red-100 text-red-600 px-4 py-3 mx-6 mb-6 rounded-lg flex items-center gap-2"
               initial={{ opacity: 0, height: 0, marginBottom: 0, padding: 0 }}
               animate={{ 
                 opacity: 1, 

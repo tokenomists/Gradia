@@ -35,7 +35,7 @@ const OAuthSuccess = () => {
   return (
     <div className="flex justify-center items-center min-h-screen bg-[#edead7]">
       <div className="flex flex-col items-center space-y-4">
-        <div className="animate-spin w-16 h-16 border-t-4 border-white rounded-full"></div>
+        <div className="animate-spin w-16 h-16 border-t-4 border-black rounded-full"></div>
         <p className="text-2xl text-black font-bold tracking-wider">
           Processing your login...
         </p>
