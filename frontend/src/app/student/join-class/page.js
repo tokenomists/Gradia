@@ -33,7 +33,8 @@ export default function JoinClass() {
       });
       
       if (response.data.success) {
-        showSuccess("Successfully joined class")
+        // showSuccess("Successfully joined class");
+        localStorage.setItem("notification", JSON.stringify({ type: "success", message: "Successfully joined the class!" }));
         router.push('/'); // Redirect to dashboard on success
       } else {
         showError(response.data.message || 'Failed to join class');
@@ -69,9 +70,9 @@ export default function JoinClass() {
       {/* Main Content */}
       <div className="max-w-xl mx-auto px-4 py-8">
         <div className="flex items-center mb-6">
-          <Link href="/student/dashboard" className="flex items-center text-gray-700 hover:text-[#e07a5f]">
+          <Link href="/" className="flex items-center text-gray-700 hover:text-[#e07a5f]">
             <ArrowLeft className="mr-2" size={20} />
-            <span>Back to Dashboard</span>
+              <span>Back to Dashboard</span>
           </Link>
         </div>
         
