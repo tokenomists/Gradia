@@ -8,6 +8,7 @@ import classRoutes from './routes/classRoutes.js';
 import passport from "passport";
 import session from "express-session";
 import { setupGoogleAuth } from "./config/passport.js";
+import authMiddleware from "./middlewares/authMiddleware.js";
 
 dotenv.config();
 const app = express();
@@ -44,13 +45,14 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
-// ✅ Register Google OAuth strategies before using routes
+// Register Google OAuth strategies before using routes
 setupGoogleAuth("student");
 setupGoogleAuth("teacher");
 
-// ✅ Now, define routes
+// Now, define routes
 app.use("/api/auth", authRoutes);
-app.use("/api/classes", classRoutes);
+
+app.use("/api/classes", authMiddleware,classRoutes);
 
 const PORT = process.env.PORT || 5000;
 

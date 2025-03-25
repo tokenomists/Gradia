@@ -382,34 +382,6 @@ export default function CreateTest() {
                     </select>
                   </div>
                 </div>
-
-                <div className="p-4 border border-gray-300 rounded-md bg-white">
-                  <label className="block mb-3 font-medium">Test Type <span className="text-red-500">*</span></label>
-                  <div className="flex space-x-6">
-                    <label className="inline-flex items-center">
-                      <input
-                        type="radio"
-                        name="testType"
-                        value="handwritten"
-                        checked={testData.testType === 'handwritten'}
-                        onChange={handleTestDetailsChange}
-                        className="mr-2"
-                      />
-                      <span>Handwritten (OCR)</span>
-                    </label>
-                    <label className="inline-flex items-center">
-                      <input
-                        type="radio"
-                        name="testType"
-                        value="typed"
-                        checked={testData.testType === 'typed'}
-                        onChange={handleTestDetailsChange}
-                        className="mr-2"
-                      />
-                      <span>Typed</span>
-                    </label>
-                  </div>
-                </div>
                 
                 <div className="flex items-center">
                   <label className="inline-flex items-center">

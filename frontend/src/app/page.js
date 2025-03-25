@@ -16,33 +16,24 @@ const Home = () => {
   const searchParams = useSearchParams();
   const { showError } = useError();
   const { showSuccess } = useSuccess();
-  const [isPageLoaded, setIsPageLoaded] = useState(false);
 
   useEffect(() => {
-    // Set page as fully loaded
-    setIsPageLoaded(true);
-  }, []);
+    const notification = localStorage.getItem("notification");
 
-  useEffect(() => {
-    if (isPageLoaded) {
-      // Retrieve the notification from local storage
-      const notification = localStorage.getItem("notification");
+    if (notification) {
+      const { type, message } = JSON.parse(notification);
 
-      if (notification) {
-        const { type, message } = JSON.parse(notification);
-
-        // Display the appropriate message
-        if (type === "error") {
-          showError(message);
-        } else if (type === "success") {
-          showSuccess(message);
-        }
-
-        // Clear the notification from storage
-        localStorage.removeItem("notification");
+      // Display the appropriate message
+      if (type === "error") {
+        showError(message);
+      } else if (type === "success") {
+        showSuccess(message);
       }
+
+      // Clear the notification from storage
+      localStorage.removeItem("notification");
     }
-  }, [isPageLoaded, showError, showSuccess]);
+  }, [showError, showSuccess]);
 
 
 

@@ -198,28 +198,6 @@ export default function StudentDashboard() {
     }
   ];
 
-  // Enrolled classes data
-  const enrolledClasses = [
-    { 
-      id: 1, 
-      name: 'Design & Analysis of Algorithms', 
-      instructor: 'Dr. Smith',
-      nextClass: 'Tomorrow, 10:00 AM'
-    },
-    { 
-      id: 2, 
-      name: 'Database Management Systems', 
-      instructor: 'Prof. Johnson',
-      nextClass: 'Wednesday, 2:00 PM'
-    },
-    { 
-      id: 3, 
-      name: 'Computer Networks', 
-      instructor: 'Dr. Williams',
-      nextClass: 'Friday, 11:30 AM'
-    }
-  ];
-
   return (
     <div className="min-h-screen bg-[#fcf9ea]">
       {/* Navbar */}
@@ -376,9 +354,9 @@ export default function StudentDashboard() {
           </motion.h3>
           
           <div className="grid md:grid-cols-3 gap-4">
-            {enrolledClasses.map((classItem) => (
+            {user.classes != undefined && user.classes.map((classItem) => (
               <motion.div 
-                key={classItem.id}
+                key={classItem._id}
                 variants={itemVariants}
                 whileHover={{ 
                   y: -5, 
@@ -388,10 +366,10 @@ export default function StudentDashboard() {
                 className="bg-white rounded-xl p-4 shadow-md border-l-4 border-[#d56c4e]"
               >
                 <h4 className="font-semibold text-gray-800">{classItem.name}</h4>
-                <p className="text-gray-600 text-sm">{classItem.instructor}</p>
+                <p className="text-gray-600 text-sm">{classItem.teacher}</p>
                 <div className="flex items-center mt-3 text-xs text-gray-500">
                   <Calendar size={14} className="mr-1" />
-                  <span>Next: {classItem.nextClass}</span>
+                  <span>Next: {classItem.nextClass || "NOT SCHEDULED"}</span>
                 </div>
                 <motion.button 
                   whileHover={{ scale: 1.03 }}

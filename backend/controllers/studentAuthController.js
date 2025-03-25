@@ -114,10 +114,10 @@ export const getStudentProfile = async (req, res) => {
       return res.status(400).json({ success: false, message: "Student not found! Invalid email" });
     }
     
-    console.log(student);
+    // console.log(student);
 
     if(token) {
-        return res.status(200).json({ email: email,  });
+        return res.status(200).json(student);
     }
     res.status(403).json({message: "Unauthorized - No token found!"});
 };
