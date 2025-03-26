@@ -1,8 +1,8 @@
 import express from 'express';
 const router = express.Router();
 import passport from 'passport';
-import { registerStudent, loginStudent, getStudentProfile } from '../controllers/studentAuthController.js';
-import { registerTeacher, loginTeacher, getTeacherProfile } from '../controllers/teacherAuthController.js';
+import { registerStudent, loginStudent, getStudentProfile, getStudentTests } from '../controllers/studentAuthController.js';
+import { registerTeacher, loginTeacher, getTeacherProfile, getTeacherClasses } from '../controllers/teacherAuthController.js';
 import authMiddleware from '../middlewares/authMiddleware.js';
 import Student from '../models/Student.js';
 import Teacher from '../models/Teacher.js';
@@ -172,11 +172,13 @@ router.get("/check", async (req, res) => {
 router.post("/student/register", registerStudent);
 router.post("/student/login", loginStudent);
 // router.get("/student/delete", deleteStudent);
+router.get("/student/tests", getStudentTests);
 
 // Teacher Auth Routes
 router.post("/teacher/register", registerTeacher);
 router.post("/teacher/login", loginTeacher);
 // router.get("/teacher/delete", deleteTeacher);
+router.get('/teacher/classes', getTeacherClasses);
 
 router.post("/logout", (req, res) => {
   for(const cookie in req.cookies) {

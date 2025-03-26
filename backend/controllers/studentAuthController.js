@@ -1,5 +1,6 @@
 import Student from "../models/Student.js";
 import Teacher from '../models/Teacher.js';
+import Test from "../models/Test.js";
 import jwt from 'jsonwebtoken'
 import bcrypt from "bcryptjs";
 
@@ -120,4 +121,42 @@ export const getStudentProfile = async (req, res) => {
         return res.status(200).json(student);
     }
     res.status(403).json({message: "Unauthorized - No token found!"});
+};
+
+// Get all the attempted and upcoming tests for the student.
+export const getStudentTests = async (req, res) => {
+  try {
+    // Extract JWT token from cookies
+    const token = req.cookies.token;
+    if (!token) return res.status(401).json({ message: "Unauthorized" });
+
+    // Decode token
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const studentId = decoded.id;
+
+    // Find student and their enrolled classes
+    const student = await Student.findById(studentId).populate("classes");
+    if (!student) return res.status(404).json({ message: "Student not found" });
+
+    // Extract class IDs
+    const classIds = student.classes.map((cls) => cls._id);
+
+    // Fetch upcoming and past tests
+    const currentTime = new Date();
+    
+    const upcomingTests = await Test.find({
+      classAssignment: { $in: classIds },
+      endTime: { $gte: currentTime },
+    }).sort({ startTime: 1 });
+
+    const previousTests = await Test.find({
+      classAssignment: { $in: classIds },
+      endTime: { $lt: currentTime },
+    }).sort({ endTime: -1 });
+
+    res.status(200).json({ upcomingTests, previousTests });
+  } catch (error) {
+    console.error("Error fetching student tests:", error);
+    res.status(500).json({ message: "Error fetching tests", error: error.message });
+  }
 };

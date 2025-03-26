@@ -1,25 +1,15 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { PenLine, Plus, ChevronDown, X } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { UserDropdown } from '@/components/dashboard/UserDropdown.jsx';
-import { isAuthenticated } from '@/utils/auth';
-
-// Sample data for demonstration
-const classesData = [
-  { id: 1, code: 'CSE F', name: 'Design and Analysis of Algorithms', students: 42 },
-  { id: 2, code: 'CSE A', name: 'Operating Systems', students: 38 },
-];
-
-const testsData = [
-  { id: 1, name: 'OS Test 4', description: 'Lorem ipsum dolor sit amet, consectetur...', date: '2025-03-15' },
-  { id: 2, name: 'DAA Test 3', description: 'Lorem ipsum dolor sit amet, consectetur...', date: '2025-03-10' },
-  { id: 3, name: 'OS Test 3', description: 'Lorem ipsum dolor sit amet, consectetur...', date: '2025-03-05' },
-];
+import { isAuthenticated } from '@/utils/auth.js';
+import { getTestsForTeacher } from '@/utils/test.js';
+import { getClassesForTeacher } from '@/utils/class.js';
 
 const performanceData = {
   'Operating System': [
@@ -53,18 +43,36 @@ export default function TeacherDashboard() {
         role: 'teacher',
         email: '',
         name: '',
-        profilePic: '',
+        profilePic: ''
     });
+    const [testsData, setTestsData] = useState([]);
+    const [classesData, setClassesData] = useState([]);
     const router = useRouter();    
   
     useEffect(() => {
       const fetchUser = async () => {
         const userData = await isAuthenticated();
-        console.log("User Data:", userData);
+        // console.log("User Data:", userData);
         setUser(userData);
       };
+
+      const fetchTests = async () => {
+        let tests = await getTestsForTeacher();
+        // console.log("Tests Data:", tests.previousTests);
+        if(tests) tests = tests.previousTests;
+        else tests = [];
+        setTestsData(tests);
+      }
   
+      const fetchClasses = async () => {
+        const classes = await getClassesForTeacher();
+        // console.log("Classes Data: ", classes);
+        if(classes) setClassesData(classes);
+      }
+
       fetchUser();
+      fetchTests();
+      fetchClasses();
     }, []);
 
   // Rotate quotes every 10 seconds
@@ -79,6 +87,42 @@ export default function TeacherDashboard() {
     
     return () => clearInterval(interval);
   }, []);
+
+  const classesContainerRef = useRef(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+
+  // Add this useEffect similar to the one for tests
+  useEffect(() => {
+    const checkScroll = () => {
+      if (classesContainerRef.current) {
+        const { scrollLeft, scrollWidth, clientWidth } = classesContainerRef.current;
+        setCanScrollLeft(scrollLeft > 0);
+        setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 10);
+      }
+    };
+
+    checkScroll();
+    
+    const container = classesContainerRef.current;
+    if (container) {
+      container.addEventListener('scroll', checkScroll);
+      return () => container.removeEventListener('scroll', checkScroll);
+    }
+  }, []);
+
+  // Add scroll functions
+  const scrollLeft = () => {
+    if (classesContainerRef.current) {
+      classesContainerRef.current.scrollBy({ left: -250, behavior: 'smooth' });
+    }
+  };
+
+  const scrollRight = () => {
+    if (classesContainerRef.current) {
+      classesContainerRef.current.scrollBy({ left: 250, behavior: 'smooth' });
+    }
+  };
 
   return (
     <div className="min-h-screen bg-[#fcf9ea]">
@@ -149,46 +193,79 @@ export default function TeacherDashboard() {
         </div>
         
         {/* Classes Section */}
-        <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.1 }}
-        className="bg-[#edead7] rounded-xl p-6 shadow-md mb-8"
+<motion.div 
+  initial={{ opacity: 0, y: 20 }}
+  animate={{ opacity: 1, y: 0 }}
+  transition={{ duration: 0.5, delay: 0.1 }}
+  className="bg-[#edead7] rounded-xl p-6 shadow-md mb-8"
+>
+  <h2 className="text-2xl font-bold text-gray-800 mb-4">Classes</h2>
+  
+  <div className="relative bg-[#fcf4e0] rounded-xl p-4 shadow-sm">
+    {/* Scroll Left Button */}
+    {canScrollLeft && (
+      <motion.button 
+        onClick={scrollLeft}
+        className="absolute left-2 top-1/2 -translate-y-1/2 z-10 bg-white/80 hover:bg-white rounded-full p-1 shadow-md"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        whileHover={{ scale: 1.1 }}
+      >
+        <ChevronLeft size={20} className="text-gray-800" />
+      </motion.button>
+    )}
+    
+    {/* Scroll Right Button */}
+    {canScrollRight && (
+      <motion.button 
+        onClick={scrollRight}
+        className="absolute right-2 top-1/2 -translate-y-1/2 z-10 bg-white/80 hover:bg-white rounded-full p-1 shadow-md"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        whileHover={{ scale: 1.1 }}
+      >
+        <ChevronRight size={20} className="text-gray-800" />
+      </motion.button>
+    )}
+    
+    {/* Scrollable container */}
+    <div 
+      ref={classesContainerRef} 
+      className="flex space-x-4 overflow-x-auto pb-2 scrollbar-hide"
+      style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+    >
+      {classesData.map((classItem) => (
+        <motion.div
+          key={classItem._id}
+          whileHover={{ 
+            scale: 1.03, 
+            backgroundColor: "#e9e5d0",
+            boxShadow: "0px 8px 20px rgba(0, 0, 0, 0.08)"
+          }}
+          className="bg-[#e2c3ae] rounded-lg p-4 cursor-pointer min-w-[240px] w-[240px] flex-shrink-0"
         >
-        <h2 className="text-2xl font-bold text-gray-800 mb-4">Classes</h2>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {classesData.map((classItem) => (
-            <motion.div
-                key={classItem.id}
-                whileHover={{ 
-                scale: 1.03, 
-                backgroundColor: "#e9e5d0",
-                boxShadow: "0px 8px 20px rgba(0, 0, 0, 0.08)"
-                }}
-                className="bg-[#e2c3ae] rounded-lg p-4 cursor-pointer"
-            >
-                <h3 className="text-lg font-bold text-gray-800">{classItem.code}</h3>
-                <p className="text-gray-700">{classItem.name}</p>
-                <p className="text-gray-600 text-sm mt-2">{classItem.students} students</p>
-            </motion.div>
-            ))}
-            
-            <motion.div
-            whileHover={{ 
-                scale: 1.03,
-                backgroundColor: "#e9e5d0",
-                boxShadow: "0px 8px 20px rgba(0, 0, 0, 0.08)"
-            }}
-            className="bg-[#e2c3ae] rounded-lg p-4 cursor-pointer border-2 border-dashed border-gray-400 flex items-center justify-center"
-            >
-            <div className="text-center">
-                <Plus size={24} className="mx-auto text-gray-600" />
-                <p className="text-gray-600 mt-2">Add New Class</p>
-            </div>
-            </motion.div>
-        </div>
+          <h3 className="text-lg font-bold text-gray-800">{classItem.code}</h3>
+          <p className="text-gray-700">{classItem.name}</p>
+          <p className="text-gray-600 text-sm mt-2">{classItem.students} students</p>
         </motion.div>
+      ))}
+      
+      <motion.div
+        whileHover={{ 
+          scale: 1.03,
+          backgroundColor: "#e9e5d0",
+          boxShadow: "0px 8px 20px rgba(0, 0, 0, 0.08)"
+        }}
+        className="bg-[#e2c3ae] rounded-lg p-4 cursor-pointer border-2 border-dashed border-gray-400 flex items-center justify-center min-w-[240px] w-[240px] flex-shrink-0"
+      >
+        <div className="text-center">
+          <Plus size={24} className="mx-auto text-gray-600" />
+          <p className="text-gray-600 mt-2">Add New Class</p>
+        </div>
+      </motion.div>
+    </div>
+  </div>
+</motion.div>
         
         {/* Past Tests & Evaluations */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -201,14 +278,14 @@ export default function TeacherDashboard() {
             <h2 className="text-2xl font-bold text-gray-800 mb-4">Past Tests & Evaluations</h2>
             
             <div className="space-y-4">
-            {testsData.map((test) => (
-                <div key={test.id} className="border-b border-gray-300 pb-4">
+            {testsData !== undefined && testsData !== null && testsData.map((test) => (
+                <div key={test._id} className="border-b border-gray-300 pb-4">
                 <div 
                     className="flex justify-between items-start cursor-pointer"
-                    onClick={() => setExpandedTest(expandedTest === test.id ? null : test.id)}
+                    onClick={() => setExpandedTest(expandedTest === test._id ? null : test._id)}
                 >
                     <div>
-                    <h3 className="text-lg font-bold text-gray-800">{test.name}</h3>
+                    <h3 className="text-lg font-bold text-gray-800">{test.title}</h3>
                     <p className="text-gray-600 text-sm">{test.description}</p>
                     </div>
                     <motion.div
@@ -219,7 +296,7 @@ export default function TeacherDashboard() {
                     </motion.div>
                 </div>
                 
-                {expandedTest === test.id && (
+                {expandedTest === test._id && (
                     <motion.div 
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: 'auto' }}
@@ -227,7 +304,7 @@ export default function TeacherDashboard() {
                     transition={{ duration: 0.3 }}
                     className="mt-3 pl-2 border-l-2 border-[#d56c4e]"
                     >
-                    <p className="text-gray-700">Date: {new Date(test.date).toLocaleDateString()}</p>
+                    <p className="text-gray-700">Date: {new Date(test.startTime).toLocaleDateString()}</p>
                     <div className="flex mt-2 space-x-2">
                         <button className="bg-[#d56c4e] text-white px-3 py-1 rounded-md text-sm">
                         View Results

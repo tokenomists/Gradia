@@ -5,6 +5,7 @@ import cookieParser from "cookie-parser";
 import connectDb from './config/db.js';
 import authRoutes from "./routes/authRoutes.js";
 import classRoutes from './routes/classRoutes.js';
+import testRoutes from './routes/testRoutes.js';
 import passport from "passport";
 import session from "express-session";
 import { setupGoogleAuth } from "./config/passport.js";
@@ -51,8 +52,8 @@ setupGoogleAuth("teacher");
 
 // Now, define routes
 app.use("/api/auth", authRoutes);
-
 app.use("/api/classes", authMiddleware,classRoutes);
+app.use("/api/tests", authMiddleware, testRoutes);
 
 const PORT = process.env.PORT || 5000;
 

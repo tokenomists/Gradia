@@ -17,6 +17,7 @@ import {
 import { useRouter } from 'next/navigation';
 import { UserDropdown } from '@/components/dashboard/UserDropdown.jsx';
 import { isAuthenticated } from '@/utils/auth.js';
+import { getTestsForStudent } from '@/utils/test.js';
 
 export default function StudentDashboard() {
   const [user, setUser] = useState({
@@ -26,7 +27,11 @@ export default function StudentDashboard() {
     name: '',
     profilePic: '',
   });
-  
+  const [testData, setTestData] = useState({
+    upcomingTests: [],
+    previousTests: []
+  });
+
   const testsContainerRef = useRef(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
@@ -34,11 +39,21 @@ export default function StudentDashboard() {
   useEffect(() => {
     const fetchUser = async () => {
       const userData = await isAuthenticated();
-      console.log("User Data:", userData);
+      // console.log("User Data:", userData);
       setUser(userData);
     };
     fetchUser();
   }, []);
+
+  useEffect(() => {
+    const fetchTests = async () => {
+      const testData = await getTestsForStudent();
+      console.log(testData);
+      setTestData(testData);
+    };
+
+    fetchTests();
+  }, [user]);
 
   useEffect(() => {
     const checkScroll = () => {
@@ -129,73 +144,6 @@ export default function StudentDashboard() {
     { name: 'Test 6', score: 70 },
     { name: 'Test 7', score: 65 },
     { name: 'Test 8', score: 75 }
-  ];
-
-  // Past tests data
-  const pastTests = [
-    { id: 3, name: 'DAA Test 3', description: 'Lorem ipsum dolor sit amet, consectetur...', score: 100 },
-    { id: 2, name: 'DAA Test 2', description: 'Lorem ipsum dolor sit amet, consectetur...', score: 90 },
-    { id: 1, name: 'DAA Test 1', description: 'Lorem ipsum dolor sit amet, consectetur...', score: 80 }
-  ];
-
-  // Upcoming tests data
-  const upcomingTests = [
-    { 
-      id: 4, 
-      name: 'DAA Test 4', 
-      description: 'Lorem ipsum dolor sit...', 
-      duration: '10 min',
-      status: 'ready'
-    },
-    { 
-      id: 5, 
-      name: 'DAA Test 5', 
-      description: 'Lorem ipsum dolor sit...', 
-      duration: '15 min',
-      status: 'scheduled'
-    },
-    { 
-      id: 6, 
-      name: 'DAA Test 6', 
-      description: 'Lorem ipsum dolor sit...', 
-      duration: '20 min',
-      status: 'scheduled'
-    },
-    { 
-      id: 7, 
-      name: 'DAA Test 7', 
-      description: 'Lorem ipsum dolor sit...', 
-      duration: '25 min',
-      status: 'scheduled'
-    },
-    { 
-      id: 4, 
-      name: 'DAA Test 4', 
-      description: 'Lorem ipsum dolor sit...', 
-      duration: '10 min',
-      status: 'ready'
-    },
-    { 
-      id: 5, 
-      name: 'DAA Test 5', 
-      description: 'Lorem ipsum dolor sit...', 
-      duration: '15 min',
-      status: 'scheduled'
-    },
-    { 
-      id: 6, 
-      name: 'DAA Test 6', 
-      description: 'Lorem ipsum dolor sit...', 
-      duration: '20 min',
-      status: 'scheduled'
-    },
-    { 
-      id: 7, 
-      name: 'DAA Test 7', 
-      description: 'Lorem ipsum dolor sit...', 
-      duration: '25 min',
-      status: 'scheduled'
-    }
   ];
 
   return (
@@ -299,9 +247,9 @@ export default function StudentDashboard() {
               className="flex space-x-4 overflow-x-auto pb-2 scrollbar-hide"
               style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
             >
-              {upcomingTests.map((test) => (
+              {testData.upcomingTests.map((test) => (
                 <motion.div 
-                  key={test.id}
+                  key={test._id}
                   variants={itemVariants}
                   whileHover={{ 
                     y: -5, 
@@ -310,8 +258,8 @@ export default function StudentDashboard() {
                   }}
                   className="bg-[#e2c3ae] rounded-xl p-4 shadow-md min-w-[240px] w-[240px] flex-shrink-0"
                 >
-                  <h4 className="font-semibold text-base text-gray-800">{test.name}</h4>
-                  <p className="text-gray-600 text-sm">{test.description}</p>
+                  <h4 className="font-semibold text-base text-gray-800">{test.title}</h4>
+                  <p className="text-gray-600 text-sm truncate">{test.description}</p>
                   
                   <div className="flex justify-between items-center mt-4">
                     <div className="flex items-center">
@@ -398,7 +346,7 @@ export default function StudentDashboard() {
               Past Tests & Evaluations
             </motion.h3>
             <div className="space-y-6">
-              {pastTests.map((test, index) => (
+              {testData.previousTests.map((test, index) => (
                 <motion.div 
                   key={test.id}
                   variants={itemVariants}

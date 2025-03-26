@@ -28,6 +28,10 @@ const ClassSchema = new mongoose.Schema({
   invitedEmails: [{ 
     type: String 
   }],
+  tests: [{ 
+    type: mongoose.Schema.Types.ObjectId, 
+    ref: 'Test'
+  }],
   createdAt: { 
     type: Date, 
     default: Date.now 

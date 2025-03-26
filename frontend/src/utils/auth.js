@@ -4,7 +4,7 @@ export const isAuthenticated = async () => {
     try {
         const response = await instance.get('/api/auth/check', { withCredentials: true });
         const data = response.data;
-        console.log(data);
+        // console.log(data);
         return {
             ...data,
             isLoggedIn: data.isAuthenticated, 
