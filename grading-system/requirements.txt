@@ -1,0 +1,9 @@
+Flask
+tools
+pymupdf
+numpy
+sentence-transformers
+google-genai
+google-cloud-storage
+google-cloud-aiplatform
+google-cloud-vision
