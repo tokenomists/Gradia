@@ -48,7 +48,7 @@ export default function StudentDashboard() {
   useEffect(() => {
     const fetchTests = async () => {
       const testData = await getTestsForStudent();
-      console.log(testData);
+      // console.log(testData);
       setTestData(testData);
     };
 
@@ -350,11 +350,11 @@ export default function StudentDashboard() {
                 <motion.div 
                   key={test.id}
                   variants={itemVariants}
-                  className={`${index !== pastTests.length - 1 ? "border-b border-gray-300 pb-4" : ""}`}
+                  className={`${index !== testData.previousTests.length - 1 ? "border-b border-gray-300 pb-4" : ""}`}
                 >
                   <div className="flex justify-between items-start">
                     <div>
-                      <h4 className="font-semibold text-gray-800">{test.name}</h4>
+                      <h4 className="font-semibold text-gray-800">{test.title}</h4>
                       <p className="text-gray-600 mt-1 text-sm">{test.description}</p>
                     </div>
                     <div className="text-xl font-bold text-gray-800">
