@@ -1,6 +1,10 @@
+import os
+import json
+import tempfile
 from flask import Flask, request, jsonify
 from utils import list_pdfs_in_gcs, extract_text_from_pdf, download_pdf_from_gcs, upload_file_to_gcs, delete_file_from_gcs, create_gcs_bucket, delete_gcs_bucket
 from grading import grade_answer, create_vector_db, retrieve_relevant_text
+from handwritten_ocr import detect_handwritten_text
 
 app = Flask(__name__)
 
@@ -98,6 +102,31 @@ def delete_file():
         return jsonify({"message": f"File '{file_name}' deleted successfully from bucket '{bucket_name}'."})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+@app.route("/handwritten-ocr", methods=["POST"])
+def detect_handwritten():
+    if "file" not in request.files:
+        return jsonify({"error": "No file part in the request"}), 400
+    file = request.files["file"]
+    if file.filename == "":
+        return jsonify({"error": "No selected file"}), 400
+
+    temp_file = None
+    try:
+        temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=os.path.splitext(file.filename)[1])
+        temp_file.close()
+        file.save(temp_file.name)
+        result = detect_handwritten_text(temp_file.name)
+        if os.path.exists(temp_file.name):
+            os.unlink(temp_file.name)
+        return jsonify(json.loads(result))
+    except Exception as e:
+        if temp_file and os.path.exists(temp_file.name):
+            try:
+                os.unlink(temp_file.name)
+            except PermissionError:
+                print(f"Warning: Could not delete temporary file {temp_file.name}: {str(e)}")
+        return jsonify({"error": f"Failed to process handwritten text: {str(e)}"}), 500
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8080)
