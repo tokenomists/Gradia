@@ -1,18 +1,34 @@
 import os
 import json
 import tempfile
+import secrets
+
 from flask import Flask, request, jsonify
+from functools import wraps
 from utils import list_pdfs_in_gcs, extract_text_from_pdf, download_pdf_from_gcs, upload_file_to_gcs, delete_file_from_gcs, create_gcs_bucket, delete_gcs_bucket
 from grading import grade_answer, create_vector_db, retrieve_relevant_text
 from handwritten_ocr import detect_handwritten_text
 
 app = Flask(__name__)
 
+GRADIA_API_KEY = os.getenv("GRADIA_API_KEY")
+
+def require_api_key(f):
+    @wraps(f)
+    def gradia_api_verify(*args, **kwargs):
+        client_api_key = request.headers.get("X-API-KEY")
+        if not client_api_key or not secrets.compare_digest(client_api_key, GRADIA_API_KEY):
+            return jsonify({"error": "Unauthorized. Invalid Gradia API Key."}), 401
+        return f(*args, **kwargs)
+    return gradia_api_verify
+
 @app.route("/", methods=["GET"])
+@require_api_key
 def home():
-    return "Hello there! The Gradia Grading System is up and running :)"
+    return "The Gradia Grading System is up and running :)"
 
 @app.route("/grade", methods=["POST"])
+@require_api_key
 def grade():
     data = request.get_json()
     question = data.get("question")
@@ -37,10 +53,12 @@ def grade():
 
     embeddings, stored_chunks = create_vector_db(all_text_chunks)
     retrieved_text = retrieve_relevant_text(question, embeddings, stored_chunks)
+    
     grading_result = grade_answer(question, student_answer, max_mark, retrieved_text, rubrics) if rubrics else grade_answer(question, student_answer, max_mark, retrieved_text)
     return jsonify(grading_result)
 
 @app.route("/create-gcs-bucket", methods=["POST"])
+@require_api_key
 def create_bucket():
     data = request.get_json()
     bucket_name = data.get("bucket_name")
@@ -53,6 +71,7 @@ def create_bucket():
         return jsonify({"error": str(e)}), 500
 
 @app.route("/delete-gcs-bucket", methods=["DELETE"])
+@require_api_key
 def delete_bucket():
     data = request.get_json()
     bucket_name = data.get("bucket_name")
@@ -65,6 +84,7 @@ def delete_bucket():
         return jsonify({"error": str(e)}), 500
 
 @app.route("/list-gcs-files", methods=["POST"])
+@require_api_key
 def list_pdfs():
     data = request.get_json()
     bucket_name = data.get("bucket_name")
@@ -77,6 +97,7 @@ def list_pdfs():
         return jsonify({"error": f"Failed to list PDFs: {str(e)}"}), 500
 
 @app.route("/upload-gcs-file", methods=["POST"])
+@require_api_key
 def upload_file():
     if "file" not in request.files:
         return jsonify({"error": "No file part in the request"}), 400
@@ -91,6 +112,7 @@ def upload_file():
         return jsonify({"error": str(e)}), 500
 
 @app.route("/delete-gcs-file", methods=["DELETE"])
+@require_api_key
 def delete_file():
     data = request.get_json()
     bucket_name = data.get("bucket_name")
@@ -104,6 +126,7 @@ def delete_file():
         return jsonify({"error": str(e)}), 500
 
 @app.route("/handwritten-ocr", methods=["POST"])
+@require_api_key
 def detect_handwritten():
     if "file" not in request.files:
         return jsonify({"error": "No file part in the request"}), 400
