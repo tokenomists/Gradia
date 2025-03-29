@@ -8,6 +8,7 @@ from functools import wraps
 from utils import list_pdfs_in_gcs, extract_text_from_pdf, download_pdf_from_gcs, upload_file_to_gcs, delete_file_from_gcs, create_gcs_bucket, delete_gcs_bucket
 from grading import grade_answer, create_vector_db, retrieve_relevant_text
 from handwritten_ocr import detect_handwritten_text
+from code_evaluator import submit_code, get_supported_languages, CodeSubmissionError
 
 app = Flask(__name__)
 
@@ -22,14 +23,16 @@ def require_api_key(f):
         return f(*args, **kwargs)
     return gradia_api_verify
 
+
 @app.route("/", methods=["GET"])
 @require_api_key
-def home():
+def home_endpoint():
     return "The Gradia Grading System is up and running :)"
+
 
 @app.route("/grade", methods=["POST"])
 @require_api_key
-def grade():
+def grade_answer_endpoint():
     data = request.get_json()
     question = data.get("question")
     student_answer = data.get("student_answer")
@@ -57,9 +60,10 @@ def grade():
     grading_result = grade_answer(question, student_answer, max_mark, retrieved_text, rubrics) if rubrics else grade_answer(question, student_answer, max_mark, retrieved_text)
     return jsonify(grading_result)
 
+
 @app.route("/create-gcs-bucket", methods=["POST"])
 @require_api_key
-def create_bucket():
+def create_gcs_bucket_endpoint():
     data = request.get_json()
     bucket_name = data.get("bucket_name")
     if not bucket_name:
@@ -70,9 +74,10 @@ def create_bucket():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+
 @app.route("/delete-gcs-bucket", methods=["DELETE"])
 @require_api_key
-def delete_bucket():
+def delete_gcs_bucket_endpoint():
     data = request.get_json()
     bucket_name = data.get("bucket_name")
     if not bucket_name:
@@ -83,9 +88,10 @@ def delete_bucket():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+
 @app.route("/list-gcs-files", methods=["POST"])
 @require_api_key
-def list_pdfs():
+def list_pdfs_in_gcs_endpoint():
     data = request.get_json()
     bucket_name = data.get("bucket_name")
     if not bucket_name:
@@ -96,9 +102,10 @@ def list_pdfs():
     except Exception as e:
         return jsonify({"error": f"Failed to list PDFs: {str(e)}"}), 500
 
+
 @app.route("/upload-gcs-file", methods=["POST"])
 @require_api_key
-def upload_file():
+def upload_file_to_gcs_endpoint():
     if "file" not in request.files:
         return jsonify({"error": "No file part in the request"}), 400
     file = request.files["file"]
@@ -111,9 +118,10 @@ def upload_file():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+
 @app.route("/delete-gcs-file", methods=["DELETE"])
 @require_api_key
-def delete_file():
+def delete_file_from_gcs_endpoint():
     data = request.get_json()
     bucket_name = data.get("bucket_name")
     file_name = data.get("file_name")
@@ -125,9 +133,10 @@ def delete_file():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+
 @app.route("/handwritten-ocr", methods=["POST"])
 @require_api_key
-def detect_handwritten():
+def detect_handwritten_text_endpoint():
     if "file" not in request.files:
         return jsonify({"error": "No file part in the request"}), 400
     file = request.files["file"]
@@ -150,6 +159,41 @@ def detect_handwritten():
             except PermissionError:
                 print(f"Warning: Could not delete temporary file {temp_file.name}: {str(e)}")
         return jsonify({"error": f"Failed to process handwritten text: {str(e)}"}), 500
+    
+
+@app.route('/get-languages', methods=['GET'])
+@require_api_key
+def get_supported_languages_endpoint():
+    return jsonify(get_supported_languages())
+
+
+@app.route('/submit-code', methods=['POST'])
+@require_api_key
+def submit_code_endpoint():
+    try:
+        data = request.get_json()
+        
+        required_fields = ['source_code', 'language', 'test_cases']
+        for field in required_fields:
+            if field not in data:
+                return jsonify({'error': f'Missing {field}'}), 400
+        
+        result = submit_code(
+            source_code=data['source_code'],
+            language=data['language'],
+            test_cases=data['test_cases']
+        )
+
+        return jsonify(result)
+    
+    except CodeSubmissionError as e:
+        return jsonify({'error': str(e)}), 400
+    except Exception as e:
+        return jsonify({
+            'error': 'Internal server error',
+            'details': str(e)
+        }), 500
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8080)
