@@ -128,47 +128,64 @@ def submit_code(source_code, language, test_cases):
     try:
         language_config = LANGUAGE_CONFIGS.get(language)
         if not language_config:
-            raise CodeSubmissionError('Unsupported language')
+            raise CodeSubmissionError(f"Unsupported language: {language}")
+
         prepared_source_code = prepare_source_code(source_code, language)
         test_results = []
 
         for idx, test_case in enumerate(test_cases, 1):
             try:
+                input_data = str(test_case.get("input", ""))
+                expected_output = test_case.get("expected_output", "")
+
                 token = submit_code_to_judge0(
-                    prepared_source_code, 
-                    language_config['id'], 
-                    stdin=str(test_case.get('input', ''))
+                    prepared_source_code,
+                    language_config["id"],
+                    stdin=input_data,
                 )
-                
+
                 result = get_submission_result(token)
-                
-                parsed_result = parse_submission_result(
-                    result, 
-                    test_case.get('expected_output', '')
+                parsed_result = parse_submission_result(result, expected_output)
+                parsed_result.update(
+                    {
+                        "test_case_id": idx,
+                        "input": input_data,
+                        "expected_output": expected_output,
+                    }
                 )
-                
-                parsed_result.update({
-                    'test_case_id': idx,
-                    'input': test_case.get('input', ''),
-                    'expected_output': test_case.get('expected_output', '')
-                })
-                
+
                 test_results.append(parsed_result)
-            
+
             except CodeSubmissionError as e:
-                test_results.append({
-                    'test_case_id': idx,
-                    'error': str(e),
-                    'passed': False,
-                    'verdict': 'Error'
-                })
-        
+                test_results.append(
+                    {
+                        "test_case_id": idx,
+                        "error": f"Code submission failed: {str(e)}",
+                        "passed": False,
+                        "verdict": "Error",
+                    }
+                )
+
+            except Exception as e:
+                test_results.append(
+                    {
+                        "test_case_id": idx,
+                        "error": f"Unexpected error occurred: {str(e)}",
+                        "passed": False,
+                        "verdict": "Error",
+                    }
+                )
+
         overall_result = {
-            'total_test_cases': len(test_results),
-            'passed_test_cases': sum(1 for result in test_results if result.get('passed')),
-            'test_results': test_results
+            "total_test_cases": len(test_results),
+            "passed_test_cases": sum(1 for result in test_results if result.get("passed")),
+            "test_results": test_results,
         }
-        
-        return overall_result  
+
+        return overall_result
+
+    except CodeSubmissionError as e:
+        raise CodeSubmissionError(f"Submission process failed: {str(e)}") from e
+
     except Exception as e:
-        raise
+        raise RuntimeError(f"Unexpected error in submit_code: {str(e)}") from e
