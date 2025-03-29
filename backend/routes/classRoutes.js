@@ -12,7 +12,7 @@ const router = express.Router();
 router.post('/create', createClass);
 
 // Get all classes for a teacher
-router.get('/teacher/classes', getTeacherClasses);
+// router.get('/teacher/classes', getTeacherClasses);
 
 // Join a class (students only)
 router.post('/join', joinClass);

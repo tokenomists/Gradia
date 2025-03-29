@@ -14,7 +14,7 @@ export const UserDropdown = () => {
   useEffect(() => {
     const fetchUser = async () => {
       const userData = await isAuthenticated();
-      console.log("User Data:", userData);
+      // console.log("User Data:", userData);
       setUser(userData);
     };
 

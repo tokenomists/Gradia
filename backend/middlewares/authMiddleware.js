@@ -1,19 +1,46 @@
-import jwt from 'jsonwebtoken';
+import jwt from "jsonwebtoken";
+import Student from "../models/Student.js";
+import Teacher from "../models/Teacher.js";
 
-const protect = (req, res, next) => {
-  const token = req.header("Authorization");
+const authMiddleware = async (req, res, next) => {
+    try {
+        const token = req.cookies.token;
+        const role = req.cookies.role;
+        const email = req.cookies.email;
 
-  if (!token) {
-    return res.status(401).json({ message: "No token, authorization denied" });
-  }
+        if (!token) {
+            return res.status(401).json({ message: "Unauthorized: No token provided" });
+        }
 
-  try {
-    const decoded = jwt.verify(token.replace("Bearer ", ""), process.env.JWT_SECRET);
-    req.user = decoded; // `{ id, role }`
-    next();
-  } catch (error) {
-    res.status(401).json({ message: "Invalid token" });
-  }
+        // Verify token
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+        if (!decoded) {
+            return res.status(401).json({ message: "Unauthorized: Invalid token" });
+        }
+
+        // Fetch user from DB
+        const Model = role === "student" ? Student : Teacher;
+        const user = await Model.findOne({ email });
+
+        if (!user) {
+            return res.status(401).json({ message: "Unauthorized: User not found" });
+        }
+
+        // Attach user details to request
+        req.user = {
+            id: user._id,
+            email: user.email,
+            role,
+            name: user.lname ? `${user.fname} ${user.lname}` : user.fname,
+            profilePic: user.profilePicture,
+        };
+
+        next();
+    } catch (error) {
+        console.error("Auth Middleware Error:", error);
+        res.status(401).json({ message: "Unauthorized: Token verification failed" });
+    }
 };
 
-export default protect;
+export default authMiddleware;

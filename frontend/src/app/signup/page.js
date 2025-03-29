@@ -23,6 +23,7 @@ import { useRouter } from 'next/navigation';
 import GoogleLoginButton from '@/components/auth/GoogleLoginButton';
 import instance from '@/utils/axios';
 import { useError } from '@/contexts/ErrorContext';
+import { isAuthenticated } from '@/utils/auth';
 
 export default function Signup() {
   const [activeTab, setActiveTab] = useState('student');
@@ -52,6 +53,19 @@ export default function Signup() {
   const logoControls = useAnimationControls();
   const router = useRouter();
   const { showError } = useError();
+
+  useEffect(() => {
+    const protect = async () => {
+      const { isLoggedIn } = await isAuthenticated();
+
+      if(isLoggedIn) {
+        localStorage.setItem("notification", JSON.stringify({ type: "warning", message: "Logout to login into a different account" }));
+        window.location.href = '/';
+      }
+    };
+
+    protect();
+  });
 
   useEffect(() => {
     // Initial entrance animation

@@ -4,11 +4,11 @@ export const isAuthenticated = async () => {
     try {
         const response = await instance.get('/api/auth/check', { withCredentials: true });
         const data = response.data;
-        return { 
+        // console.log(data);
+        return {
+            ...data,
             isLoggedIn: data.isAuthenticated, 
             role: data.role,
-            email: data.email,
-            name: data.name,
             profilePic: data.profilePic,
         };
     } catch (error) {

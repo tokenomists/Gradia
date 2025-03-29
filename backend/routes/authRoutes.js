@@ -1,18 +1,19 @@
 import express from 'express';
 const router = express.Router();
 import passport from 'passport';
-import { registerStudent, loginStudent, getStudentProfile } from '../controllers/studentAuthController.js';
-import { registerTeacher, loginTeacher, getTeacherProfile } from '../controllers/teacherAuthController.js';
+import { registerStudent, loginStudent, getStudentProfile, getStudentTests } from '../controllers/studentAuthController.js';
+import { registerTeacher, loginTeacher, getTeacherProfile, getTeacherClasses } from '../controllers/teacherAuthController.js';
+import authMiddleware from '../middlewares/authMiddleware.js';
 import Student from '../models/Student.js';
 import Teacher from '../models/Teacher.js';
 
 const CLIENT_URL = process.env.FRONTEND_URL || "http://localhost:3000";
 
 // Get student details
-router.get('/student/profile', getStudentProfile);
+router.get('/student/profile', authMiddleware, getStudentProfile);
 
 // Get teacher details
-router.get('/teacher/profile', getTeacherProfile);
+router.get('/teacher/profile', authMiddleware,getTeacherProfile);
 
 // Student Google Auth
 router.get(
@@ -134,20 +135,29 @@ router.get("/check", async (req, res) => {
     const Model = req.cookies.role === "student" ? Student : Teacher;
     
     try {
-      const user = await Model.findOne({ email: req.cookies.email });
+      let userQuery = Model.findOne({ email: req.cookies.email });
+
+      // Populate classes only for students
+      if (req.cookies.role === "student") {
+        userQuery = userQuery.populate("classes"); 
+      }
+
+      const user = await userQuery.select("-password"); // Exclude password from response
+
 
       if (!user) {
         return res.json({ isAuthenticated: false });
       }
-
+      
       res.json({ 
         isAuthenticated: true,
         role: req.cookies.role,
-        email: user.email,
         token: req.cookies.token,
-        name: (user.lname === undefined ? user.fname : `${user.fname} ${user.lname}`),
-        profilePic: user.profilePicture,
+        ...user._doc,
+        name: user.lname ? `${user.fname} ${user.lname}` : user.fname,
+        profilePic: user.profilePicture
       });
+      
     } catch (error) {
       console.error("Error fetching user:", error);
       res.status(500).json({ error: "Internal server error" });
@@ -162,11 +172,13 @@ router.get("/check", async (req, res) => {
 router.post("/student/register", registerStudent);
 router.post("/student/login", loginStudent);
 // router.get("/student/delete", deleteStudent);
+router.get("/student/tests", getStudentTests);
 
 // Teacher Auth Routes
 router.post("/teacher/register", registerTeacher);
 router.post("/teacher/login", loginTeacher);
 // router.get("/teacher/delete", deleteTeacher);
+router.get('/teacher/classes', getTeacherClasses);
 
 router.post("/logout", (req, res) => {
   for(const cookie in req.cookies) {

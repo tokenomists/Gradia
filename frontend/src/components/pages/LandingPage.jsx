@@ -103,7 +103,7 @@ export default function LandingPage() {
     {
       title: "Test Creation",
       description: "Watch how easy it is to create engaging assessments",
-      image: "/teacher-dashboard.jpg",
+      image: "/create-test.png",
     },
   ];
 
