@@ -17,15 +17,10 @@ import {
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { ErrorProvider } from "../../contexts/ErrorContext";
+import { useDarkMode } from "@/contexts/DarkModeContext";
 
 export default function LandingPage() {
-  const [darkMode, setDarkMode] = useState(() => {
-    if (typeof window !== "undefined") {
-      return localStorage.getItem("darkMode") === "true";
-    }
-    return false;
-  });
-
+  const { darkMode, setDarkMode } = useDarkMode();
   const [activeDemo, setActiveDemo] = useState(null);
   const [showFAQ, setShowFAQ] = useState(false);
   const [formData, setFormData] = useState({
@@ -36,11 +31,7 @@ export default function LandingPage() {
   const router = useRouter();
 
   const toggleDarkMode = () => {
-    setDarkMode((prevMode) => {
-      const newMode = !prevMode;
-      localStorage.setItem("darkMode", newMode);
-      return newMode;
-    });
+    setDarkMode((prev) => !prev);
   };
 
   // Animation variants
