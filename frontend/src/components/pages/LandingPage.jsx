@@ -161,7 +161,7 @@ export default function LandingPage() {
             transition={{ duration: 0.5 }}
             className="flex items-center"
           >
-            <span style={{ fontFamily: "'Rage Italic', calibri" }} className="px-4 text-4xl font-bold text-[#d56c4e]">Gradia</span>
+            <span style={{ fontFamily: "'Rage Italic', sans-serif" }} className="px-4 text-4xl font-bold text-[#d56c4e]">Gradia</span>
           </motion.div>
 
           <motion.div
@@ -895,7 +895,7 @@ export default function LandingPage() {
           <div className="max-w-6xl mx-auto">
             <div className="grid md:grid-cols-4 gap-8">
               <div className="col-span-1">
-                <h3 style={{ fontFamily: "'Rage Italic', calibri" }} className="text-4xl font-bold text-[#d56c4e] mb-4">Gradia</h3>
+                <h3 style={{ fontFamily: "'Rage Italic', sans-serif" }} className="text-4xl font-bold text-[#d56c4e] mb-4">Gradia</h3>
                 <p className="mb-6 opacity-80">
                   Transforming education with smart assessment tools.
                 </p>
