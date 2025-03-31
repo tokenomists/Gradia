@@ -11,21 +11,19 @@ import {
   AlertCircle, 
   CheckCircle2, 
   ArrowRight,
-  Home,
   EyeOff,
   Eye,
-  UserPlus,
-  UserCheck
 } from 'lucide-react';
 import Head from 'next/head';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import GoogleLoginButton from '@/components/auth/GoogleLoginButton';
 import instance from '@/utils/axios';
 import { useError } from '@/contexts/ErrorContext';
+import { useDarkMode } from '@/contexts/DarkModeContext';
 import { isAuthenticated } from '@/utils/auth';
 
 export default function Signup() {
+  const { darkMode } = useDarkMode();
   const [activeTab, setActiveTab] = useState('student');
   const [formData, setFormData] = useState({
     fname: '',
@@ -240,17 +238,26 @@ export default function Signup() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-[#edead7] p-4 font-sans relative overflow-hidden">
+    <div className={`min-h-screen flex flex-col items-center justify-center ${
+        darkMode ? 'bg-[#2d2c2a]' : 'bg-[#edead7]'
+      } p-4 font-sans relative overflow-hidden`}
+    >
       <Head>
         <title>{activeTab === 'student' ? 'Student Signup' : 'Teacher Signup'}</title>
       </Head>
       
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-[#e2c3ae]/30 via-[#fcf9ea] to-[#d56c4e]/20" />
+        <div className={`absolute top-0 left-0 w-full h-full ${
+          darkMode 
+            ? 'bg-gradient-to-br from-[#3a3936]/30 via-[#2d2c2a] to-[#1d1c1a]' 
+            : 'bg-gradient-to-br from-[#e2c3ae]/30 via-[#fcf9ea] to-[#d56c4e]/20'
+        }`} />
         
         <motion.div 
-          className="absolute top-0 left-0 w-96 h-96 rounded-full bg-[#d56c4e]/5"
+          className={`absolute top-0 left-0 w-96 h-96 rounded-full ${
+            darkMode ? 'bg-[#3a3936]/20' : 'bg-[#d56c4e]/5'
+          }`}
           animate={{
             x: ['-10%', '5%'],
             y: ['5%', '-8%'],
@@ -264,7 +271,9 @@ export default function Signup() {
         />
         
         <motion.div 
-          className="absolute bottom-0 right-0 w-80 h-80 rounded-full bg-[#e2c3ae]/10"
+          className={`absolute bottom-0 right-0 w-80 h-80 rounded-full ${
+            darkMode ? 'bg-[#1d1c1a]/30' : 'bg-[#e2c3ae]/10'
+          }`}
           animate={{
             x: ['5%', '-8%'],
             y: ['8%', '15%'],
@@ -280,10 +289,13 @@ export default function Signup() {
       
       {/* Main card container */}
       <motion.div 
-        className="relative w-full max-w-md z-10 bg-white rounded-2xl shadow-xl overflow-hidden"
-        style={{ 
-          backgroundImage: 'radial-gradient(circle at 90% 10%, rgba(213, 108, 78, 0.05) 0%, transparent 70%)',
-          boxShadow: '0 10px 40px rgba(0, 0, 0, 0.1), 0 1px 10px rgba(213, 108, 78, 0.2)'
+        className={`relative w-full max-w-md z-10 ${
+          darkMode ? 'bg-[#3a3936]' : 'bg-white'
+        } rounded-2xl overflow-hidden`}
+        style={{
+          backgroundImage: darkMode 
+            ? 'radial-gradient(circle at 90% 10%, rgba(29, 28, 26, 0.3) 0%, transparent 70%)'
+            : 'radial-gradient(circle at 90% 10%, rgba(213, 108, 78, 0.05) 0%, transparent 70%)'
         }}
         initial={{ opacity: 0, y: 50 }}
         animate={controls}
@@ -291,32 +303,27 @@ export default function Signup() {
       
         {/* Logo */}
         <motion.div 
-          className="mb-6 mt-4 relative z-10"
+          className="absolute z-10 top-8 w-full flex justify-center"
           initial={{ opacity: 0, scale: 0.8 }}
-          animate={logoControls}
+          animate={{ opacity: 1, scale: 1 }}
         >
-          <div className="flex items-center justify-center gap-2">
-            <motion.div 
-              className="bg-[#d56c4e] p-3 rounded-lg shadow-lg"
-              whileHover={{ 
-                scale: 1.05,
-                rotate: [0, -5, 5, 0],
-                transition: { duration: 0.5 }
-              }}
-            >
-              <UserPlus className="text-white" size={24} />
-            </motion.div>
-            <h2 className="text-2xl font-bold text-[#d56c4e]">
-              {activeTab === 'student' ? 'Student Signup' : 'Teacher Signup'}
-            </h2>
-          </div>
+          <h2 
+            className={`text-5xl font-bold ${
+              darkMode ? 'text-[#edead7]' : 'text-black'
+            } text-center`}
+            style={{ fontFamily: 'Rage Italic, calibri' }}
+          >
+            Gradia
+          </h2>
         </motion.div>
 
         {/* Success animation overlay */}
         <AnimatePresence>
           {success && (
             <motion.div 
-              className="absolute inset-0 z-50 bg-white flex items-center justify-center flex-col gap-4"
+              className={`absolute inset-0 z-50 ${
+                darkMode ? 'bg-[#2d2c2a]' : 'bg-white'
+              } flex items-center justify-center`}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -352,49 +359,57 @@ export default function Signup() {
           )}
         </AnimatePresence>
         
-        {/* Tab switcher */}
-        <div className="flex mb-6 rounded-lg shadow-lg w-[90%] mx-auto overflow-hidden relative">
-          <div 
-            className="absolute bg-[#d56c4e] h-full transition-all duration-300 rounded-lg z-0"
-            style={{ 
-              width: '50%', 
-              left: activeTab === 'student' ? '0%' : '50%',
-              transition: 'left 0.3s cubic-bezier(0.22, 1, 0.36, 1)'
-            }}
-          />
-          <motion.button
-            className={`flex-1 py-3 px-4 font-medium text-center transition-colors relative z-10 flex items-center justify-center ${
-              activeTab === 'student' ? 'text-white' : 'text-gray-500'
-            }`}
-            onClick={() => handleTabChange('student')}
-            whileHover={{
-              scale: activeTab !== 'student' ? 1.05 : 1,
-            }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <User size={18} className="mr-2" />
-            Student
-          </motion.button>
-          <motion.button
-            className={`flex-1 py-3 px-4 font-medium text-center transition-colors relative z-10 flex items-center justify-center ${
-              activeTab === 'teacher' ? 'text-white' : 'text-gray-500'
-            }`}
-            onClick={() => handleTabChange('teacher')}
-            whileHover={{
-              scale: activeTab !== 'teacher' ? 1.05 : 1,
-            }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <School size={18} className="mr-2" />
-            Teacher
-          </motion.button>
+        <div className="flex flex-col items-center w-full pt-28">
+          {/* Tab switcher */}
+          <div className={`flex rounded-lg shadow-md w-[90%] mx-auto overflow-hidden relative mb-6 ${
+            darkMode ? 'bg-[#1d1c1a]' : 'bg-white'
+          }`}>
+            <div 
+              className="absolute bg-[#d56c4e] h-full transition-all duration-300 rounded-lg z-0"
+              style={{ 
+                width: '50%', 
+                left: activeTab === 'student' ? '0%' : '50%',
+                transition: 'left 0.3s cubic-bezier(0.22, 1, 0.36, 1)'
+              }}
+            />
+            <motion.button
+              className={`flex-1 py-3 px-4 font-medium text-center transition-colors relative z-10 flex items-center justify-center ${
+                activeTab === 'student' ? 'text-white' : 'text-gray-500'
+              }`}
+              onClick={() => handleTabChange('student')}
+              whileHover={{
+                scale: activeTab !== 'student' ? 1.05 : 1,
+              }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <User size={18} className="mr-2" />
+              Student
+            </motion.button>
+            <motion.button
+              className={`flex-1 py-3 px-4 font-medium text-center transition-colors relative z-10 flex items-center justify-center ${
+                activeTab === 'teacher' ? 'text-white' : 'text-gray-500'
+              }`}
+              onClick={() => handleTabChange('teacher')}
+              whileHover={{
+                scale: activeTab !== 'teacher' ? 1.05 : 1,
+              }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <School size={18} className="mr-2" />
+              Teacher
+            </motion.button>
+          </div>
         </div>
         
         {/* Error message */}
         <AnimatePresence>
           {error && (
             <motion.div 
-              className="bg-red-50 border border-red-100 text-red-600 px-4 py-3 mx-6 mb-6 rounded-lg flex items-center gap-2"
+              className={`${
+                darkMode 
+                  ? 'bg-red-900/20 border-red-800/30 text-red-400' 
+                  : 'bg-red-100 border-red-100 text-red-600'
+              } px-4 py-3 mx-6 mb-6 rounded-lg flex items-center gap-2`}
               initial={{ opacity: 0, height: 0, marginBottom: 0, padding: 0 }}
               animate={{ 
                 opacity: 1, 
@@ -448,14 +463,16 @@ export default function Signup() {
               {/* First Name & Last Name */}
               <div className="flex gap-4">
                 <motion.div variants={fadeInUp} className="flex-1">
-                  <motion.div 
-                    className="relative"
-                    whileHover={{ scale: 1.02 }}
-                    transition={{ type: "spring", stiffness: 400, damping: 10 }}
-                  >
+                  <motion.div className="relative">
                     <motion.div 
-                      className={`border ${inputFocus.fname ? 'border-[#d56c4e]' : 'border-amber-300'} rounded-full transition-all duration-300 p-3 ${
+                      className={`border ${
+                        inputFocus.fname 
+                          ? 'border-[#d56c4e]' 
+                          : darkMode ? 'border-[#3a3936]' : 'border-amber-300'
+                      } rounded-lg transition-all duration-300 p-3 ${
                         inputFocus.fname ? 'shadow-md' : ''
+                      } ${
+                        darkMode ? 'bg-[#2d2c2a]' : 'bg-white'
                       }`}
                       animate={{
                         boxShadow: inputFocus.fname ? '0 0 0 2px rgba(213, 108, 78, 0.2)' : '0 0 0 0px rgba(213, 108, 78, 0)'
@@ -471,7 +488,9 @@ export default function Signup() {
                           onChange={handleInputChange}
                           onFocus={() => handleInputFocus('fname', true)}
                           onBlur={() => handleInputFocus('fname', false)}
-                          className="w-full outline-none bg-transparent"
+                          className={`w-full outline-none bg-transparent ${
+                            darkMode ? 'text-[#edead7]' : 'text-gray-900'
+                          }`}
                         />
                       </div>
                     </motion.div>
@@ -479,21 +498,23 @@ export default function Signup() {
                 </motion.div>
 
                 <motion.div variants={fadeInUp} className="flex-1">
-                  <motion.div 
-                    className="relative"
-                    whileHover={{ scale: 1.02 }}
-                    transition={{ type: "spring", stiffness: 400, damping: 10 }}
-                  >
+                  <motion.div className="relative">
                     <motion.div 
-                      className={`border ${inputFocus.lname ? 'border-[#d56c4e]' : 'border-amber-300'} rounded-full transition-all duration-300 p-3 ${
+                      className={`border ${
+                        inputFocus.lname 
+                          ? 'border-[#d56c4e]' 
+                          : darkMode ? 'border-[#3a3936]' : 'border-amber-300'
+                      } rounded-lg transition-all duration-300 p-3 ${
                         inputFocus.lname ? 'shadow-md' : ''
+                      } ${
+                        darkMode ? 'bg-[#2d2c2a]' : 'bg-white'
                       }`}
                       animate={{
                         boxShadow: inputFocus.lname ? '0 0 0 2px rgba(213, 108, 78, 0.2)' : '0 0 0 0px rgba(213, 108, 78, 0)'
                       }}
                     >
                       <div className="flex items-center">
-                        <UserCheck size={20} className={`${inputFocus.lname ? 'text-[#d56c4e]' : 'text-gray-400'} mr-2 transition-colors duration-300`} />
+                        <User size={20} className={`${inputFocus.lname ? 'text-[#d56c4e]' : 'text-gray-400'} mr-2 transition-colors duration-300`} />
                         <input 
                           type="text"
                           name="lname"
@@ -502,7 +523,9 @@ export default function Signup() {
                           onChange={handleInputChange}
                           onFocus={() => handleInputFocus('lname', true)}
                           onBlur={() => handleInputFocus('lname', false)}
-                          className="w-full outline-none bg-transparent"
+                          className={`w-full outline-none bg-transparent ${
+                            darkMode ? 'text-[#edead7]' : 'text-gray-900'
+                          }`}
                         />
                       </div>
                     </motion.div>
@@ -512,14 +535,16 @@ export default function Signup() {
               
               {/* Email */}
               <motion.div variants={fadeInUp}>
-                <motion.div 
-                  className="relative"
-                  whileHover={{ scale: 1.02 }}
-                  transition={{ type: "spring", stiffness: 400, damping: 10 }}
-                >
+                <motion.div className="relative">
                   <motion.div 
-                    className={`border ${inputFocus.email ? 'border-[#d56c4e]' : 'border-amber-300'} rounded-full transition-all duration-300 p-3 ${
+                    className={`border ${
+                      inputFocus.email 
+                        ? 'border-[#d56c4e]' 
+                        : darkMode ? 'border-[#3a3936]' : 'border-amber-300'
+                    } rounded-lg transition-all duration-300 p-3 ${
                       inputFocus.email ? 'shadow-md' : ''
+                    } ${
+                      darkMode ? 'bg-[#2d2c2a]' : 'bg-white'
                     }`}
                     animate={{
                       boxShadow: inputFocus.email ? '0 0 0 2px rgba(213, 108, 78, 0.2)' : '0 0 0 0px rgba(213, 108, 78, 0)'
@@ -535,7 +560,9 @@ export default function Signup() {
                         onChange={handleInputChange}
                         onFocus={() => handleInputFocus('email', true)}
                         onBlur={() => handleInputFocus('email', false)}
-                        className="w-full outline-none bg-transparent"
+                        className={`w-full outline-none bg-transparent ${
+                          darkMode ? 'text-[#edead7]' : 'text-gray-900'
+                        }`}
                       />
                       <AnimatePresence>
                         {formData.email && formData.email.includes('@') && (
@@ -557,14 +584,16 @@ export default function Signup() {
               
               {/* Password */}
               <motion.div variants={fadeInUp} className="relative">
-                <motion.div 
-                  className="relative"
-                  whileHover={{ scale: 1.02 }}
-                  transition={{ type: "spring", stiffness: 400, damping: 10 }}
-                >
+                <motion.div className="relative">
                   <motion.div 
-                    className={`border ${inputFocus.password ? 'border-[#d56c4e]' : 'border-amber-300'} rounded-full transition-all duration-300 p-3 ${
+                    className={`border ${
+                      inputFocus.password 
+                        ? 'border-[#d56c4e]' 
+                        : darkMode ? 'border-[#3a3936]' : 'border-amber-300'
+                    } rounded-lg transition-all duration-300 p-3 ${
                       inputFocus.password ? 'shadow-md' : ''
+                    } ${
+                      darkMode ? 'bg-[#2d2c2a]' : 'bg-white'
                     }`}
                     animate={{
                       boxShadow: inputFocus.password ? '0 0 0 2px rgba(213, 108, 78, 0.2)' : '0 0 0 0px rgba(213, 108, 78, 0)'
@@ -580,7 +609,9 @@ export default function Signup() {
                         onChange={handleInputChange}
                         onFocus={() => handleInputFocus('password', true)}
                         onBlur={() => handleInputFocus('password', false)}
-                        className="w-full outline-none bg-transparent"
+                        className={`w-full outline-none bg-transparent ${
+                          darkMode ? 'text-[#edead7]' : 'text-gray-900'
+                        }`}
                       />
                       <motion.button
                         type="button"
@@ -588,6 +619,7 @@ export default function Signup() {
                         className={`${inputFocus.password ? 'text-[#d56c4e]' : 'text-gray-400'} hover:text-gray-600 transition-colors`}
                         whileHover={{ scale: 1.1, rotate: 5 }}
                         whileTap={{ scale: 0.9 }}
+                        tabIndex="-1"
                       >
                         {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                       </motion.button>
@@ -598,22 +630,20 @@ export default function Signup() {
               
               {/* Confirm Password */}
               <motion.div variants={fadeInUp} className="relative">
-                <motion.div 
-                  className="relative"
-                  whileHover={{ scale: 1.02 }}
-                  transition={{ type: "spring", stiffness: 400, damping: 10 }}
-                >
+                <motion.div className="relative">
                   <motion.div 
                     className={`border ${
                       inputFocus.confirmPassword 
                         ? 'border-[#d56c4e]' 
                         : passwordMatch === false 
-                          ? 'border-red-400' 
+                          ? darkMode ? 'border-red-400/50' : 'border-red-400'
                           : passwordMatch === true 
-                            ? 'border-teal-400' 
-                            : 'border-amber-300'
-                    } rounded-full transition-all duration-300 p-3 ${
+                            ? darkMode ? 'border-teal-400/50' : 'border-teal-400'
+                            : darkMode ? 'border-[#3a3936]' : 'border-amber-300'
+                    } rounded-lg transition-all duration-300 p-3 ${
                       inputFocus.confirmPassword ? 'shadow-md' : ''
+                    } ${
+                      darkMode ? 'bg-[#2d2c2a]' : 'bg-white'
                     }`}
                     animate={{
                       boxShadow: inputFocus.confirmPassword 
@@ -644,7 +674,9 @@ export default function Signup() {
                         onChange={handleInputChange}
                         onFocus={() => handleInputFocus('confirmPassword', true)}
                         onBlur={() => handleInputFocus('confirmPassword', false)}
-                        className="w-full outline-none bg-transparent"
+                        className={`w-full outline-none bg-transparent ${
+                          darkMode ? 'text-[#edead7]' : 'text-gray-900'
+                        }`}
                       />
                       <div className="flex items-center">
                         <AnimatePresence>
@@ -666,6 +698,7 @@ export default function Signup() {
                           className={`ml-2 ${inputFocus.confirmPassword ? 'text-[#d56c4e]' : 'text-gray-400'} hover:text-gray-600 transition-colors`}
                           whileHover={{ scale: 1.1, rotate: 5 }}
                           whileTap={{ scale: 0.9 }}
+                          tabIndex="-1"
                         >
                           {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                         </motion.button>
@@ -736,7 +769,7 @@ export default function Signup() {
               
               <motion.div variants={fadeInUp} className="pt-4 border-t border-gray-200 space-y-4 pb-6">
                 <div className="text-center">
-                  <span className="text-gray-600 text-sm">Already have an account? </span>
+                  <span className={`text-sm ${darkMode ? 'text-[#edead7]/70' : 'text-gray-600'}`}>Already have an account?{' '}</span>
                   <button
                     type="button"
                     onClick={() => router.push('/signin')}
@@ -755,30 +788,6 @@ export default function Signup() {
                 {/* Google button */}
                 <GoogleLoginButton userType={activeTab} />
 
-                {/* Back to Home button */}
-                <motion.div
-                  type='button'
-                  className="w-full bg-[#fff5e6] hover:bg-[#fff0d9] py-3 rounded-full font-medium flex items-center justify-center gap-2 text-[#f5a061] transition-colors border border-amber-100 group"
-                  onClick={() => {router.push('/')}}
-                  whileHover={{ 
-                    scale: 1.02,
-                    boxShadow: '0 2px 10px rgba(245, 160, 97, 0.2)'
-                  }}
-                  whileTap={{ scale: 0.98 }}
-                  >
-                      <motion.div
-                        animate={{ x: [0, -3, 0] }}
-                        transition={{ 
-                          duration: 1.5, 
-                          repeat: Infinity, 
-                          repeatType: "loop"
-                        }}
-                        className="group-hover:text-amber-500 transition-colors"
-                      >
-                        <Home size={16} />
-                      </motion.div>
-                      <span className="group-hover:text-amber-500 transition-colors">Back to Home</span>
-                  </motion.div>
                 </motion.div>
               </motion.form>
             </motion.div>

@@ -4,23 +4,10 @@
 
 /* Custom scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: #edead7;
+  display: none;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #d56c4e;
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #b3593f;
-}
-
-.scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
 
@@ -125,4 +112,16 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+@font-face {
+  font-family: 'Rage Italic';
+  src: url('/rage-italic.ttf') format('truetype');
+  font-weight: normal;
+  font-style: italic;
+  font-display: swap;
+}
+
+html {
+  scroll-behavior: smooth;
 }
