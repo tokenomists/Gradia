@@ -151,17 +151,17 @@ export default function CreateClass() {
   };
   
   return (
-    <div className="min-h-screen bg-[#f8f5e9]">
+    <div className="min-h-screen bg-[#fcf9ea]">
       {/* Navigation Bar */}
-      <nav className="bg-[#e07a5f] text-white py-4 px-6 flex items-center justify-between">
+      <nav className="bg-[#d56c4e] text-white py-4 px-6 flex items-center justify-between">
         <div className="flex items-center">
-          <Link href="/" className="text-3xl font-cursive">
+          <Link href="/" style={{ fontFamily: "'Rage Italic', sans-serif" }} className="text-4xl font-bold text-black">
             Gradia
           </Link>
         </div>
         <div className="flex items-center space-x-6">
-          <Link href="/teacher/tests" className="hover:underline">Tests</Link>
-          <Link href="/teacher/analysis" className="hover:underline">Analysis</Link>
+          <Link href="/teacher/tests" className="font-sans font-medium transition-transform transform hover:scale-110">Tests</Link>
+          <Link href="/teacher/analysis" className="font-sans font-medium transition-transform transform hover:scale-110">Analysis</Link>
           <UserDropdown />
         </div>
       </nav>
