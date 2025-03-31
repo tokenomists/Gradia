@@ -11,17 +11,16 @@ import {
   Mail,
   MessageSquare,
   Users,
-  ChevronDown,
   Sun,
   Moon,
 } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import Alert from "../auth/Toast";
 import { ErrorProvider } from "../../contexts/ErrorContext";
+import { useDarkMode } from "@/contexts/DarkModeContext";
 
 export default function LandingPage() {
-  const [darkMode, setDarkMode] = useState(false);
+  const { darkMode, setDarkMode } = useDarkMode();
   const [activeDemo, setActiveDemo] = useState(null);
   const [showFAQ, setShowFAQ] = useState(false);
   const [formData, setFormData] = useState({
@@ -32,7 +31,7 @@ export default function LandingPage() {
   const router = useRouter();
 
   const toggleDarkMode = () => {
-    setDarkMode(!darkMode);
+    setDarkMode((prev) => !prev);
   };
 
   // Animation variants
@@ -144,7 +143,7 @@ export default function LandingPage() {
 
   return (
     <ErrorProvider>
-      <div className={`min-h-screen ${darkMode ? "bg-[#2d2c2a] text-[#fcf9ea]" : "bg-[#edead7] text-[#2d2c2a]"}`}>
+      <div className={`min-h-screen ${darkMode ? "bg-[#2d2c2a] text-[#fcf9ea] dark" : "bg-[#edead7] text-[#2d2c2a]"}`}>
         {/* Navbar */}
         <nav className="sticky top-0 z-50 backdrop-blur-md bg-opacity-70  border-[#e2c3ae] px-6 py-4 flex justify-between items-center">
           <motion.div
@@ -153,7 +152,7 @@ export default function LandingPage() {
             transition={{ duration: 0.5 }}
             className="flex items-center"
           >
-            <span className="text-2xl font-bold font-[rage itallic] text-[#d56c4e]">Gradia</span>
+            <span style={{ fontFamily: "'Rage Italic', sans-serif" }} className="px-4 text-4xl font-bold text-[#d56c4e]">Gradia</span>
           </motion.div>
 
           <motion.div
@@ -178,7 +177,11 @@ export default function LandingPage() {
               onClick={toggleDarkMode}
               whileHover={{ rotate: 180 }}
               transition={{ duration: 0.3 }}
-              className="p-2 rounded-full bg-[#fcf9ea] dark:bg-[#2d2c2a] text-[#2d2c2a] dark:text-[#fcf9ea]"
+              className={`p-2 rounded-full ${
+                darkMode 
+                  ? "bg-[#3f3f3f] text-[#fcf9ea]"
+                  : "bg-[#fcf9ea] text-[#2d2c2a]" 
+              }`}
             >
               {darkMode ? <Sun size={20} /> : <Moon size={20} />}
             </motion.button>
@@ -187,7 +190,7 @@ export default function LandingPage() {
               onClick={() => {router.push('/signin')}}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className={`px-5 py-2 font-medium ${darkMode ? "text-white" : "text-[#2d2c2a"}`}
+              className={`px-3 py-2 font-medium ${darkMode ? "text-white" : "text-[#2d2c2a"}`}
             >
               Sign In
             </motion.button>
@@ -196,7 +199,7 @@ export default function LandingPage() {
               onClick={() => {router.push('/signup')}}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="px-5 py-2 rounded-full bg-[#d56c4e] text-white font-medium"
+              className="px-4 py-2 rounded-full bg-[#d56c4e] text-white font-medium"
             >
               Sign Up
             </motion.button>
@@ -236,16 +239,11 @@ export default function LandingPage() {
                 className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4"
               >
                 <button
+                  onClick={() => router.push('/signup')}
                   className="px-8 py-3 rounded-full bg-[#d56c4e] text-white font-medium flex items-center justify-center space-x-2 hover:scale-105 transform transition-transform duration-200"
                 >
                   <span>Try Now</span>
                   <ArrowRight size={18} />
-                </button>
-                <button
-                  className="px-8 py-3 rounded-full border-2 border-[#d56c4e] text-[#d56c4e] font-medium flex items-center justify-center space-x-2 hover:scale-105 transform transition-transform duration-200"
-                >
-                  <span>Learn More</span>
-                  <ChevronDown size={18} />
                 </button>
               </motion.div>
             </motion.div>
@@ -268,7 +266,7 @@ export default function LandingPage() {
                 />
                 <div className="mt-4 flex justify-between items-center">
                   <div>
-                    <h3 className="font-bold">Assessment Dashboard</h3>
+                    <h3 className="font-bold">Detailed Dashboards</h3>
                     <p className="text-sm opacity-75">Track progress in real-time</p>
                   </div>
                   <motion.div
@@ -362,11 +360,14 @@ export default function LandingPage() {
               {/* For Teachers */}
               <motion.div
                 variants={fadeIn}
-                className={`group backdrop-blur-lg ${darkMode ? "bg-gradient-to-br from-[#63615c]/30 to-[#63615c]/10" : "bg-gradient-to-br from-[#fcf9ea]/30 to-[#fcf9ea]/10"} border border-[#e2c3ae]/50 rounded-3xl p-8 shadow-lg hover:shadow-2xl transition-all duration-500 relative overflow-hidden`}
-                whileHover={{ rotate: 2, transition: { duration: 0.3 } }}
+                className={`group backdrop-blur-lg ${
+                  darkMode
+                    ? "bg-gradient-to-br from-[#63615c]/30 to-[#63615c]/10 hover:shadow-[0px_10px_40px_rgba(255,255,255,0.2)]"
+                    : "bg-gradient-to-br from-[#fcf9ea]/30 to-[#fcf9ea]/10 hover:shadow-[0px_10px_40px_rgba(0,0,0,0.2)]"
+                } border border-[#e2c3ae]/50 rounded-3xl p-8 shadow-lg transition-all duration-500 relative overflow-hidden`}
               >
                 {/* Background pattern */}
-                <div className="absolute -right-24 -bottom-24 w-64 h-64 rounded-full bg-[#d56c4e]/5 blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+                <div className="absolute -right-24 -bottom-24 w-64 h-64 rounded-full bg-[#d56c4e]/20 blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
                 
                 <motion.div 
                   className="bg-gradient-to-br from-[#d56c4e]/20 to-[#d56c4e]/10 w-20 h-20 rounded-2xl flex items-center justify-center mb-8 group-hover:scale-110 transition-transform duration-300"
@@ -443,11 +444,14 @@ export default function LandingPage() {
         {/* For Students */}
         <motion.div
           variants={fadeIn}
-          className={`group backdrop-blur-lg ${darkMode ? "bg-gradient-to-br from-[#63615c]/30 to-[#63615c]/10" : "bg-gradient-to-br from-[#fcf9ea]/30 to-[#fcf9ea]/10"} border border-[#e2c3ae]/50 rounded-3xl p-8 shadow-lg hover:shadow-2xl transition-all duration-500 relative overflow-hidden`}
-          whileHover={{ rotate: -2, transition: { duration: 0.3 } }}
+          className={`group backdrop-blur-lg ${
+            darkMode
+              ? "bg-gradient-to-br from-[#63615c]/30 to-[#63615c]/10 hover:shadow-[0px_10px_40px_rgba(255,255,255,0.2)]"
+              : "bg-gradient-to-br from-[#fcf9ea]/30 to-[#fcf9ea]/10 hover:shadow-[0px_10px_40px_rgba(0,0,0,0.2)]"
+          } border border-[#e2c3ae]/50 rounded-3xl p-8 shadow-lg transition-all duration-500 relative overflow-hidden`}
         >
             {/* Background pattern */}
-            <div className="absolute -right-24 -bottom-24 w-64 h-64 rounded-full bg-[#d56c4e]/5 blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+            <div className="absolute -right-24 -bottom-24 w-64 h-64 rounded-full bg-[#d56c4e]/20 blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
 
             {/* Main content */}          
             <motion.div 
@@ -536,7 +540,14 @@ export default function LandingPage() {
   </section>
 
         {/* How It Works Section */}
-        <section id="how-it-works" className="py-20 px-6 md:px-12 lg:px-24 bg-[#e2c3ae]/30">
+        <section 
+          id="how-it-works" 
+          className={`py-20 px-6 md:px-12 lg:px-24 ${
+            darkMode 
+              ? "bg-[#2a2a2a]/30" 
+              : "bg-[#e2c3ae]/30"
+          }`}
+        >
           <motion.div
             initial="hidden"
             whileInView="visible"
@@ -545,10 +556,10 @@ export default function LandingPage() {
             className="max-w-6xl mx-auto"
           >
             <motion.div variants={fadeIn} className="text-center mb-16">
-              <h2 className="text-3xl md:text-4xl font-bold mb-4">
-                How It <span className="text-[#d56c4e]">Works</span>
+              <h2 className={`text-3xl md:text-4xl font-bold mb-4 ${darkMode ? "text-white" : ""}`}>
+                How It <span className={darkMode ? "text-[#ff8f6e]" : "text-[#d56c4e]"}>Works</span>
               </h2>
-              <p className="text-lg max-w-2xl mx-auto">
+              <p className={`text-lg max-w-2xl mx-auto ${darkMode ? "text-gray-300" : ""}`}>
                 Get started in minutes with our intuitive, user-friendly platform.
               </p>
             </motion.div>
@@ -559,19 +570,25 @@ export default function LandingPage() {
                   key={index}
                   variants={fadeIn}
                   whileHover={{ y: -10 }}
-                  className="relative backdrop-blur-sm bg-[#fcf9ea]/40 border border-[#e2c3ae] rounded-2xl p-8 shadow-lg flex flex-col items-center text-center"
+                  className={`relative backdrop-blur-sm rounded-2xl p-8 flex flex-col items-center text-center ${
+                    darkMode
+                      ? "bg-[#3a3a3a]/60 border border-[#4a4a4a] shadow-xl text-gray-200"
+                      : "bg-[#fcf9ea]/40 border border-[#e2c3ae] shadow-lg"
+                  }`}
                 >
                   <motion.div
                     whileHover={{ rotate: 5 }}
-                    className="mb-6 text-[#d56c4e]"
+                    className={`mb-6 ${darkMode ? "text-[#ff8f6e]" : "text-[#d56c4e]"}`}
                   >
                     {step.icon}
                   </motion.div>
-                  <div className="absolute -top-4 -left-4 w-10 h-10 rounded-full bg-[#d56c4e] flex items-center justify-center text-white font-bold">
+                  <div className={`absolute -top-4 -left-4 w-10 h-10 rounded-full flex items-center justify-center text-white font-bold ${
+                    darkMode ? "bg-[#ff8f6e]" : "bg-[#d56c4e]"
+                  }`}>
                     {index + 1}
                   </div>
-                  <h3 className="text-xl font-bold mb-3">{step.title}</h3>
-                  <p>{step.description}</p>
+                  <h3 className={`text-xl font-bold mb-3 ${darkMode ? "text-white" : ""}`}>{step.title}</h3>
+                  <p className={darkMode ? "text-gray-300" : ""}>{step.description}</p>
                   
                   {/* Connection line */}
                   {index < howItWorks.length - 1 && (
@@ -579,22 +596,26 @@ export default function LandingPage() {
                       initial={{ width: 0 }}
                       whileInView={{ width: '100%' }}
                       transition={{ delay: 0.5, duration: 0.8 }}
-                      className="hidden md:block absolute top-1/2 left-full h-1 bg-[#d56c4e]/30 -z-10"
+                      className={`hidden md:block absolute top-1/2 left-full h-1 -z-10 ${
+                        darkMode ? "bg-[#ff8f6e]/40" : "bg-[#d56c4e]/30"
+                      }`}
                       style={{ width: '50%', transformOrigin: 'left' }}
                     />
                   )}
                 </motion.div>
               ))}
             </div>
+
             
             <motion.div
               variants={fadeIn}
               className="mt-16 flex justify-center"
             >
               <motion.button
+                onClick={() => {router.push('/signin')}}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="px-8 py-3 rounded-full bg-[#d56c4e] text-white font-medium flex items-center space-x-2"
+                className={`px-8 py-3 rounded-full ${darkMode ? "bg-[#ff8f6e]" : "bg-[#d56c4e]"} text-white font-medium flex items-center space-x-2`}
               >
                 <span>Get Started</span>
                 <ArrowRight size={18} />
@@ -604,7 +625,7 @@ export default function LandingPage() {
         </section>
 
         {/* Demo Section */}
-        <section id="demo" className="py-20 px-6 md:px-12 lg:px-24">
+        <section id="demo" className={`py-20 px-6 md:px-12 lg:px-24 ${darkMode ? "bg-[#403f3c]" : ""}`}>
           <motion.div
             initial="hidden"
             whileInView="visible"
@@ -613,10 +634,10 @@ export default function LandingPage() {
             className="max-w-6xl mx-auto"
           >
             <motion.div variants={fadeIn} className="text-center mb-16">
-              <h2 className="text-3xl md:text-4xl font-bold mb-4">
-                See it in <span className="text-[#d56c4e]">Action</span>
+              <h2 className={`text-3xl md:text-4xl font-bold mb-4 ${darkMode ? "text-white" : ""}`}>
+                See it in <span className={darkMode ? "text-[#ff8f6e]" : "text-[#d56c4e]"}>Action</span>
               </h2>
-              <p className="text-lg max-w-2xl mx-auto">
+              <p className={`text-lg max-w-2xl mx-auto ${darkMode ? "text-gray-300" : ""}`}>
                 Hover over the cards below to see how our platform transforms the educational experience.
               </p>
             </motion.div>
@@ -628,14 +649,14 @@ export default function LandingPage() {
                   variants={fadeIn}
                   initial="rest"
                   whileHover="hover"
-                  className="overflow-hidden rounded-2xl shadow-lg cursor-pointer relative"
+                  className="overflow-hidden rounded-xl shadow-lg cursor-pointer relative"
                   onHoverStart={() => setActiveDemo(index)}
                   onHoverEnd={() => setActiveDemo(null)}
                 >
                   <motion.div
                     variants={{
                       rest: { scale: 1 },
-                      hover: { scale: 1.05 },
+                      hover: { scale: 1.025 },
                     }}
                     transition={{ duration: 0.3 }}
                   >
@@ -666,24 +687,12 @@ export default function LandingPage() {
                         hover: { opacity: 1, y: 0 },
                       }}
                       transition={{ duration: 0.3, delay: 0.1 }}
-                      className="mt-4 px-4 py-2 rounded-full bg-[#d56c4e] text-white text-sm font-medium flex items-center space-x-1"
+                      className={`mt-4 px-4 py-2 rounded-full ${darkMode ? "bg-[#ff8f6e]" : "bg-[#d56c4e]"} text-white text-sm font-medium flex items-center space-x-1`}
                     >
                       <span>Watch Demo</span>
                       <ArrowRight size={14} />
                     </motion.button>
                   </motion.div>
-                  
-                  {/* Play indicator (only shows when active) */}
-                  {activeDemo === index && (
-                    <motion.div
-                      initial={{ opacity: 0, scale: 0.8 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.8 }}
-                      className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-16 h-16 bg-[#d56c4e] rounded-full flex items-center justify-center"
-                    >
-                      <div className="w-0 h-0 border-t-8 border-t-transparent border-l-16 border-l-white border-b-8 border-b-transparent ml-1"></div>
-                    </motion.div>
-                  )}
                 </motion.div>
               ))}
             </div>
@@ -691,7 +700,11 @@ export default function LandingPage() {
         </section>
 
         {/* Contact Section */}
-        <section id="contact" className="py-20 px-6 md:px-12 lg:px-24 bg-[#e2c3ae]/30">
+        <section id="contact" className={`py-20 px-6 md:px-12 lg:px-24 ${
+          darkMode 
+            ? "bg-[#2c2c2a]" 
+            : "bg-[#e2c3ae]/30"
+        }`}>
           <motion.div
             initial="hidden"
             whileInView="visible"
@@ -700,47 +713,54 @@ export default function LandingPage() {
             className="max-w-6xl mx-auto"
           >
             <motion.div variants={fadeIn} className="text-center mb-16">
-              <h2 className="text-3xl md:text-4xl font-bold mb-4">
-                Get in <span className="text-[#d56c4e]">Touch</span>
+              <h2 className={`text-3xl md:text-4xl font-bold mb-4 ${darkMode ? "text-white" : ""}`}>
+                Get in <span className={darkMode ? "text-[#ff8f6e]" : "text-[#d56c4e]"}>Touch</span>
               </h2>
-              <p className="text-lg max-w-2xl mx-auto">
+              <p className={`text-lg max-w-2xl mx-auto ${darkMode ? "text-gray-300" : ""}`}>
                 Have questions or ready to transform your teaching experience? We're here to help.
               </p>
             </motion.div>
 
             <div className="grid md:grid-cols-2 gap-12">
               <motion.div variants={fadeIn} className="space-y-8">
-                <h3 className="text-2xl font-bold">Contact Us</h3>
-                <p>
+                <h3 className={`text-2xl font-bold ${darkMode ? "text-white" : ""}`}>Contact Us</h3>
+                <p className={darkMode ? "text-gray-300" : ""}>
                   Our team is ready to answer your questions and help you discover how our platform can address your specific needs.
                 </p>
                 
                 <div className="flex items-center space-x-4">
-                  <div className="w-12 h-12 rounded-full bg-[#d56c4e]/10 flex items-center justify-center text-[#d56c4e]">
+                  <div className={`w-12 h-12 rounded-full ${darkMode ? "bg-[#ff8f6e]/20" : "bg-[#d56c4e]/10"} flex items-center justify-center ${darkMode ? "text-[#ff8f6e]" : "text-[#d56c4e]"}`}>
                     <Mail size={24} />
                   </div>
                   <div>
-                    <h4 className="font-bold">Email Us</h4>
-                    <p>support@gradia.com</p>
+                    <h4 className={`font-bold ${darkMode ? "text-white" : ""}`}>Email Us</h4>
+                    <p className={darkMode ? "text-gray-300" : ""}>support@gradia.com</p>
                   </div>
                 </div>
                 
                 <div className="flex items-center space-x-4">
-                  <div className="w-12 h-12 rounded-full bg-[#d56c4e]/10 flex items-center justify-center text-[#d56c4e]">
+                  <div className={`w-12 h-12 rounded-full ${darkMode ? "bg-[#ff8f6e]/20" : "bg-[#d56c4e]/10"} flex items-center justify-center ${darkMode ? "text-[#ff8f6e]" : "text-[#d56c4e]"}`}>
                     <MessageSquare size={24} />
                   </div>
                   <div>
-                    <h4 className="font-bold">Live Chat</h4>
-                    <p>Available Monday - Friday, 9am - 5pm</p>
+                    <h4 className={`font-bold ${darkMode ? "text-white" : ""}`}>Live Chat</h4>
+                    <p className={darkMode ? "text-gray-300" : ""}>Available Monday - Friday, 9am - 5pm</p>
                   </div>
                 </div>
               </motion.div>
 
               <motion.div variants={fadeIn}>
-                <form onSubmit={handleSubmit} className="backdrop-blur-sm bg-[#fcf9ea]/20 border border-[#e2c3ae]/50 rounded-2xl p-8 shadow-lg">
+                <form 
+                  onSubmit={handleSubmit} 
+                  className={`backdrop-blur-sm transition-all duration-500 ${
+                    darkMode 
+                      ? "bg-[#3a3631]/40 border border-[#4a4a4a] hover:shadow-[0px_10px_40px_rgba(255,255,255,0.2)]" 
+                      : "bg-[#fcf9ea]/20 border border-[#e2c3ae]/50 hover:shadow-[0px_10px_40px_rgba(0,0,0,0.2)]"
+                  } rounded-2xl p-8 shadow-lg`}
+                >
                   <div className="space-y-6">
                     <div>
-                      <label htmlFor="name" className="block mb-2 font-medium">
+                      <label htmlFor="name" className={`block mb-2 font-medium ${darkMode ? "text-white" : ""}`}>
                         Name
                       </label>
                       <input
@@ -749,14 +769,18 @@ export default function LandingPage() {
                         name="name"
                         value={formData.name}
                         onChange={handleInputChange}
-                        className="w-full p-3 rounded-lg border border-[#e2c3ae] bg-[#fcf9ea]/50 focus:outline-none focus:ring-2 focus:ring-[#d56c4e]"
+                        className={`w-full p-3 rounded-lg placeholder:text-white-900 ${
+                          darkMode 
+                            ? "border border-[#4a4a4a] bg-[#2a2a2a]/70 text-white focus:ring-[#ff8f6e]" 
+                            : "border border-[#e2c3ae] bg-[#fcf9ea]/50 focus:ring-[#d56c4e]"
+                        } focus:outline-none focus:ring-2`}
                         placeholder="Your name"
                         required
                       />
                     </div>
                     
                     <div>
-                      <label htmlFor="email" className="block mb-2 font-medium">
+                      <label htmlFor="email" className={`block mb-2 font-medium ${darkMode ? "text-white" : ""}`}>
                         Email
                       </label>
                       <input
@@ -765,14 +789,18 @@ export default function LandingPage() {
                         name="email"
                         value={formData.email}
                         onChange={handleInputChange}
-                        className="w-full p-3 rounded-lg border border-[#e2c3ae] bg-[#fcf9ea]/50 focus:outline-none focus:ring-2 focus:ring-[#d56c4e]"
+                        className={`w-full p-3 rounded-lg placeholder:text-white-900 ${
+                          darkMode 
+                            ? "border border-[#4a4a4a] bg-[#2a2a2a]/70 text-white focus:ring-[#ff8f6e]" 
+                            : "border border-[#e2c3ae] bg-[#fcf9ea]/50 focus:ring-[#d56c4e]"
+                        } focus:outline-none focus:ring-2`}
                         placeholder="your.email@example.com"
                         required
                       />
                     </div>
                     
                     <div className="relative">
-                      <label htmlFor="message" className="block mb-2 font-medium">
+                      <label htmlFor="message" className={`block mb-2 font-medium ${darkMode ? "text-white" : ""}`}>
                         Message
                       </label>
                       <textarea
@@ -781,7 +809,11 @@ export default function LandingPage() {
                         value={formData.message}
                         onChange={handleInputChange}
                         rows="4"
-                        className="w-full p-3 rounded-lg border border-[#e2c3ae] bg-[#fcf9ea]/50 focus:outline-none focus:ring-2 focus:ring-[#d56c4e]"
+                        className={`w-full p-3 rounded-lg placeholder:text-white-900 ${
+                          darkMode 
+                            ? "border border-[#4a4a4a] bg-[#2a2a2a]/70 text-white focus:ring-[#ff8f6e]" 
+                            : "border border-[#e2c3ae] bg-[#fcf9ea]/50 focus:ring-[#d56c4e]"
+                        } focus:outline-none focus:ring-2`}
                         placeholder="How can we help you?"
                         required
                       ></textarea>
@@ -793,17 +825,23 @@ export default function LandingPage() {
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, y: 10 }}
-                            className="absolute z-10 left-0 right-0 mt-2 bg-[#fcf9ea] border border-[#e2c3ae] rounded-lg shadow-lg overflow-hidden"
+                            className={`absolute z-10 left-0 right-0 mt-2 ${
+                              darkMode 
+                                ? "bg-[#2a2a2a] border border-[#4a4a4a]" 
+                                : "bg-[#fcf9ea] border border-[#e2c3ae]"
+                            } rounded-lg shadow-lg overflow-hidden`}
                           >
-                            <div className="p-3 border-b border-[#e2c3ae]">
-                              <h4 className="font-bold text-sm">Suggested FAQs:</h4>
+                            <div className={`p-3 border-b ${darkMode ? "border-[#4a4a4a]" : "border-[#e2c3ae]"}`}>
+                              <h4 className={`font-bold text-sm ${darkMode ? "text-white" : ""}`}>Suggested FAQs:</h4>
                             </div>
                             <div className="max-h-48 overflow-y-auto">
                               {faqs.map((faq, index) => (
                                 <motion.div
                                   key={index}
-                                  whileHover={{ backgroundColor: "rgba(213, 108, 78, 0.1)" }}
-                                  className="p-3 cursor-pointer border-b border-[#e2c3ae] last:border-0"
+                                  whileHover={{ backgroundColor: darkMode ? "rgba(255, 143, 110, 0.15)" : "rgba(213, 108, 78, 0.1)" }}
+                                  className={`p-3 cursor-pointer border-b ${
+                                    darkMode ? "border-[#4a4a4a] text-gray-200" : "border-[#e2c3ae]"
+                                  } last:border-0`}
                                   onClick={() => {
                                     setFormData({
                                       ...formData,
@@ -824,7 +862,9 @@ export default function LandingPage() {
                     <motion.button
                       whileHover={{ scale: 1.03 }}
                       whileTap={{ scale: 0.97 }}
-                      className="w-full py-3 rounded-lg bg-[#d56c4e] text-white font-medium"
+                      className={`w-full py-3 rounded-lg ${
+                        darkMode ? "bg-[#ff8f6e] hover:bg-[#ff7a5c]" : "bg-[#d56c4e] hover:bg-[#c85b3f]"
+                      } text-white font-medium`}
                       type="submit"
                     >
                       Send Message
@@ -837,11 +877,16 @@ export default function LandingPage() {
         </section>
 
         {/* Footer */}
-        <footer className="py-12 px-6 md:px-12 lg:px-24 bg-[#2d2c2a] text-[#fcf9ea]">
+        <footer className={`py-12 px-6 md:px-12 lg:px-24 ${
+          darkMode 
+            ? "bg-[#1d1c1a] border-t border-[#3a3a38]" 
+            : "bg-[#2d2c2a] border-t border-[#d6c7b3]"
+          } ${darkMode ? "text-gray-300" : "text-gray-200"}`}
+        >
           <div className="max-w-6xl mx-auto">
             <div className="grid md:grid-cols-4 gap-8">
               <div className="col-span-1">
-                <h3 className="text-2xl font-bold text-[#d56c4e] mb-4">Gradia</h3>
+                <h3 style={{ fontFamily: "'Rage Italic', sans-serif" }} className="text-4xl font-bold text-[#d56c4e] mb-4">Gradia</h3>
                 <p className="mb-6 opacity-80">
                   Transforming education with smart assessment tools.
                 </p>
