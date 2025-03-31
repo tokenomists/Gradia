@@ -16,7 +16,7 @@ const SubmissionSchema = new mongoose.Schema({
       questionId: { type: String, required: true }, // Reference Test.questions._id
       questionType: { 
         type: String, 
-        enum: ["handwritten", "theoretical", "coding"], 
+        enum: ["handwritten", "typed", "coding"], 
         required: true 
       },
       answerText: { type: String }, // Used for theoretical answers

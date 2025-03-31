@@ -211,8 +211,8 @@ const TestPage = () => {
         const remainingTime = Math.max(0, Math.floor((endTime - now) / 1000));
         
         const transformedQuestions = testData.questions.map((q, index) => ({
-          id: q._id || index + 1,
-          type: q.type === 'theoretical' ? 'typed' : q.type,
+          _id: q._id,
+          type: q.type,
           text: q.questionText,
           status: 'not-visited',
           answer: '',
@@ -225,7 +225,7 @@ const TestPage = () => {
         transformedQuestions.forEach((q, index) => {
           q.qNo = index + 1;
         });
-
+        console.log(transformedQuestions);
         dispatch({
           type: 'INIT_TEST',
           payload: {
@@ -372,30 +372,38 @@ const TestPage = () => {
   // Submission handler
   const handleTestSubmit = async () => {
     try {
-      const answers = state.questions.map(q => {
-        const answer = {
-          questionId: q.id,
-          questionType: q.type === 'typed' ? 'theoretical' : q.type,
-        };
-        
-        if (q.type === 'typed' || q.type === 'coding') {
-          answer.answerText = q.answer;
-        } else if (q.type === 'handwritten') {
-          answer.fileUrl = q.images[0];
-        }
-        
-        return answer;
-      });
+      const answers = state.questions
+        .filter(q => q.answer || q.images.length > 0) // Only include answered questions
+        .map(q => {
+          const answer = {
+            questionId: q._id, // Use MongoDB _id from fetched test data
+            questionType: q.type, // Preserve original type (don't convert typed→typed)
+          };
   
+          // Handle different answer types
+          if (q.type === 'typed') {
+            answer.answerText = q.answer;
+          } else if(q.type === 'coding') {
+            answer.codeAnswer = q.answer;
+          } else if (q.type === 'handwritten') {
+            answer.fileUrl = q.images[0] || null;
+          }
+  
+          return answer;
+        });
+  
+      console.log('Submission payload:', { answers }); // Debug log
+      
       await submitTest(state.testId, { answers });
       dispatch({ type: 'SUBMIT_TEST' });
-      
-      // Only redirect after successful submission
-      router.push(`/test/submitted/${state.testId}`);
+      router.push(`/test/submitted`);
     } catch (error) {
-      console.error('Error submitting test:', error);
-      alert('Failed to submit test. Please try again.');
-      // Don't redirect on submit error
+      console.error('Submission failed:', {
+        status: error.response?.status,
+        message: error.response?.data?.message,
+        validation: error.response?.data?.errors
+      });
+      alert(`Submission failed: ${error.response?.data?.message || error.message}`);
     }
   };
 

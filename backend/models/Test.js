@@ -5,7 +5,7 @@ const QuestionSchema = new mongoose.Schema({
   _id: { type: String, default: uuidv4 }, // Generate a unique ID for each question
   questionText: { type: String, required: true },
   maxMarks: { type: Number, required: true },
-  type: { type: String, enum: ["coding", "theoretical", "handwritten"], required: true },
+  type: { type: String, enum: ["coding", "typed", "handwritten"], required: true },
 });
 
 const TestSchema = new mongoose.Schema({

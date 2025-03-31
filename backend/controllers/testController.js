@@ -83,7 +83,7 @@ export const getTestById = async (req, res) => {
 export const submitTest = async (req, res) => {
   try {
     const { testId } = req.params;
-    const { token } = req.cookies; 
+    const token = req.cookies.token; 
     const { answers } = req.body;
 
     if (!token) {

@@ -94,7 +94,7 @@ export default function CreateTest() {
     const newQuestion = testData.testType === 'typed' ? 
       {
         questionText: '',
-        questionType: 'theoretical', // theoretical or coding
+        questionType: 'typed', // typed or coding
         codingLanguage: 'javascript',
         maxMarks: 10,
         enableRubrics: false,
@@ -490,7 +490,7 @@ export default function CreateTest() {
             className="w-full p-2 border border-gray-300 rounded-md"
             required
           >
-            <option value="theoretical">Theoretical (Rich Text Editor)</option>
+            <option value="typed">typed (Rich Text Editor)</option>
             <option value="coding">Coding (Code Editor)</option>
             <option value="handwritten">Handwritten (OCR)</option>
           </select>
