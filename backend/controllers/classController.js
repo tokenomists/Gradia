@@ -36,7 +36,6 @@ export const createClass = async (req, res) => {
     if (!teacher) {
       return res.status(404).json({ success: false, message: "Teacher not found" });
     }
-    
     // Generate class code if not provided
     const finalClassCode = classCode || await Class.generateClassCode();
     
@@ -55,7 +54,8 @@ export const createClass = async (req, res) => {
       teacher: teacher._id,
       invitedEmails
     });
-    
+    Teacher.findByIdAndUpdate(teacher._id, { $push: { classes: newClass._id } }).exec();
+
     res.status(201).json({ 
       success: true, 
       message: "Class created successfully", 

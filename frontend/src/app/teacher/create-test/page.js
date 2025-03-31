@@ -2,7 +2,13 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { UserDropdown } from '@/components/dashboard/UserDropdown';
-import { isAuthenticated } from '@/utils/auth';
+import { isAuthenticated } from '@/utils/auth.js';
+import { TestPublishConfirmationModal } from '@/components/teacher/create-test/TestPublishConfirmationModal';
+import { useRouter } from 'next/navigation';
+import { useError } from '@/contexts/ErrorContext.js';
+import { publishTest } from '@/utils/test.js';
+import { getClassesForTeacher } from '@/utils/class.js';
+
 
 export default function CreateTest() {
   const [testData, setTestData] = useState({
@@ -11,7 +17,6 @@ export default function CreateTest() {
     startTime: '',
     endTime: '',
     duration: 30,
-    testType: 'typed', // 'handwritten' or 'typed'
     classAssignment: '',
     passingScore: 70,
     isTimeLimited: true,
@@ -23,21 +28,22 @@ export default function CreateTest() {
     },
     files: []
   });
-
+  const [userData, setUserData] = useState({isLoggedIn: false, role: ''});
   const [activeTab, setActiveTab] = useState('details');
-  const [classes, setClasses] = useState([
-    { id: 1, name: 'CS101 - Introduction to Programming' },
-    { id: 2, name: 'CS201 - Data Structures & Algorithms' },
-    { id: 3, name: 'CS301 - Database Systems' }
-  ]);
+  const [classes, setClasses] = useState([]);
+  const [isPublishModalOpen, setIsPublishModalOpen] = useState(false);
+  const router = useRouter();
+  const { showError } = useError();
 
   useEffect(() => {
     const checkAuth = async () => {
-      const { isLoggedIn, role } = await isAuthenticated();
-      if (!isLoggedIn) {
+      const userInfo = await isAuthenticated();
+      setUserData(userInfo);
+      
+      if (!userInfo.isLoggedIn) {
         localStorage.setItem("notification", JSON.stringify({ type: "error", message: "Login to access protected pages!" }));
         window.location.href = '/';
-      } else if (role !== 'teacher') {
+      } else if (userInfo.role !== 'teacher') {
         localStorage.setItem("notification", JSON.stringify({ type: "error", message: "Students cannot access pages related to teacher!" }));
         window.location.href = '/';
       }
@@ -45,6 +51,18 @@ export default function CreateTest() {
   
     checkAuth();
   }, []);
+  
+  useEffect(() => {
+    if (userData && userData.isLoggedIn) {
+      const fetchClasses = async () => {
+        const classes = await getClassesForTeacher();
+        // console.log("Classes Data: ", classes);
+        if (classes) setClasses(classes);
+      };
+  
+      fetchClasses();
+    }
+  }, [userData]);
   
 
   // Calculate duration when start and end times change
@@ -88,7 +106,8 @@ export default function CreateTest() {
         imageUrl: '',
         maxMarks: 10,
         enableRubrics: false,
-        points: 10
+        points: 10,
+        type: 'handwritten'
       };
 
     setTestData({
@@ -213,23 +232,46 @@ export default function CreateTest() {
   const handleSubmit = async (e, isDraft = false) => {
     e.preventDefault();
     
+    if (isDraft) {
+      try {
+        // Draft saving logic
+        console.log('Saving test as draft:', { ...testData, isDraft });
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        alert('Test saved as draft!');
+      } catch (error) {
+        console.error('Error saving draft:', error);
+        alert('Failed to save draft. Please try again.');
+      }
+    } else {
+      // For publishing, open the confirmation modal
+      setIsPublishModalOpen(true);
+    }
+  };
+
+  // Confirmation modal submission handler
+  const handleConfirmPublish = async () => {
     try {
-      // Here you would implement your API call to save the test
-      console.log('Submitting test data:', { ...testData, isDraft });
-      
-      // Mock API call
+      // Actual test publishing logic
+      // console.log('Publishing test:', { ...testData, isDraft: false });
+      const updatedTestData = { ...testData, isDraft: false, classesAssignment: testData.classAssignment, createdBy: userData._id };
+      console.log("Publishing test: ", updatedTestData);
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      // Show confirmation modal
-      if (isDraft) {
-        alert('Test saved as draft!');
+      const response = await publishTest(updatedTestData);
+      if(response) {
+        // Close modal and show success message
+        setIsPublishModalOpen(false);
+        localStorage.setItem("notification", JSON.stringify({ type: "success", message: "Successfully created test!" }));
+
+        // Redirect to dashboard on success
+        router.push('/');
       } else {
-        confirm('Are you sure you want to publish this test?') && 
-          alert('Test published successfully!');
+        showError("Failed to publish test. Please try again later.");
       }
     } catch (error) {
-      console.error('Error creating test:', error);
-      alert('Failed to create test. Please try again.');
+      console.error('Error publishing test:', error);
+      // alert('Failed to publish test. Please try again.');
+      showError("Failed to publish test. Please try again.");
     }
   };
 
@@ -377,37 +419,9 @@ export default function CreateTest() {
                     >
                       <option value="">Select a class</option>
                       {classes.map(cls => (
-                        <option key={cls.id} value={cls.id}>{cls.name}</option>
+                        <option key={cls._id} value={cls._id}>{cls.name}</option>
                       ))}
                     </select>
-                  </div>
-                </div>
-
-                <div className="p-4 border border-gray-300 rounded-md bg-white">
-                  <label className="block mb-3 font-medium">Test Type <span className="text-red-500">*</span></label>
-                  <div className="flex space-x-6">
-                    <label className="inline-flex items-center">
-                      <input
-                        type="radio"
-                        name="testType"
-                        value="handwritten"
-                        checked={testData.testType === 'handwritten'}
-                        onChange={handleTestDetailsChange}
-                        className="mr-2"
-                      />
-                      <span>Handwritten (OCR)</span>
-                    </label>
-                    <label className="inline-flex items-center">
-                      <input
-                        type="radio"
-                        name="testType"
-                        value="typed"
-                        checked={testData.testType === 'typed'}
-                        onChange={handleTestDetailsChange}
-                        className="mr-2"
-                      />
-                      <span>Typed</span>
-                    </label>
                   </div>
                 </div>
                 
@@ -668,10 +682,6 @@ export default function CreateTest() {
                       <p className="font-medium">{testData.title || "Not specified"}</p>
                     </div>
                     <div>
-                      <p className="text-sm text-gray-500">Test Type:</p>
-                      <p className="font-medium capitalize">{testData.testType}</p>
-                    </div>
-                    <div>
                       <p className="text-sm text-gray-500">Start Time:</p>
                       <p className="font-medium">{testData.startTime ? new Date(testData.startTime).toLocaleString() : "Not specified"}</p>
                     </div>
@@ -687,7 +697,7 @@ export default function CreateTest() {
                       <p className="text-sm text-gray-500">Class:</p>
                       <p className="font-medium">
                         {testData.classAssignment ? 
-                          classes.find(c => c.id.toString() === testData.classAssignment.toString())?.name || "Unknown class" 
+                          classes.find(c => c._id.toString() === testData.classAssignment.toString())?.name || "Unknown class" 
                           : "Not assigned"}
                       </p>
                     </div>
@@ -894,11 +904,13 @@ export default function CreateTest() {
         </div>
       </footer>
 
-      {/* Confirmation Modal (can be implemented) */}
-      {/* 
-      Add a modal component here for confirmation before publishing.
-      Example implementation would use a state variable to control visibility.
-      */}
+      {/* Confirmation Modal */}
+      <TestPublishConfirmationModal
+        isOpen={isPublishModalOpen}
+        onClose={() => setIsPublishModalOpen(false)}
+        onConfirm={handleConfirmPublish}
+        testTitle={testData.title || 'Untitled Test'}
+      />
     </div>
   );
 }

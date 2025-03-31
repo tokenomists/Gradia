@@ -25,7 +25,7 @@ const setupGoogleAuth = (userType) => {
       async (req, accessToken, refreshToken, profile, done) => {
         try {
           const { given_name, family_name, email, picture } = profile._json;
-          console.log("Profile:", profile);
+          // console.log("Profile:", profile);
           
           // Fix: Add await to properly check for existing users in other role
           const OtherModel = userType === "student" ? Teacher : Student;
