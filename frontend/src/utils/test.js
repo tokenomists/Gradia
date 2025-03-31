@@ -4,14 +4,38 @@ export const getTestsForStudent = async () => {
     try {
         const response = await instance.get('/api/auth/student/tests');
         const data = response.data;
-        console.log(data);
-        if(data != undefined && data != null) {
-            return data;
+
+        if (!data || data === undefined) {
+            console.log("Invalid data format:", data);
+            return [];
         }
-    } catch(error) {
-        console.log("Error fetching tests: ", error);
+
+        const currDate = new Date(); // Local system time
+
+        data.upcomingTests = data.upcomingTests.map(test => {
+            const startTime = new Date(test.startTime); // Convert to Date object
+
+            if (isNaN(startTime.getTime())) {
+                console.error("Invalid date format:", test.startTime);
+                return test; // Keep original if date is invalid
+            }
+            // console.log({...test,
+            //     status: startTime.getTime() < currDate.getTime() ? "ready" : "not-ready"});
+            // console.log("Start time: ",startTime);
+            // console.log("Current time: ",currDate);
+            return {
+                ...test,
+                status: startTime.getTime() < currDate.getTime() ? "ready" : "not-ready"
+            };
+        });
+
+        return data;
+    } catch (error) {
+        console.error("Error fetching tests:", error);
+        return [];
     }
-}
+};
+
 
 export const getTestsForTeacher = async () => {
     try {
@@ -39,3 +63,23 @@ export const publishTest = async (updatedTestData) => {
         console.log("Error publishing test: ", error);
     }
 }
+
+export const getTestById = async (testId) => {
+    try {
+        const response = await instance.get(`/api/tests/${testId}`);
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching test:', error);
+        throw error;
+    }
+};
+  
+export const submitTest = async (testId, submissionData) => {
+    try {
+        const response = await instance.post(`/api/tests/submit/${testId}`, submissionData);
+        return response.data;
+    } catch (error) {
+        console.error('Error submitting test:', error);
+        throw error;
+    }
+};

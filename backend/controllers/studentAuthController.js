@@ -34,21 +34,21 @@ export const registerStudent = async (req, res) => {
       httpOnly: true,  // Prevents access via JavaScript for security
       secure: process.env.NODE_ENV === "production",  // Use secure cookies in production
       sameSite: "Strict",  // Prevent CSRF attacks
-      maxAge: 3600000,  // Cookie expiration time (1 hour)
+      maxAge: 3153600000,  // Cookie expiration time (100 years)
     });
     
     res.cookie("role", "student", {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "Strict",
-      maxAge: 3600000,
+      maxAge: 3153600000,
     });
 
     res.cookie("email", email, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "Strict",
-      maxAge: 3600000,
+      maxAge: 3153600000,
     });
     
     res.status(201).json({ message: "Student registered successfully", token: token });
@@ -84,21 +84,21 @@ export const loginStudent = async (req, res) => {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "Strict",
-        maxAge: 3600000,
+        maxAge: 3153600000,
     });
 
     res.cookie("role", "student", {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "Strict",
-      maxAge: 3600000,
+      maxAge: 3153600000,
     });
 
     res.cookie("email", email, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "Strict",
-      maxAge: 3600000,
+      maxAge: 3153600000,
     });
 
     res.status(200).json({ success: true, message: "Student logged in successfully", token: token });

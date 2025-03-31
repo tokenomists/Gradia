@@ -1,6 +1,6 @@
 // frontend/src/contexts/SuccessContext.js
 import { createContext, useContext, useState } from 'react';
-import Toast from '@/components/auth/Toast'; // Make sure this path is correct
+import Toast from '@/components/auth/Toast';
 
 const SuccessContext = createContext();
 

@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState, useEffect, useReducer, useCallback } from 'react';
+import React, { useState, useEffect, useReducer, useCallback, useMemo } from 'react';
+import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from "@/lib/utils";
 import { 
@@ -27,45 +28,38 @@ import {
   AlertDialogTitle, 
   AlertDialogTrigger 
 } from "@/components/ui/alert-dialog";
+import { useRouter, useParams } from 'next/navigation';
+import { getTestById, submitTest } from '@/utils/test';
 
-// Keep the existing initialState and testReducer (unchanged from previous code)
 const initialState = {
-    questions: [
-      {
-        id: 1,
-        type: 'typed',
-        text: 'Explain the concept of closure in JavaScript',
-        status: 'not-visited',
-        answer: '',
-        images: [],
-        reviewMarked: false
-      },
-      {
-        id: 2,
-        type: 'coding',
-        text: 'Implement a recursive fibonacci sequence generator',
-        status: 'not-visited',
-        answer: '',
-        images: [],
-        reviewMarked: false
-      },
-      {
-        id: 3,
-        type: 'handwritten',
-        text: 'Solve the following mathematical proof',
-        status: 'not-visited',
-        answer: '',
-        images: [],
-        reviewMarked: false
-      }
-    ],
-    currentQuestionIndex: 0,
-    timer: 3600, // 1 hour
-    submitted: false
-  };
+  questions: [{
+    id: 0,
+    type: 'typed',
+    text: '',
+    status: 'not-visited',
+    answer: '',
+    images: [],
+    reviewMarked: false,
+    maxMarks: 0
+  }],
+  currentQuestionIndex: 0,
+  timer: 100,
+  submitted: false,
+  testId: null,
+  testDetails: null,
+  isLoading: true
+};
   
   function testReducer(state, action) {
     switch (action.type) {
+      case 'INIT_TEST':
+        return {
+          ...state,
+          questions: action.payload.questions,
+          timer: action.payload.timer,
+          testDetails: action.payload.testDetails,
+          testId: action.payload.testId
+        };
       case 'SET_ANSWER':
         return {
           ...state,
@@ -130,12 +124,21 @@ const initialState = {
         };
       case 'DECREMENT_TIMER':
         return { ...state, timer: Math.max(0, state.timer - 1) };
+      case 'SUBMIT_TEST':
+        return { 
+          ...state, 
+          submitted: true 
+        };
+      case 'SET_LOADING':
+        return {
+          ...state,
+          isLoading: action.payload
+        };
       default:
         return state;
     }
   }
 
-// Keep the existing EnhancedTimer component (unchanged)
 const EnhancedTimer = ({ seconds }) => {
   const hours = Math.floor(seconds / 3600);
   const minutes = Math.floor((seconds % 3600) / 60);
@@ -186,9 +189,65 @@ const EnhancedTimer = ({ seconds }) => {
 const TestPage = () => {
   const [state, dispatch] = useReducer(testReducer, initialState);
   const { questions, currentQuestionIndex, timer, submitted } = state;
-  const currentQuestion = questions[currentQuestionIndex];
+  const currentQuestion = useMemo(() => {
+    return questions[currentQuestionIndex];
+  }, [questions, currentQuestionIndex]);
+  const params = useParams();
+  const { testId } = params; 
+  const router = useRouter();
 
-  // Keep existing useEffect and other handlers
+  useEffect(() => {
+    const fetchTestData = async () => {
+      try {
+        // dispatch({ type: 'SET_LOADING', payload: true });
+        
+        const testData = await getTestById(testId);
+        if (!testData) {
+          throw new Error('Test data not found');
+        }
+        // console.log(testData);
+        const now = new Date();
+        const endTime = new Date(testData.endTime);
+        const remainingTime = Math.max(0, Math.floor((endTime - now) / 1000));
+        
+        const transformedQuestions = testData.questions.map((q, index) => ({
+          id: q._id || index + 1,
+          type: q.type === 'theoretical' ? 'typed' : q.type,
+          text: q.questionText,
+          status: 'not-visited',
+          answer: '',
+          images: [],
+          reviewMarked: false,
+          maxMarks: q.maxMarks
+        }));
+        
+        transformedQuestions[0].status = 'visited';
+        transformedQuestions.forEach((q, index) => {
+          q.qNo = index + 1;
+        });
+
+        dispatch({
+          type: 'INIT_TEST',
+          payload: {
+            questions: transformedQuestions,
+            timer: remainingTime,
+            testDetails: testData,
+            testId,
+            isLoading: false
+          }
+        });
+      } catch (error) {
+        console.error('Error fetching test:', error);
+        // Show error to user before redirecting
+        alert(`Failed to load test: ${error.message}`);
+        router.push('/');
+      }
+    };
+  
+    fetchTestData();
+  }, [testId, router]);
+  
+
   useEffect(() => {
     const timerId = setInterval(() => {
       dispatch({ type: 'DECREMENT_TIMER' });
@@ -272,9 +331,11 @@ const TestPage = () => {
               <div className="grid grid-cols-3 gap-4">
                 {currentQuestion.images.map((image, index) => (
                   <div key={index} className="relative">
-                    <img 
+                    <Image 
                       src={image} 
-                      alt={`Uploaded solution ${index + 1}`} 
+                      alt={`Uploaded solution ${index + 1}`}
+                      width={"100%"}
+                      height={"100%"}
                       className="w-full h-48 object-cover rounded-lg"
                     />
                     <button
@@ -309,12 +370,46 @@ const TestPage = () => {
   };
 
   // Submission handler
-  const handleTestSubmit = () => {
-    // You can add additional logic here like sending test data to backend
-    dispatch({ type: 'SUBMIT_TEST' });
-    localStorage.setItem("notification", JSON.stringify({ type: "success", message: "Successfully submitted the test!" }));
-    window.location.href = '/';
+  const handleTestSubmit = async () => {
+    try {
+      const answers = state.questions.map(q => {
+        const answer = {
+          questionId: q.id,
+          questionType: q.type === 'typed' ? 'theoretical' : q.type,
+        };
+        
+        if (q.type === 'typed' || q.type === 'coding') {
+          answer.answerText = q.answer;
+        } else if (q.type === 'handwritten') {
+          answer.fileUrl = q.images[0];
+        }
+        
+        return answer;
+      });
+  
+      await submitTest(state.testId, { answers });
+      dispatch({ type: 'SUBMIT_TEST' });
+      
+      // Only redirect after successful submission
+      router.push(`/test/submitted/${state.testId}`);
+    } catch (error) {
+      console.error('Error submitting test:', error);
+      alert('Failed to submit test. Please try again.');
+      // Don't redirect on submit error
+    }
   };
+
+  // if (state.isLoading) {
+  //   return (
+  //     <div className="flex items-center justify-center h-screen bg-[#fcf9ea]">
+  //       <motion.div
+  //         animate={{ rotate: 360 }}
+  //         transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+  //         className="w-16 h-16 border-4 border-[#d56c4e] border-t-transparent rounded-full"
+  //       />
+  //     </div>
+  //   );
+  // }
 
   // If test is submitted, show submission confirmation
   if (submitted) {
@@ -332,8 +427,8 @@ const TestPage = () => {
           <button 
             className="px-10 py-4 bg-[#d56c4e] text-white rounded-xl hover:bg-[#d56c4e]/80 transition-all"
             onClick={() => {
-              // Logic to return to dashboard or next screen
-              window.location.href = '/'; // Example redirect
+              // Return to dashboard
+              window.location.href = '/';
             }}
           >
             Return to Dashboard
@@ -345,14 +440,13 @@ const TestPage = () => {
 
   return (
     <div className="relative flex h-screen bg-[#fcf9ea] overflow-hidden">
-      {/* Existing code remains the same until the navigation buttons section */}
       {/* Enhanced Timer */}
       <EnhancedTimer seconds={timer} />
 
-      {/* Sidebar - Slightly modified */}
+      {/* Sidebar */}
       <div className="w-1/5 bg-[#edead7] p-6 space-y-6 shadow-lg relative z-40">
         {/* Question Navigation */}
-        <div className="grid grid-cols-5 gap-2 mt-16"> {/* Added mt-16 to push down below timer */}
+        <div className="grid grid-cols-5 gap-2 mt-16">
           {questions.map((q, index) => (
             <motion.button
               key={q.id}
@@ -371,7 +465,7 @@ const TestPage = () => {
                 payload: index 
               })}
             >
-              {q.id}
+              {q.qNo}
               {q.reviewMarked && (
                 <BookmarkIcon 
                   className="absolute top-1 right-1 w-4 h-4 text-[#d56c4e] group-hover:scale-125 transition-transform" 
@@ -411,7 +505,7 @@ const TestPage = () => {
                   <h2 className="text-3xl font-bold text-[#d56c4e] flex items-center">
                     {currentQuestion.type === 'typed' && <FileText className="mr-4 text-[#d56c4e] w-8 h-8" />}
                     {currentQuestion.type === 'coding' && <Code className="mr-4 text-[#d56c4e] w-8 h-8" />}
-                    Question {currentQuestion.id}
+                    Question {currentQuestion.qNo}
                   </h2>
                   <p className="text-gray-600 mt-3 text-lg">{currentQuestion.text}</p>
                 </div>
@@ -438,7 +532,7 @@ const TestPage = () => {
                 </motion.button>
               </div>
 
-              {/* Question Component - Slightly enhanced */}
+              {/* Question Component */}
               <div className="mt-6">
                 {renderQuestionComponent()}
               </div>

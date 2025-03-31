@@ -9,7 +9,7 @@ const generateToken = (id) => {
   return jwt.sign({ id, role: "teacher" }, process.env.JWT_SECRET, { expiresIn: "7d" });
 };
 
-// 📌 Teacher Sign-up
+// Teacher Sign-up
 export const registerTeacher = async (req, res) => {
   try {
     const { fname, lname, email, password } = req.body;
@@ -42,7 +42,7 @@ export const registerTeacher = async (req, res) => {
   }
 };
 
-// 📌 Teacher Login
+// Teacher Login
 export const loginTeacher = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -63,21 +63,21 @@ export const loginTeacher = async (req, res) => {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "Strict",
-        maxAge: 3600000,
+        maxAge: 3153600000,
     });
 
     res.cookie("role", "teacher", {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "Strict",
-      maxAge: 3600000,
+      maxAge: 3153600000,
    });
 
    res.cookie("email", email, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "Strict",
-    maxAge: 3600000,
+    maxAge: 3153600000,
   });
 
     res.status(200).json({ success: true, message: "Teacher logged in successfully", token: token });

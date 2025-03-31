@@ -1,4 +1,12 @@
 import mongoose from "mongoose";
+import { v4 as uuidv4 } from "uuid";
+
+const QuestionSchema = new mongoose.Schema({
+  _id: { type: String, default: uuidv4 }, // Generate a unique ID for each question
+  questionText: { type: String, required: true },
+  maxMarks: { type: Number, required: true },
+  type: { type: String, enum: ["coding", "theoretical", "handwritten"], required: true },
+});
 
 const TestSchema = new mongoose.Schema({
   title: { type: String, required: true },
@@ -8,15 +16,7 @@ const TestSchema = new mongoose.Schema({
   duration: { type: Number, required: true }, // in minutes
   classAssignment: { type: mongoose.Schema.Types.ObjectId, ref: "Class", required: true },
   createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "Teacher", required: true },
-  questions: [
-    {
-      questionText: { type: String, required: true },
-      maxMarks: { type: Number, required: true },
-      type: { type: String, enum: ["coding", "theoretical", "handwritten"], required: true },
-      options: { type: [String] }, // Only for MCQs
-      correctAnswer: { type: String }, // Only for MCQs
-    }
-  ],
+  questions: [QuestionSchema],
   rubric: {
     type: {
       title: { type: String, default: "" },
@@ -35,7 +35,7 @@ const TestSchema = new mongoose.Schema({
         url: { type: String, required: true }
       }
     ],
-    default: [] // ✅ Defaults to an empty array if no files are uploaded
+    default: [] // Defaults to an empty array if no files are uploaded
   },
   isDraft: { type: Boolean, default: true }, // Test is a draft until published
 }, { timestamps: true });
