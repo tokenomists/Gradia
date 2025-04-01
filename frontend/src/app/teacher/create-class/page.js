@@ -1,8 +1,9 @@
 'use client';
+
 import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Copy, Upload, UserPlus, X, Check } from 'lucide-react';
+import { ArrowLeft, Copy, Upload, UserPlus, X, Check, File } from 'lucide-react';
 import instance from '@/utils/axios.js';
 import { UserDropdown } from '@/components/dashboard/UserDropdown';
 import { useError } from '@/contexts/ErrorContext';
@@ -11,16 +12,18 @@ import { isAuthenticated } from '@/utils/auth';
 export default function CreateClass() {
   const [className, setClassName] = useState('');
   const [classDescription, setClassDescription] = useState('');
-  const [subjects, setSubjects] = useState([]);
   const [selectedSubjects, setSelectedSubjects] = useState([]);
   const [studentEmail, setStudentEmail] = useState('');
+  const [subjects, setSubjects] = useState([]);
   const [studentList, setStudentList] = useState([]);
   const [showSubjectDropdown, setShowSubjectDropdown] = useState(false);
   const [classCode, setClassCode] = useState('GRD-' + Math.random().toString(36).substring(2, 8).toUpperCase());
   const [loading, setLoading] = useState(false);
   const [codeCopied, setCodeCopied] = useState(false);
+  const [classFiles, setClassFiles] = useState([]);
   
   const fileInputRef = useRef(null);
+  const pdfInputRef = useRef(null);
   const router = useRouter();
   const { showError } = useError();
   
@@ -30,7 +33,8 @@ export default function CreateClass() {
     'Design and Analysis of Algorithms', 
     'Data Structures', 
     'Computer Networks',
-    'Database Management'
+    'Database Management',
+    'Physics'
   ];
   
   // Check if user is a teacher
@@ -97,6 +101,26 @@ export default function CreateClass() {
     }
   };
   
+  // Handle PDF file uploads
+  const handlePdfUpload = (event) => {
+    const files = Array.from(event.target.files);
+    
+    // Validate file types (PDF only)
+    const invalidFiles = files.filter(file => file.type !== 'application/pdf');
+    if (invalidFiles.length > 0) {
+      showError('Only PDF files are allowed');
+      return;
+    }
+    
+    // Add new files to the existing list
+    setClassFiles([...classFiles, ...files]);
+  };
+  
+  // Handle removing a PDF file
+  const handleRemoveFile = (fileName) => {
+    setClassFiles(classFiles.filter(file => file.name !== fileName));
+  };
+  
   // Handle copy class code to clipboard
   const handleCopyCode = () => {
     navigator.clipboard.writeText(classCode);
@@ -113,11 +137,19 @@ export default function CreateClass() {
     }
   };
   
+  // Format file size for display
+  const formatFileSize = (bytes) => {
+    if (bytes < 1024) return bytes + ' B';
+    else if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+    else return (bytes / 1048576).toFixed(1) + ' MB';
+  };
+  
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!className.trim()) {
+    // Check if class name is provided
+    if (!className || className.trim() === '') {
       showError('Class name is required');
       return;
     }
@@ -125,16 +157,26 @@ export default function CreateClass() {
     setLoading(true);
     
     try {
-      const response = await instance.post('/api/classes/create', {
-        name: className,
-        description: classDescription,
-        subjects: selectedSubjects,
-        invitedEmails: studentList,
-        classCode
+      const formData = new FormData();
+      
+      formData.append('name', className);
+      formData.append('description', classDescription);
+      formData.append('classCode', classCode);
+      formData.append('subjects', JSON.stringify(selectedSubjects));
+      formData.append('invitedEmails', JSON.stringify(studentList));
+      
+      classFiles.forEach(file => {
+        formData.append('classFiles', file);
+      });
+      
+      const response = await instance.post('/api/classes/create', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
       });
       
       if (response.data.success) {
-        router.push('/'); // Redirect to dashboard on success
+        router.push('/');
       } else {
         showError(response.data.message || 'Failed to create class');
       }
@@ -327,6 +369,63 @@ export default function CreateClass() {
                         <button
                           type="button"
                           onClick={() => handleRemoveStudent(email)}
+                          className="text-red-500 hover:text-red-700"
+                        >
+                          <X size={16} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+            
+            {/* Class Materials (PDF Files) */}
+            <div className="mb-8">
+              <label className="block text-gray-700 font-medium mb-2">
+                Upload Class Materials
+              </label>
+              <div className="mb-4">
+                <button
+                  type="button"
+                  onClick={() => pdfInputRef.current.click()}
+                  className="w-full py-3 border-2 border-dashed border-gray-300 rounded-md text-gray-500 flex items-center justify-center hover:bg-gray-50"
+                >
+                  <Upload size={18} className="mr-2" />
+                  Upload PDF Materials
+                </button>
+                <input
+                  type="file"
+                  ref={pdfInputRef}
+                  onChange={handlePdfUpload}
+                  accept=".pdf"
+                  multiple
+                  className="hidden"
+                />
+                <p className="text-sm text-gray-500 mt-1">
+                  Only PDF files are accepted
+                </p>
+              </div>
+              
+              {/* PDF Files Preview */}
+              {classFiles.length > 0 && (
+                <div className="border border-gray-200 rounded-md p-3 bg-gray-50">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="font-medium text-gray-700">Class Materials ({classFiles.length})</span>
+                  </div>
+                  <div className="max-h-36 overflow-y-auto">
+                    {classFiles.map((file, index) => (
+                      <div key={index} className="flex justify-between items-center py-2 border-b border-gray-100 last:border-b-0">
+                        <div className="flex items-center">
+                          <File size={18} className="text-red-500 mr-2" />
+                          <div>
+                            <p className="text-sm font-medium">{file.name}</p>
+                            <p className="text-xs text-gray-500">{formatFileSize(file.size)}</p>
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveFile(file.name)}
                           className="text-red-500 hover:text-red-700"
                         >
                           <X size={16} />
