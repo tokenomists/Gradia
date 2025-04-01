@@ -1,18 +1,15 @@
 'use client';
+
 import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { 
-  Bell, 
   User, 
   ChevronRight, 
   ChevronLeft,
   Calendar, 
   Clock, 
-  FileText, 
-  BarChart, 
-  PlayCircle,
-  Award,
-  BookOpen
+  Pencil,
+  BookIcon,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { UserDropdown } from '@/components/dashboard/UserDropdown.jsx';
@@ -27,6 +24,7 @@ export default function StudentDashboard() {
     name: '',
     profilePic: '',
   });
+
   const [testData, setTestData] = useState({
     upcomingTests: [],
     previousTests: []
@@ -35,6 +33,26 @@ export default function StudentDashboard() {
   const testsContainerRef = useRef(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
+
+  const [greeting, setGreeting] = useState("Hello there");
+
+  useEffect(() => {
+    if (user?.name) {
+      const firstName = user.name.split(" ")[0]
+      const hour = new Date().getHours();
+      if (hour >= 4 && hour < 6) {
+        setGreeting(`Rise and shine, ${firstName}`);
+      } else if (hour >= 6 && hour < 12) {
+        setGreeting(`Good morning, ${firstName}`);
+      } else if (hour >= 12 && hour < 17) {
+        setGreeting(`Good afternoon, ${firstName}`);
+      } else if (hour >= 17 && hour < 21) {
+        setGreeting(`Good evening, ${firstName}`);
+      } else {
+        setGreeting(`Hello there, night owl!`);
+      }
+    }
+  }, [user]);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -152,10 +170,11 @@ export default function StudentDashboard() {
       <nav className="bg-[#d56c4e] text-white px-6 py-4 flex justify-between items-center">
         <div className="flex items-center">
           <motion.h1 
-            initial={{ x: -20, opacity: 0 }} 
+            initial={{ x: -5, opacity: 0 }} 
             animate={{ x: 0, opacity: 1 }}
-            transition={{ duration: 0.5 }}
-            className="text-3xl font-serif italic font-bold"
+            transition={{ duration: 0.25 }}
+            style={{ fontFamily: "'Rage Italic', sans-serif" }}
+            className="text-4xl font-bold text-black"
           >
             Gradia
           </motion.h1>
@@ -163,13 +182,13 @@ export default function StudentDashboard() {
         <div className="flex space-x-6 items-center">
           <motion.span 
             whileHover={{ scale: 1.05 }}
-            className="cursor-pointer font-medium"
+            className="cursor-pointer font-sans font-medium"
           >
             Practice
           </motion.span>
           <motion.span 
             whileHover={{ scale: 1.05 }}
-            className="cursor-pointer font-medium"
+            className="cursor-pointer font-sans font-medium"
           >
             Performance
           </motion.span>
@@ -178,20 +197,13 @@ export default function StudentDashboard() {
       </nav>
 
       {/* Main Content */}
-      <div className="px-6 py-8 max-w-7xl mx-auto">
+      <div className="px-6 py-6 max-w-7xl mx-auto bg-[#f9f4e8]">
         {/* Welcome Section */}
-        <div className="flex justify-between items-center mb-8">
-          <motion.h2 
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="text-3xl font-bold text-gray-800"
-          >
-            Welcome back, {user.name}
-          </motion.h2>
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-3xl font-bold text-gray-800">{greeting}</h2>
           <motion.button
             onClick={() => {router.push('/student/join-class')}}
-            whileHover={{ scale: 1.05, boxShadow: "0px 0px 8px rgba(213, 108, 78, 0.6)" }}
+            whileHover={{ scale: 1.05 }}
             className="flex items-center bg-[#e2c3ae] hover:bg-[#d5b5a0] text-gray-800 px-4 py-2 rounded-lg font-medium shadow-sm transition-all duration-300"
           >
             <User size={18} className="mr-2" />
@@ -206,83 +218,98 @@ export default function StudentDashboard() {
           animate="show"
           className="mb-8"
         >
-          <motion.h3 
-            variants={itemVariants}
-            className="text-xl font-semibold text-gray-800 mb-4"
-          >
-            Upcoming Tests & Evaluations
-          </motion.h3>
-          
-          {/* Container with horizontal scroll */}
-          <div className="relative bg-[#fcf4e0] rounded-xl p-4 shadow-sm">
-            {/* Scroll Left Button */}
-            {canScrollLeft && (
-              <motion.button 
-                onClick={scrollLeft}
-                className="absolute left-2 top-1/2 -translate-y-1/2 z-10 bg-white/80 hover:bg-white rounded-full p-1 shadow-md"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                whileHover={{ scale: 1.1 }}
-              >
-                <ChevronLeft size={20} className="text-gray-800" />
-              </motion.button>
-            )}
-            
-            {/* Scroll Right Button */}
-            {canScrollRight && (
-              <motion.button 
-                onClick={scrollRight}
-                className="absolute right-2 top-1/2 -translate-y-1/2 z-10 bg-white/80 hover:bg-white rounded-full p-1 shadow-md"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                whileHover={{ scale: 1.1 }}
-              >
-                <ChevronRight size={20} className="text-gray-800" />
-              </motion.button>
-            )}
-            
-            {/* Scrollable container */}
-            <div 
-              ref={testsContainerRef} 
-              className="flex space-x-4 overflow-x-auto pb-2 scrollbar-hide"
-              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          {/* Container with heading and content */}
+          <div className="bg-[#eeead7] rounded-xl p-6">
+            <motion.h3 
+              variants={itemVariants}
+              className="text-xl font-semibold text-gray-800 mb-4 flex items-center"
             >
-              {testData && testData.upcomingTests.map((test) => (
-                <motion.div 
-                  key={test._id}
-                  variants={itemVariants}
-                  whileHover={{ 
-                    y: -5, 
-                    boxShadow: "0px 10px 15px rgba(0, 0, 0, 0.1)",
-                    transition: { type: "spring", stiffness: 300, damping: 15 }
-                  }}
-                  className="bg-[#e2c3ae] rounded-xl p-4 shadow-md min-w-[240px] w-[240px] flex-shrink-0"
-                >
-                  <h4 className="font-semibold text-base text-gray-800">{test.title}</h4>
-                  <p className="text-gray-600 text-sm truncate">{test.description}</p>
+              <Pencil size={20} className="mr-2" />
+              Upcoming Tests & Evaluations
+            </motion.h3>
+            
+            {/* Tests content container */}
+            <div className="relative">
+              {testData.upcomingTests.length > 0 ? (
+                <>
+                  {/* Scroll Left Button */}
+                  {canScrollLeft && (
+                    <motion.button 
+                      onClick={scrollLeft}
+                      className="absolute left-2 top-1/2 -translate-y-1/2 z-10 bg-white/80 hover:bg-white rounded-full p-1 shadow-md"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      whileHover={{ scale: 1.1 }}
+                    >
+                      <ChevronLeft size={20} className="text-gray-800" />
+                    </motion.button>
+                  )}
                   
-                  <div className="flex justify-between items-center mt-4">
-                    <div className="flex items-center">
-                      <Clock size={16} className="text-gray-600 mr-1" />
-                      <span className="text-gray-700 text-sm">{test.duration}</span>
-                    </div>
-                    {test.status === 'ready' ? (
-                      <motion.button
-                        onClick={() => {router.push(`/student/test/${test._id}`)}} 
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        className="bg-white text-gray-800 px-4 py-1 rounded-full text-sm font-medium shadow-sm hover:shadow-md transition-all duration-300"
+                  {/* Scroll Right Button */}
+                  {canScrollRight && (
+                    <motion.button 
+                      onClick={scrollRight}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 z-10 bg-white/80 hover:bg-white rounded-full p-1 shadow-md"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      whileHover={{ scale: 1.1 }}
+                    >
+                      <ChevronRight size={20} className="text-gray-800" />
+                    </motion.button>
+                  )}
+                  
+                  {/* Scrollable container */}
+                  <div 
+                    ref={testsContainerRef} 
+                    className="flex space-x-4 overflow-x-auto pb-2 scrollbar-hide"
+                    style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                  >
+                    {testData.upcomingTests.map((test) => (
+                      <motion.div 
+                        key={test.id}
+                        variants={itemVariants}
+                        whileHover={{ 
+                          y: -3, 
+                          boxShadow: "0px 10px 15px rgba(0, 0, 0, 0.1)",
+                          transition: { type: "spring", stiffness: 300, damping: 15 }
+                        }}
+                        className="bg-[#e1c3ad] rounded-xl p-4 shadow-md min-w-[240px] w-[240px] flex-shrink-0"
                       >
-                        Start
-                      </motion.button>
-                    ) : (
-                      <span className="bg-gray-200 text-gray-500 px-4 py-1 rounded-full text-sm font-medium">
-                        Scheduled
-                      </span>
-                    )}
+                        <h4 className="font-semibold text-base text-gray-900">{test.title}</h4>
+                        <p className="text-gray-800 text-sm">{test.description}</p>
+                        
+                        <div className="flex justify-between items-center mt-4">
+                          <div className="flex items-center">
+                            <Clock size={16} className="text-gray-600 mr-1" />
+                            <span className="text-gray-700 text-sm">{test.duration} mins</span>
+                          </div>
+                          {test.status === 'ready' ? (
+                            <motion.button 
+                              whileHover={{ scale: 1.05 }}
+                              whileTap={{ scale: 0.95 }}
+                              className="bg-[#e07a5f] text-white px-4 py-1 rounded-full text-sm font-medium shadow-sm hover:shadow-md transition-all duration-300"
+                            >
+                              Start
+                            </motion.button>
+                          ) : (
+                            <span className="bg-[#d8d7dc] text-gray-500 px-4 py-1 rounded-full text-sm font-medium border border-gray-200">
+                              Scheduled
+                            </span>
+                          )}
+                        </div>
+                      </motion.div>
+                    ))}
                   </div>
+                </>
+              ) : (
+                <motion.div
+                  variants={itemVariants}
+                  className="bg-[#eeead7] rounded-xl p-2 w-full text-center"
+                >
+                  <p className="text-gray-600 text-lg">No upcoming tests scheduled</p>
+                  <p className="text-gray-500 text-sm mt-2">Check back later for new tests</p>
                 </motion.div>
-              ))}
+              )}
             </div>
           </div>
         </motion.div>
@@ -294,41 +321,53 @@ export default function StudentDashboard() {
           animate="show"
           className="mb-8"
         >
-          <motion.h3 
-            variants={itemVariants}
-            className="text-xl font-semibold text-gray-800 mb-4 flex items-center"
-          >
-            <BookOpen size={20} className="mr-2" />
-            Your Classes
-          </motion.h3>
-          
-          <div className="grid md:grid-cols-3 gap-4">
-            {user.classes != undefined && user.classes.map((classItem) => (
-              <motion.div 
-                key={classItem._id}
-                variants={itemVariants}
-                whileHover={{ 
-                  y: -5, 
-                  boxShadow: "0px 10px 20px rgba(0, 0, 0, 0.1)",
-                  transition: { type: "spring", stiffness: 300, damping: 15 }
-                }}
-                className="bg-white rounded-xl p-4 shadow-md border-l-4 border-[#d56c4e]"
-              >
-                <h4 className="font-semibold text-gray-800">{classItem.name}</h4>
-                <p className="text-gray-600 text-sm">{classItem.teacher}</p>
-                <div className="flex items-center mt-3 text-xs text-gray-500">
-                  <Calendar size={14} className="mr-1" />
-                  <span>Next: {classItem.nextClass || "NOT SCHEDULED"}</span>
-                </div>
-                <motion.button 
-                  whileHover={{ scale: 1.03 }}
-                  className="mt-3 flex items-center text-[#d56c4e] font-medium text-sm"
+          {/* Container with heading and content */}
+          <div className="bg-[#eeead7] rounded-xl p-6">
+            <motion.h3 
+              variants={itemVariants}
+              className="text-xl font-semibold text-gray-800 mb-4 flex items-center"
+            >
+              <BookIcon size={20} className="mr-2" />
+              Your Classes
+            </motion.h3>
+            
+            {/* Classes grid container */}
+            <div className="grid md:grid-cols-3 gap-4">
+              {user.classes != undefined && user.classes.length > 0 ? (
+                user.classes.map((classItem) => (
+                  <motion.div 
+                    key={classItem._id}
+                    variants={itemVariants}
+                    whileHover={{ 
+                      y: -5, 
+                      boxShadow: "0px 10px 20px rgba(0, 0, 0, 0.1)",
+                      transition: { type: "spring", stiffness: 300, damping: 15 }
+                    }}
+                    className="bg-[#ebd5c1] rounded-xl p-4 shadow-sm border-l-4 border-[#d56c4e] transition-all duration-300 hover:shadow-md"
+                  >
+                    <h4 className="font-semibold text-gray-800">{classItem.name}</h4>
+                    <div className="flex items-center mt-3 text-xs text-gray-500">
+                      <Calendar size={14} className="mr-1" />
+                      <span>Next: {classItem.nextClass || "No Upcoming Tests!"}</span>
+                    </div>
+                    <button 
+                      className="mt-3 flex items-center text-[#d56c4e] font-medium text-sm"
+                    >
+                      View class
+                      <ChevronRight size={14} className="ml-1" />
+                    </button>
+                  </motion.div>
+                ))
+              ) : (
+                <motion.div
+                  variants={itemVariants}
+                  className="bg-[#eeead7] rounded-xl p-2 w-full text-center md:col-span-3"
                 >
-                  View class
-                  <ChevronRight size={14} className="ml-1" />
-                </motion.button>
-              </motion.div>
-            ))}
+                  <p className="text-gray-600 text-lg">No classes joined yet</p>
+                  <p className="text-gray-500 text-sm mt-2">Join a class to get started!</p>
+                </motion.div>
+              )}
+            </div>
           </div>
         </motion.div>
 

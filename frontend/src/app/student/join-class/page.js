@@ -54,15 +54,15 @@ export default function JoinClass() {
   return (
     <div className="min-h-screen bg-[#f8f5e9]">
       {/* Navigation Bar */}
-      <nav className="bg-[#e07a5f] text-white py-4 px-6 flex items-center justify-between">
+      <nav className="bg-[#d56c4e] text-white py-4 px-6 flex items-center justify-between">
         <div className="flex items-center">
-          <Link href="/" className="text-3xl font-cursive">
+          <Link href="/" style={{ fontFamily: "'Rage Italic', sans-serif" }} className="text-4xl font-bold text-black">
             Gradia
           </Link>
         </div>
         <div className="flex items-center space-x-6">
-          <Link href="/student/assignments" className="hover:underline">Assignments</Link>
-          <Link href="/student/grades" className="hover:underline">Grades</Link>
+        <Link href="/student/assignments" className="font-sans font-medium transition-transform transform hover:scale-110">Assignments</Link>
+        <Link href="/student/grades" className="font-sans font-medium transition-transform transform hover:scale-110">Grades</Link>
           <UserDropdown />
         </div>
       </nav>
@@ -70,7 +70,7 @@ export default function JoinClass() {
       {/* Main Content */}
       <div className="max-w-xl mx-auto px-4 py-8">
         <div className="flex items-center mb-6">
-          <Link href="/" className="flex items-center text-gray-700 hover:text-[#e07a5f]">
+          <Link href="/" className="flex items-center text-gray-700 hover:text-[#d56c4e]">
             <ArrowLeft className="mr-2" size={20} />
               <span>Back to Dashboard</span>
           </Link>

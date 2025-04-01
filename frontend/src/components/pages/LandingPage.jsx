@@ -612,7 +612,7 @@ export default function LandingPage() {
               className="mt-16 flex justify-center"
             >
               <motion.button
-                onClick={() => {router.push('/signin')}}
+                onClick={() => {router.push('/signup')}}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 className={`px-8 py-3 rounded-full ${darkMode ? "bg-[#ff8f6e]" : "bg-[#d56c4e]"} text-white font-medium flex items-center space-x-2`}

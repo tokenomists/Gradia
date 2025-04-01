@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { PenLine, Plus, ChevronDown, X } from 'lucide-react';
+import { PenLine, Plus, ChevronDown, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
@@ -45,9 +45,26 @@ export default function TeacherDashboard() {
         name: '',
         profilePic: ''
     });
+
+    const router = useRouter();   
+
     const [testsData, setTestsData] = useState([]);
     const [classesData, setClassesData] = useState([]);
-    const router = useRouter();    
+    
+    const [greeting, setGreeting] = useState("Hello there");
+    
+    useEffect(() => {
+        if (user?.name) {
+        const hour = new Date().getHours();
+        if (hour >= 5 && hour < 12) {
+            setGreeting(`Good morning, ${user.name}`);
+        } else if (hour >= 12 && hour < 15) {
+            setGreeting(`Good afternoon, ${user.name}`);
+        } else {
+            setGreeting(`Good evening, ${user.name}`);
+        }
+        }
+    }, [user]);
   
     useEffect(() => {
       const fetchUser = async () => {
@@ -75,7 +92,7 @@ export default function TeacherDashboard() {
       fetchClasses();
     }, []);
 
-  // Rotate quotes every 10 seconds
+  // Rotate quotes every 60 seconds
   useEffect(() => {
     const randomQuote = teacherQuotes[Math.floor(Math.random() * teacherQuotes.length)];
     setCurrentQuote(randomQuote);
@@ -83,9 +100,35 @@ export default function TeacherDashboard() {
     const interval = setInterval(() => {
       const randomQuote = teacherQuotes[Math.floor(Math.random() * teacherQuotes.length)];
       setCurrentQuote(randomQuote);
-    }, 10000);
+    }, 60000);
     
     return () => clearInterval(interval);
+  }, []);
+  
+  useEffect(() => {
+    const checkScrollability = () => {
+      const container = classesContainerRef.current;
+      if (container) {
+        setCanScrollLeft(container.scrollLeft > 0);
+        setCanScrollRight(
+          container.scrollLeft < container.scrollWidth - container.clientWidth
+        );
+      }
+    };
+
+    const container = classesContainerRef.current;
+    if (container) {
+      container.addEventListener('scroll', checkScrollability);
+      checkScrollability();
+      
+      setTimeout(checkScrollability, 100);
+    }
+
+    return () => {
+      if (container) {
+        container.removeEventListener('scroll', checkScrollability);
+      }
+    };
   }, []);
 
   const classesContainerRef = useRef(null);
@@ -126,147 +169,134 @@ export default function TeacherDashboard() {
 
   return (
     <div className="min-h-screen bg-[#fcf9ea]">
-    {/* Navbar */}
-    <nav className="bg-[#d56c4e] text-white px-6 py-4 flex justify-between items-center">
-        <div className="flex items-center">
-        <motion.h1 
-            initial={{ x: -20, opacity: 0 }} 
-            animate={{ x: 0, opacity: 1 }}
-            transition={{ duration: 0.5 }}
-            className="text-3xl font-serif italic font-bold"
-        >
-            <Link href="/teacher/dashboard">Gradia</Link>
-        </motion.h1>
-        </div>
-        <div className="flex space-x-6 items-center">
-        <motion.span 
-            whileHover={{ scale: 1.05 }}
-            className="cursor-pointer font-medium"
-        >
-            <Link href="/teacher/tests">Tests</Link>
-        </motion.span>
-        <motion.span 
-            whileHover={{ scale: 1.05 }}
-            className="cursor-pointer font-medium"
-        >
-            <Link href="/teacher/analysis">Analysis</Link>
-        </motion.span>
-        <UserDropdown />
-        </div>
-    </nav>
-    
-    {/* Main Content */}
-    <div className="max-w-7xl mx-auto px-6 py-8">
+      {/* Navbar */}
+      <nav className="bg-[#d56c4e] text-white px-6 py-4 flex justify-between items-center">
+          <div className="flex items-center">
+          <motion.h1 
+              initial={{ x: -20, opacity: 0 }} 
+              animate={{ x: 0, opacity: 1 }}
+              transition={{ duration: 0.5 }}
+              style={{ fontFamily: "'Rage Italic', sans-serif" }}
+              className="text-4xl font-bold text-black"
+          >
+              <Link href="/teacher/dashboard">Gradia</Link>
+          </motion.h1>
+          </div>
+          <div className="flex space-x-6 items-center">
+            <motion.span 
+              whileHover={{ scale: 1.05 }}
+              className="font-sans cursor-pointer font-medium"
+            >
+              <Link href="/teacher/tests">Tests</Link>
+            </motion.span>
+            <motion.span 
+                whileHover={{ scale: 1.05 }}
+                className="font-sans cursor-pointer font-medium"
+            >
+                <Link href="/teacher/analysis">Analysis</Link>
+            </motion.span>
+            <UserDropdown />
+          </div>
+      </nav>
+      
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto px-6 py-8">
         {/* Top Section with Quote and Action Buttons */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
-        <motion.div 
+          <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
             className="mb-6 md:mb-0"
-        >
-            <h1 className="text-3xl font-bold text-gray-800 mb-2">Good afternoon, {user.name}</h1>
+          >
+            <h1 className="text-3xl font-bold text-gray-800 mb-2">{greeting}</h1>
             <p className="text-gray-600 italic">"{currentQuote}"</p>
-        </motion.div>
+          </motion.div>
         
-        <div className="flex space-x-4">
-            <motion.button
-            onClick={() => {router.push('/teacher/create-test')}}
-            whileHover={{ scale: 1.05, boxShadow: "0px 5px 15px rgba(0, 0, 0, 0.1)" }}
-            whileTap={{ scale: 0.95 }}
-            className="bg-[#e2c3ae] hover:bg-[#d5b69d] text-gray-800 font-medium py-2 px-4 rounded-lg flex items-center gap-2"
-            >
-            <PenLine size={18} />
-            Create Test
-            </motion.button>
-            
-            <motion.button
-            onClick={() => {router.push('/teacher/create-class')}}
-            whileHover={{ scale: 1.05, boxShadow: "0px 5px 15px rgba(0, 0, 0, 0.1)" }}
-            whileTap={{ scale: 0.95 }}
-            className="bg-[#e2c3ae] hover:bg-[#d5b69d] text-gray-800 font-medium py-2 px-4 rounded-lg flex items-center gap-2"
-            >
-            <Plus size={18} />
-            Create Class
-            </motion.button>
-        </div>
+          <div className="flex space-x-4">
+              <motion.button
+                onClick={() => {router.push('/teacher/create-test')}}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="bg-[#e2c3ae] hover:bg-[#d5b69d] text-gray-800 font-medium py-2 px-4 rounded-lg flex items-center gap-2"
+              >
+              <PenLine size={18} />
+                Create Test
+              </motion.button>
+              
+              <motion.button
+                onClick={() => {router.push('/teacher/create-class')}}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="bg-[#e2c3ae] hover:bg-[#d5b69d] text-gray-800 font-medium py-2 px-4 rounded-lg flex items-center gap-2"
+              >
+              <Plus size={18} />
+                Create Class
+              </motion.button>
+          </div>
         </div>
         
         {/* Classes Section */}
-<motion.div 
-  initial={{ opacity: 0, y: 20 }}
-  animate={{ opacity: 1, y: 0 }}
-  transition={{ duration: 0.5, delay: 0.1 }}
-  className="bg-[#edead7] rounded-xl p-6 shadow-md mb-8"
->
-  <h2 className="text-2xl font-bold text-gray-800 mb-4">Classes</h2>
-  
-  <div className="relative bg-[#fcf4e0] rounded-xl p-4 shadow-sm">
-    {/* Scroll Left Button */}
-    {canScrollLeft && (
-      <motion.button 
-        onClick={scrollLeft}
-        className="absolute left-2 top-1/2 -translate-y-1/2 z-10 bg-white/80 hover:bg-white rounded-full p-1 shadow-md"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        whileHover={{ scale: 1.1 }}
-      >
-        <ChevronLeft size={20} className="text-gray-800" />
-      </motion.button>
-    )}
-    
-    {/* Scroll Right Button */}
-    {canScrollRight && (
-      <motion.button 
-        onClick={scrollRight}
-        className="absolute right-2 top-1/2 -translate-y-1/2 z-10 bg-white/80 hover:bg-white rounded-full p-1 shadow-md"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        whileHover={{ scale: 1.1 }}
-      >
-        <ChevronRight size={20} className="text-gray-800" />
-      </motion.button>
-    )}
-    
-    {/* Scrollable container */}
-    <div 
-      ref={classesContainerRef} 
-      className="flex space-x-4 overflow-x-auto pb-2 scrollbar-hide"
-      style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-    >
-      {classesData.map((classItem) => (
         <motion.div
-          key={classItem._id}
-          whileHover={{ 
-            scale: 1.03, 
-            backgroundColor: "#e9e5d0",
-            boxShadow: "0px 8px 20px rgba(0, 0, 0, 0.08)"
-          }}
-          className="bg-[#e2c3ae] rounded-lg p-4 cursor-pointer min-w-[240px] w-[240px] flex-shrink-0"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+          className="bg-[#edead7] rounded-xl p-4 shadow-md mb-8"
         >
-          <h3 className="text-lg font-bold text-gray-800">{classItem.code}</h3>
-          <p className="text-gray-700">{classItem.name}</p>
-          <p className="text-gray-600 text-sm mt-2">{classItem.students} students</p>
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">Classes</h2>
+
+          {/* Scrollable Classes Container */}
+          <div className="relative bg-[#edead7] rounded-xl">
+            {/* Scroll Left Button */}
+            {canScrollLeft && (
+              <motion.button 
+                onClick={scrollLeft}
+                className="absolute left-2 top-1/2 -translate-y-1/2 z-10 bg-white/80 hover:bg-white rounded-full p-1 shadow-md"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                whileHover={{ scale: 1.1 }}
+              >
+                <ChevronLeft size={20} className="text-gray-800" />
+              </motion.button>
+            )}
+            
+            {/* Scroll Right Button */}
+            {canScrollRight && (
+              <motion.button 
+                onClick={scrollRight}
+                className="absolute right-2 top-1/2 -translate-y-1/2 z-10 bg-white/80 hover:bg-white rounded-full p-1 shadow-md"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                whileHover={{ scale: 1.1 }}
+              >
+                <ChevronRight size={20} className="text-gray-800" />
+              </motion.button>
+            )}
+            
+            {/* Scrollable container */}
+            <div 
+              ref={classesContainerRef} 
+              className="flex space-x-4 overflow-x-auto pb-2 scrollbar-hide"
+              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+            >
+              {classesData.map((classItem) => (
+                <motion.div
+                  key={classItem._id}
+                  whileHover={{ 
+                    scale: 1.005, 
+                    boxShadow: "0px 8px 20px rgba(0, 0, 0, 0.08)"
+                  }}
+                  className="bg-[#e2c3ae] rounded-lg p-3 min-w-[240px] w-[240px] cursor-pointer flex-shrink-0 border border-black"
+                >
+                  <p className="text-lg font-bold text-gray-800 truncate">{classItem.name}</p>
+                  <h3 className="text-gray-700 text-sm">{classItem.classCode}</h3>
+                  <p className="text-gray-600 text-sm mt-2">{classItem.students.length} students</p>
+                </motion.div>
+              ))}
+            </div>
+          </div>
         </motion.div>
-      ))}
-      
-      <motion.div
-        whileHover={{ 
-          scale: 1.03,
-          backgroundColor: "#e9e5d0",
-          boxShadow: "0px 8px 20px rgba(0, 0, 0, 0.08)"
-        }}
-        className="bg-[#e2c3ae] rounded-lg p-4 cursor-pointer border-2 border-dashed border-gray-400 flex items-center justify-center min-w-[240px] w-[240px] flex-shrink-0"
-      >
-        <div className="text-center">
-          <Plus size={24} className="mx-auto text-gray-600" />
-          <p className="text-gray-600 mt-2">Add New Class</p>
-        </div>
-      </motion.div>
-    </div>
-  </div>
-</motion.div>
-        
+             
         {/* Past Tests & Evaluations */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <motion.div 
@@ -351,17 +381,17 @@ export default function TeacherDashboard() {
                     {[0, 1, 2, 3].map((testIndex) => {
                         const testData = tests[testIndex];
                         return (
-                        <td key={testIndex} className="p-2">
+                        <td key={testIndex} className="1">
                             {testData && testData.score !== null ? (
                             <motion.div
-                                whileHover={{ scale: 1.1 }}
-                                className={`${testData.color} text-white font-medium rounded-md p-2 mx-auto`}
+                                whileHover={{ scale: 1.05 }}
+                                className={`${testData.color} text-black font-medium rounded-sm p-6 mx-auto border border-black`}
                             >
                                 {testData.score}%
                             </motion.div>
                             ) : (
-                            <div className="bg-gray-200 text-gray-400 font-medium rounded-md p-2 mx-auto">
-                                -
+                            <div className="bg-gray-200 text-black font-medium rounded-md p-6 mx-auto border border-black">
+                                NA
                             </div>
                             )}
                         </td>
@@ -378,7 +408,7 @@ export default function TeacherDashboard() {
             </button>
         </motion.div>
         </div>
-    </div>
+      </div>
     </div>
   );
 }

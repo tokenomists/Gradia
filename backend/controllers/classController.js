@@ -1,7 +1,11 @@
+import fs from "fs";
+import axios from "axios";
+import FormData from "form-data"; 
+import jwt from "jsonwebtoken";
+
 import Class from "../models/Class.js";
 import Teacher from "../models/Teacher.js";
 import Student from "../models/Student.js";
-import jwt from "jsonwebtoken";
 
 // Helper function to extract user info from JWT token
 const getUserFromToken = (token) => {
@@ -17,58 +21,113 @@ const getUserFromToken = (token) => {
 export const createClass = async (req, res) => {
   try {
     const { name, description, subjects, invitedEmails, classCode } = req.body;
-    
-    // Validate the request
+    const classFiles = req.files;
+
     if (!name) {
       return res.status(400).json({ success: false, message: "Class name is required" });
     }
-    
-    // Get teacher from token
+
     const token = req.cookies.token;
     const decoded = getUserFromToken(token);
-    
+
     if (!decoded || decoded.role !== "teacher") {
       return res.status(401).json({ success: false, message: "Unauthorized - Only teachers can create classes" });
     }
-    
-    // Find the teacher
+
     const teacher = await Teacher.findById(decoded.id);
     if (!teacher) {
       return res.status(404).json({ success: false, message: "Teacher not found" });
     }
-    // Generate class code if not provided
+
     const finalClassCode = classCode || await Class.generateClassCode();
-    
-    // Check if class code already exists
+
     const existingClass = await Class.findOne({ classCode: finalClassCode });
     if (existingClass) {
       return res.status(400).json({ success: false, message: "Class code already exists, please try again" });
     }
-    
-    // Create the class
+
     const newClass = await Class.create({
       name,
       description,
-      subjects,
+      subjects: JSON.parse(subjects),
       classCode: finalClassCode,
       teacher: teacher._id,
-      invitedEmails
+      invitedEmails: JSON.parse(invitedEmails),
     });
-    Teacher.findByIdAndUpdate(teacher._id, { $push: { classes: newClass._id } }).exec();
 
-    res.status(201).json({ 
-      success: true, 
-      message: "Class created successfully", 
-      class: newClass 
-    });
-    
+    await Teacher.findByIdAndUpdate(teacher._id, { $push: { classes: newClass._id } });
+
+    const gradia_api_key = process.env.GRADIA_API_KEY;
+    const gradia_python_backend_url = process.env.GRADIA_PYTHON_BACKEND_URL;
+
+    if (!gradia_api_key) {
+      return res.status(500).json({ success: false, message: "API key not configured in environment" });
+    }
+
+    try {
+      const gcsResponse = await axios.post(
+        `${gradia_python_backend_url}/create-gcs-bucket`,
+        { bucket_name: newClass._id.toString() },
+        { headers: { "x-api-key": gradia_api_key } }
+      );
+
+      if (classFiles && classFiles.length > 0) {
+        for (const file of classFiles) {
+          const formData = new FormData();
+          formData.append("file", fs.createReadStream(file.path));
+          formData.append("bucket_name", newClass._id.toString());
+
+          try {
+            await axios.post(`${gradia_python_backend_url}/upload-gcs-file`, formData, {
+              headers: {
+                "x-api-key": gradia_api_key,
+                ...formData.getHeaders(),
+              },
+            });
+          } catch (uploadError) {
+            console.error(`Failed to upload ${file.originalname} to GCS:`, uploadError.message);
+          } finally {
+            try {
+              fs.unlinkSync(file.path);
+            } catch (deleteError) {
+              console.error(`Failed to delete ${file.path}:`, deleteError.message);
+            }
+          }
+        }
+      }
+
+      try {
+        const uploadDir = "uploads/";
+        const filesInDir = fs.readdirSync(uploadDir);
+        if (filesInDir.length === 0) {
+          fs.rmdirSync(uploadDir);
+          console.log(`Removed empty directory: ${uploadDir}`);
+        } else {
+          console.log(`Directory ${uploadDir} not empty, skipping deletion`);
+        }
+      } catch (dirError) {
+        if (dirError.code !== 'ENOENT') {
+          console.error(`Failed to remove ${uploadDir}:`, dirError.message);
+        }
+      }
+
+      res.status(201).json({
+        success: true,
+        message: "Class created and GCS bucket with Class Materials set up successfully",
+        class: newClass,
+        gcsResponse: gcsResponse.data,
+      });
+    } catch (gcsError) {
+      console.error("Error setting up GCS bucket:", gcsError.message);
+      return res.status(500).json({ success: false, message: "Failed to set up GCS bucket" });
+    }
   } catch (error) {
-    console.error("Error creating class:", error);
-    res.status(500).json({ 
-      success: false, 
-      message: "Error creating class", 
-      error: error.message 
-    });
+      console.error("Error creating class:", error);
+        res.status(500).json({
+        success: false,
+        message: "Error creating class",
+        error: error.message,
+      });
   }
 };
 
