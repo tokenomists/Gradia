@@ -1,5 +1,5 @@
-// frontend/src/app/page.js
 "use client";
+
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { isAuthenticated } from "@/utils/auth.js";
@@ -79,13 +79,20 @@ const Home = () => {
   }, []);
 
   if (auth === null) return (
-    <div
-      className="flex justify-center items-center min-h-screen"
-      style={{ backgroundColor: "#edead7" }}
-    >
-      <div className="flex flex-col items-center space-y-4">
-        <div className="animate-spin w-12 h-12 border-t-4 border-gray-800 rounded-full"></div>
-        <p className="text-xl text-gray-800 font-semibold">Loading...</p>
+    <div className="flex justify-center items-center min-h-screen bg-[#edead7]">
+      <div className="flex flex-col items-center space-y-6">
+        <div className="relative w-14 h-14 opacity-100">
+          <div className="absolute inset-0 rounded-full border-t-4 border-r-4 border-[#d56c4e] animate-spin"/>
+          <div className="absolute inset-1 rounded-full bg-[#edead7]"/>
+        </div>
+      <div className="flex flex-col items-center space-y-2">
+          <p className="text-xl font-medium tracking-wide text-gray-800">
+            Loading a revolution...
+          </p>
+          <p className="text-md text-gray-600">
+            Please wait
+          </p>
+        </div>
       </div>
     </div>
   );

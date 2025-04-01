@@ -1,5 +1,5 @@
-// frontend/src/app/oauth-success/page.js
 "use client";
+
 import { useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useError } from "@/contexts/ErrorContext";
@@ -34,9 +34,12 @@ const OAuthSuccess = () => {
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-[#edead7]">
-      <div className="flex flex-col items-center space-y-4">
-        <div className="animate-spin w-16 h-16 border-t-4 border-black rounded-full"></div>
-        <p className="text-2xl text-black font-bold tracking-wider">
+      <div className="flex flex-col items-center space-y-6">
+        <div className="relative w-14 h-14 opacity-100">
+          <div className="absolute inset-0 rounded-full border-t-4 border-r-4 border-[#d56c4e] animate-spin"/>
+          <div className="absolute inset-1 rounded-full bg-[#edead7]"/>
+        </div>
+        <p className="text-xl font-medium tracking-wide text-gray-800">
           Processing your login...
         </p>
       </div>

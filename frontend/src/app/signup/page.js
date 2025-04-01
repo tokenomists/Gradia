@@ -15,6 +15,7 @@ import {
   Eye,
 } from 'lucide-react';
 import Head from 'next/head';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import GoogleLoginButton from '@/components/auth/GoogleLoginButton';
 import instance from '@/utils/axios';
@@ -307,14 +308,17 @@ export default function Signup() {
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
         >
-          <h2 
-            className={`text-5xl font-bold ${
-              darkMode ? 'text-[#edead7]' : 'text-black'
-            } text-center`}
-            style={{ fontFamily: 'Rage Italic, calibri' }}
-          >
-            Gradia
-          </h2>
+          <motion.div whileHover={{ scale: 1.01 }}>
+            <Link
+              href="/"
+              style={{ fontFamily: "'Rage Italic', sans-serif" }}
+              className={`text-5xl font-bold ${
+                darkMode ? 'text-[#edead7]' : 'text-black'
+              } text-center`}
+            >
+              Gradia
+            </Link>
+          </motion.div>
         </motion.div>
 
         {/* Success animation overlay */}

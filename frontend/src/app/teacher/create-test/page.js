@@ -278,17 +278,17 @@ export default function CreateTest() {
   return (
     <div className="min-h-screen bg-[#fdf8f1]">
       {/* Header */}
-      <header className="bg-[#d97056] text-white p-4">
+      <header className="bg-[#d56c4e] text-white p-4">
         <div className="container mx-auto flex justify-between items-center">
-          <Link href="/dashboard" className="text-3xl font-cursive">
+          <Link href="/" style={{ fontFamily: "'Rage Italic', sans-serif" }} className="text-4xl font-bold text-black">
             Gradia
           </Link>
           <div className="flex items-center space-x-6">
-            <Link href="/practice" className="text-xl">
-              Practice
+            <Link href="/teacher/tests" className="font-sans font-medium transition-transform transform hover:scale-110">
+              Tests
             </Link>
-            <Link href="/performance" className="text-xl">
-              Performance
+            <Link href="/teacher/analysis" className="font-sans font-medium transition-transform transform hover:scale-110">
+              Analysis
             </Link>
             <UserDropdown />
           </div>
@@ -301,7 +301,7 @@ export default function CreateTest() {
           <h1 className="text-3xl font-bold">Create New Test</h1>
           <Link 
             href="/" 
-            className="px-4 py-2 bg-gray-200 rounded-md hover:bg-gray-300 transition"
+            className="px-4 py-2 bg-[#d5b69d]/80 rounded-md hover:bg-[#d5b69d] transition"
           >
             Back to Dashboard
           </Link>
@@ -708,6 +708,16 @@ export default function CreateTest() {
                   </div>
                 </div>
                 
+                <div className="bg-white p-4 rounded-lg border-l-4 border-yellow-400">
+                  <h3 className="font-medium mb-2">Important Notes</h3>
+                  <ul className="list-disc pl-5 space-y-1 text-sm">
+                    <li>Once published, you can make limited edits to the test</li>
+                    <li>Students will be able to see this test once published</li>
+                    <li>Make sure all required fields are filled before publishing</li>
+                    <li>Test cannot be deleted after students have started taking it</li>
+                  </ul>
+                </div>
+                
                 <div className="bg-white p-4 rounded-lg shadow-sm">
                   <h3 className="font-medium mb-2 text-[#d97056]">Questions Summary</h3>
                   {testData.questions.length === 0 ? (
@@ -759,15 +769,6 @@ export default function CreateTest() {
                   )}
                 </div>
                 
-                <div className="bg-white p-4 rounded-lg border-l-4 border-yellow-400">
-                  <h3 className="font-medium mb-2">Important Notes</h3>
-                  <ul className="list-disc pl-5 space-y-1 text-sm">
-                    <li>Once published, you can make limited edits to the test</li>
-                    <li>Students will be able to see this test once published</li>
-                    <li>Make sure all required fields are filled before publishing</li>
-                    <li>Test cannot be deleted after students have started taking it</li>
-                  </ul>
-                </div>
                 
                 {/* File upload area */}
                 <div className="bg-white p-4 rounded-lg shadow-sm">
@@ -894,7 +895,7 @@ export default function CreateTest() {
       {/* Footer */}
       <footer className="bg-[#f5eee0] py-6 mt-8">
         <div className="container mx-auto px-4 text-center">
-          <p className="text-gray-600">© {new Date().getFullYear()} Gradia - Intelligent Grading System</p>
+          <p className="text-gray-600">© {new Date().getFullYear()} Gradia. All rights reserved.</p>
           <div className="mt-4 flex justify-center space-x-4">
             <Link href="/about" className="text-gray-600 hover:text-[#d97056]">About</Link>
             <Link href="/help" className="text-gray-600 hover:text-[#d97056]">Help Center</Link>

@@ -259,14 +259,17 @@ export default function Login() {
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
         >
-          <h2 
-            className={`text-5xl font-bold ${
-              darkMode ? 'text-[#edead7]' : 'text-black'
-            } text-center`}
-            style={{ fontFamily: 'Rage Italic, calibri' }}
-          >
-            Gradia
-          </h2>
+          <motion.div whileHover={{ scale: 1.01 }}>
+            <Link
+              href="/"
+              style={{ fontFamily: "'Rage Italic', sans-serif" }}
+              className={`text-5xl font-bold ${
+                darkMode ? 'text-[#edead7]' : 'text-black'
+              } text-center`}
+            >
+              Gradia
+            </Link>
+          </motion.div>
         </motion.div>
 
         {/* Success animation overlay */}
