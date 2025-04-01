@@ -284,11 +284,11 @@ export default function CreateTest() {
             Gradia
           </Link>
           <div className="flex items-center space-x-6">
-            <Link href="/practice" className="font-sans font-medium transition-transform transform hover:scale-110">
-              Practice
+            <Link href="/teacher/tests" className="font-sans font-medium transition-transform transform hover:scale-110">
+              Tests
             </Link>
-            <Link href="/performance" className="font-sans font-medium transition-transform transform hover:scale-110">
-              Performance
+            <Link href="/teacher/analysis" className="font-sans font-medium transition-transform transform hover:scale-110">
+              Analysis
             </Link>
             <UserDropdown />
           </div>
