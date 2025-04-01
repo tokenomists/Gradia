@@ -376,7 +376,7 @@ const TestPage = () => {
         .filter(q => q.answer || q.images.length > 0) // Only include answered questions
         .map(q => {
           const answer = {
-            questionId: q._id, // Use MongoDB _id from fetched test data
+            questionId: q.id, // Use MongoDB _id from fetched test data
             questionType: q.type, // Preserve original type (don't convert typed→typed)
           };
   
@@ -396,7 +396,9 @@ const TestPage = () => {
       
       await submitTest(state.testId, { answers });
       dispatch({ type: 'SUBMIT_TEST' });
-      router.push(`/test/submitted`);
+      // router.push(`/test/${state.testId}/submitted`);
+      localStorage.setItem('notification', { type: 'success', message: 'Test submitted successfully!' });
+      router.push('/');
     } catch (error) {
       console.error('Submission failed:', {
         status: error.response?.status,

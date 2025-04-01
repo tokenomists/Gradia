@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { CheckCircle } from 'lucide-react';
 
 export default function TestSubmittedPage({ params }) {
-  const { testId } = params;
+  // const { testId } = params;
   const router = useRouter();
 
   return (

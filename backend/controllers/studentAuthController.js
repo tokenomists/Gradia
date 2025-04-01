@@ -3,6 +3,7 @@ import Teacher from '../models/Teacher.js';
 import Test from "../models/Test.js";
 import jwt from 'jsonwebtoken'
 import bcrypt from "bcryptjs";
+import Submission from "../models/Submission.js";
 
 const generateToken = (id) => {
   return jwt.sign({ id, role: "student" }, process.env.JWT_SECRET, { expiresIn: "7d" });
@@ -143,16 +144,43 @@ export const getStudentTests = async (req, res) => {
 
     // Fetch upcoming and past tests
     const currentTime = new Date();
-    
-    const upcomingTests = await Test.find({
-      classAssignment: { $in: classIds },
-      endTime: { $gte: currentTime },
-    }).sort({ startTime: 1 });
 
-    const previousTests = await Test.find({
-      classAssignment: { $in: classIds },
-      endTime: { $lt: currentTime },
+    // Get all tests (both upcoming and previous)
+    const allTests = await Test.find({
+      classAssignment: { $in: classIds }
     }).sort({ endTime: -1 });
+
+    // Get student submissions for these tests
+    const submissions = await Submission.find({
+      student: studentId,
+      test: { $in: allTests.map(t => t._id) }
+    });
+
+    const submittedTestIds = new Set(
+      submissions.map(sub => sub.test.toString())
+    );
+
+    // Categorize tests with submission check
+    const categorized = allTests.reduce((acc, test) => {
+      const isSubmitted = submittedTestIds.has(test._id.toString());
+      const isPastDeadline = test.endTime < currentTime;
+
+      if (isSubmitted || isPastDeadline) {
+        acc.previous.push(test);
+      } else {
+        acc.upcoming.push(test);
+      }
+      return acc;
+    }, { upcoming: [], previous: [] });
+
+    // Sort the results
+    const upcomingTests = categorized.upcoming.sort(
+      (a, b) => a.startTime - b.startTime
+    );
+    
+    const previousTests = categorized.previous.sort(
+      (a, b) => b.endTime - a.endTime
+    );
 
     res.status(200).json({ upcomingTests, previousTests });
   } catch (error) {
