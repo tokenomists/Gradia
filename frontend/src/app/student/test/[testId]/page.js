@@ -211,7 +211,7 @@ const TestPage = () => {
         const remainingTime = Math.max(0, Math.floor((endTime - now) / 1000));
         
         const transformedQuestions = testData.questions.map((q, index) => ({
-          _id: q._id,
+          id: q._id,
           type: q.type,
           text: q.questionText,
           status: 'not-visited',
