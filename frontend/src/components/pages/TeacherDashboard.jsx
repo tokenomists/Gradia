@@ -286,11 +286,11 @@ export default function TeacherDashboard() {
                     scale: 1.005, 
                     boxShadow: "0px 8px 20px rgba(0, 0, 0, 0.08)"
                   }}
-                  className="bg-[#e2c3ae] rounded-lg p-3 min-w-[240px] w-[240px] cursor-pointer flex-shrink-0"
+                  className="bg-[#e2c3ae] rounded-lg p-3 min-w-[240px] w-[240px] cursor-pointer flex-shrink-0 border border-black"
                 >
-                  <h3 className="text-lg font-bold text-gray-800">{classItem.code}</h3>
-                  <p className="text-gray-700 truncate">{classItem.name}</p>
-                  <p className="text-gray-600 text-sm mt-2">{classItem.students} students</p>
+                  <p className="text-lg font-bold text-gray-800 truncate">{classItem.name}</p>
+                  <h3 className="text-gray-700 text-sm">{classItem.classCode}</h3>
+                  <p className="text-gray-600 text-sm mt-2">{classItem.students.length} students</p>
                 </motion.div>
               ))}
             </div>
