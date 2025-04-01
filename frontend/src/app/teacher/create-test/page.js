@@ -91,24 +91,11 @@ export default function CreateTest() {
 
   // Add a new question based on test type
   const addQuestion = () => {
-    const newQuestion = testData.testType === 'typed' ? 
-      {
-        questionText: '',
-        questionType: 'typed', // typed or coding
-        codingLanguage: 'javascript',
-        maxMarks: 10,
-        enableRubrics: false,
-        options: [],
-        points: 10
-      } : 
-      {
-        questionText: '',
-        imageUrl: '',
-        maxMarks: 10,
-        enableRubrics: false,
-        points: 10,
-        type: 'handwritten'
-      };
+    const newQuestion = {
+      questionText: '',
+      type: 'typed',
+      maxMarks: 10,
+    };  
 
     setTestData({
       ...testData,
@@ -251,7 +238,6 @@ export default function CreateTest() {
   // Confirmation modal submission handler
   const handleConfirmPublish = async () => {
     try {
-      // Actual test publishing logic
       // console.log('Publishing test:', { ...testData, isDraft: false });
       const updatedTestData = { ...testData, isDraft: false, classesAssignment: testData.classAssignment, createdBy: userData._id };
       console.log("Publishing test: ", updatedTestData);
@@ -485,27 +471,27 @@ export default function CreateTest() {
         <div className="mb-4">
           <label className="block mb-1 font-medium">Question Type <span className="text-red-500">*</span></label>
           <select
-            value={question.questionType}
-            onChange={(e) => handleQuestionChange(questionIndex, 'questionType', e.target.value)}
+            value={question.type}
+            onChange={(e) => handleQuestionChange(questionIndex, 'type', e.target.value)}
             className="w-full p-2 border border-gray-300 rounded-md"
             required
           >
-            <option value="typed">typed (Rich Text Editor)</option>
+            <option value="typed">Typed (Rich Text Editor)</option>
             <option value="coding">Coding (Code Editor)</option>
-            <option value="handwritten">Handwritten (OCR)</option>
+            <option value="handwritten">Handwritten</option>
           </select>
 
           {/* Coding-specific options */}
-          {question.questionType === 'coding' && (
+          {question.type === 'coding' && (
             <div className="mt-3">
               <label className="block mb-1 font-medium">Programming Language</label>
               <select
-                value={question.codingLanguage || 'javascript'}
+                value={question.codingLanguage || 'python'}
                 onChange={(e) => handleQuestionChange(questionIndex, 'codingLanguage', e.target.value)}
                 className="w-full p-2 border border-gray-300 rounded-md"
               >
-                <option value="javascript">JavaScript</option>
                 <option value="python">Python</option>
+                <option value="javascript">JavaScript</option>
                 <option value="java">Java</option>
                 <option value="cpp">C++</option>
                 <option value="csharp">C#</option>

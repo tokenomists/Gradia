@@ -6,6 +6,7 @@ const QuestionSchema = new mongoose.Schema({
   questionText: { type: String, required: true },
   maxMarks: { type: Number, required: true },
   type: { type: String, enum: ["coding", "typed", "handwritten"], required: true },
+  codingLanguage: { type: String, enum: ["python", "javascript"] },
 });
 
 const TestSchema = new mongoose.Schema({

@@ -17,7 +17,7 @@ export const createTest = async (req, res) => {
     const {
       title, description, startTime, endTime, duration, classAssignment, questions, isDraft, createdBy, rubric, files
     } = req.body;
-    console.log(req.body);
+    // console.log(req.body);
     // Validate required fields
     if (!title || !startTime || !endTime || !duration || !classAssignment || !questions.length) {
       return res.status(400).json({ message: "Missing required fields" });
