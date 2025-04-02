@@ -863,7 +863,7 @@ const updateQuestionRubricLevel = (questionIndex, criterionIndex, levelIndex, fi
                 <button
                   type="button"
                   onClick={() => {
-                    const tabOrder = ['details', 'questions', 'rubrics', 'review'];
+                    const tabOrder = ['details', 'questions', 'review'];
                     const currentIndex = tabOrder.indexOf(activeTab);
                     setActiveTab(tabOrder[currentIndex - 1]);
                   }}

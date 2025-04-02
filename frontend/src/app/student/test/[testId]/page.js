@@ -117,7 +117,7 @@ const initialState = {
               ? { 
                   ...q, 
                   reviewMarked: !q.reviewMarked,
-                  status: q.reviewMarked ? (q.answer ? 'attempted' : 'visited') : 'marked-review'
+                  // status: q.reviewMarked ? (q.answer ? 'attempted' : 'visited') : 'marked-review'
                 }
               : q
           )
@@ -139,50 +139,133 @@ const initialState = {
     }
   }
 
-const EnhancedTimer = ({ seconds }) => {
-  const hours = Math.floor(seconds / 3600);
-  const minutes = Math.floor((seconds % 3600) / 60);
-  const secs = seconds % 60;
+  const EnhancedTimer = ({ seconds }) => {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
+    const isTimeRunningOut = seconds <= 60;
+  
+    const formatTime = (time) => time.toString().padStart(2, '0');
+  
+    return (
+      <div className="fixed top-6 left-1/2 transform -translate-x-1/2 z-50">
+        <motion.div 
+          initial={{ opacity: 0, y: -50 }}
+          animate={{ 
+            opacity: 1, 
+            y: 0,
+            backgroundColor: isTimeRunningOut ? 'rgba(220, 38, 38, 0.9)' : 'rgba(255, 255, 255, 0.9)'
+          }}
+          transition={{ type: "spring", stiffness: 300, damping: 20 }}
+          className={`flex items-center backdrop-blur-lg rounded-full px-8 py-4 shadow-2xl ${
+            isTimeRunningOut 
+              ? 'ring-4 ring-red-500/60 animate-pulse' 
+              : 'ring-4 ring-[#d56c4e]/20'
+          }`}
+        >
+          <Clock className={`${isTimeRunningOut ? 'text-white' : 'text-[#d56c4e]'} w-10 h-10 mr-4 ${isTimeRunningOut ? 'animate-bounce' : 'animate-pulse'}`} />
+          <div className="flex items-center space-x-2">
+            {[hours, minutes, secs].map((time, index) => (
+              <React.Fragment key={index}>
+                <div className="flex space-x-1">
+                  {formatTime(time).split('').map((digit, digitIndex) => (
+                    <motion.div 
+                      key={digitIndex}
+                      className={`${
+                        isTimeRunningOut 
+                          ? 'bg-red-600 text-white' 
+                          : 'bg-[#d56c4e] text-white'
+                      } px-4 py-2 rounded-xl text-2xl font-bold w-12 text-center shadow-lg`}
+                      initial={{ opacity: 0, scale: 0.5 }}
+                      animate={{ 
+                        opacity: 1, 
+                        scale: isTimeRunningOut && index === 1 ? [1, 1.1, 1] : 1 
+                      }}
+                      transition={{ 
+                        delay: (index * 2 + digitIndex) * 0.1,
+                        type: "spring",
+                        stiffness: 300,
+                        ...(isTimeRunningOut && index === 1 ? { repeat: Infinity, repeatType: "reverse", duration: 0.5 } : {})
+                      }}
+                    >
+                      {digit}
+                    </motion.div>
+                  ))}
+                </div>
+                {index < 2 && (
+                  <span className={`${isTimeRunningOut ? 'text-white' : 'text-[#d56c4e]'} font-bold text-2xl mx-2`}>:</span>
+                )}
+              </React.Fragment>
+            ))}
+          </div>
+        </motion.div>
+      </div>
+    );
+  };
 
-  const formatTime = (time) => time.toString().padStart(2, '0');
+  // Function to calculate overall test completion
+  const calculateTestCompletion = ({ questions }) => {
+    const attemptedQuestions = questions.filter(q => 
+      q.status === 'attempted' ||
+      q.images.length > 0
+    ).length;
+    return Math.round((attemptedQuestions / questions.length) * 100);
+  };
+
+  // Question Summary Component - Add this before the Question Navigation section
+const QuestionSummary = ({ questions }) => {
+  const totalQuestions = questions.length;
+  
+  // Update the counting logic
+  const attempted = questions.filter(q => q.status === 'attempted').length;
+  const visited = questions.filter(q => q.status === 'visited' || q.status === 'attempted').length;
+  const notVisited = questions.filter(q => q.status === 'not-visited').length;
+  
+  // For marked questions, we need to separate them into two categories
+  const markedOnly = questions.filter(q => q.reviewMarked && !q.answer && q.images?.length === 0).length;
+  const attemptedAndMarked = questions.filter(q => q.reviewMarked && (q.answer || q.images?.length > 0)).length;
+
+  const summaryItems = [
+    { label: 'Total', count: totalQuestions, color: 'bg-gray-200' },
+    { label: 'Attempted', count: attempted, color: 'bg-green-200' },
+    { label: 'Visited', count: visited, color: 'bg-yellow-200' },
+    { label: 'Marked Only', count: markedOnly, color: 'bg-orange-200' },
+    { label: 'Attempted & Marked', count: attemptedAndMarked, color: 'bg-purple-200' },
+    { label: 'Not Visited', count: notVisited, color: 'bg-gray-200' }
+  ];
 
   return (
-    <div className="fixed top-6 left-1/2 transform -translate-x-1/2 z-50">
-      <motion.div 
-        initial={{ opacity: 0, y: -50 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ type: "spring", stiffness: 300, damping: 20 }}
-        className="flex items-center bg-white/90 backdrop-blur-lg rounded-full px-8 py-4 shadow-2xl ring-4 ring-[#d56c4e]/20"
-      >
-        <Clock className="text-[#d56c4e] w-10 h-10 mr-4 animate-pulse" />
-        <div className="flex items-center space-x-2">
-          {[hours, minutes, secs].map((time, index) => (
-            <React.Fragment key={index}>
-              <div className="flex space-x-1">
-                {formatTime(time).split('').map((digit, digitIndex) => (
-                  <motion.div 
-                    key={digitIndex}
-                    className="bg-[#d56c4e] text-white px-4 py-2 rounded-xl text-2xl font-bold w-12 text-center shadow-lg"
-                    initial={{ opacity: 0, scale: 0.5 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ 
-                      delay: (index * 2 + digitIndex) * 0.1,
-                      type: "spring",
-                      stiffness: 300
-                    }}
-                  >
-                    {digit}
-                  </motion.div>
-                ))}
-              </div>
-              {index < 2 && (
-                <span className="text-[#d56c4e] font-bold text-2xl mx-2">:</span>
-              )}
-            </React.Fragment>
-          ))}
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.3 }}
+      className="bg-white rounded-xl shadow-md p-4 mb-6"
+    >
+      <h3 className="font-bold text-[#d56c4e] mb-4 text-center">Question Summary</h3>
+      <div className="space-y-3">
+        {summaryItems.map((item, index) => (
+          <div key={index} className="flex items-center justify-between">
+            <div className="flex items-center">
+              <div className={`w-3 h-3 rounded-full ${item.color} mr-2`}></div>
+              <span className="text-sm">{item.label}</span>
+            </div>
+            <span className="font-bold">{item.count}</span>
+          </div>
+        ))}
+      </div>
+      <div className="mt-4 pt-3 border-t border-gray-200">
+        <div className="flex items-center justify-between">
+          <span className="text-sm font-medium">Completion</span>
+          <span className="font-bold">{calculateTestCompletion({questions})}%</span>
         </div>
-      </motion.div>
-    </div>
+        <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
+          <div 
+            className="bg-[#d56c4e] h-2 rounded-full" 
+            style={{ width: `${calculateTestCompletion({questions})}%` }}
+          ></div>
+        </div>
+      </div>
+    </motion.div>
   );
 };
 
@@ -208,7 +291,7 @@ const TestPage = () => {
         // console.log(testData);
         const now = new Date();
         const endTime = new Date(testData.endTime);
-        const remainingTime = Math.max(0, Math.floor((endTime - now) / 1000));
+        const remainingTime = testData.duration * 60;
         
         const transformedQuestions = testData.questions.map((q, index) => ({
           id: q._id,
@@ -251,10 +334,16 @@ const TestPage = () => {
   useEffect(() => {
     const timerId = setInterval(() => {
       dispatch({ type: 'DECREMENT_TIMER' });
+
+      if (timer <= 0) {
+        clearInterval(timerId);
+        handleTestSubmit();
+      }
+
     }, 1000);
 
     return () => clearInterval(timerId);
-  }, []);
+  }, [timer]);
 
   // Image Upload Handler
   const handleImageUpload = (e) => {
@@ -359,16 +448,6 @@ const TestPage = () => {
     }
   };
 
-  // Function to calculate overall test completion
-  const calculateTestCompletion = () => {
-    const attemptedQuestions = questions.filter(q => 
-      q.status === 'attempted' || 
-      q.status === 'marked-review' || 
-      q.images.length > 0
-    ).length;
-    return Math.round((attemptedQuestions / questions.length) * 100);
-  };
-
   // Submission handler
   const handleTestSubmit = async () => {
     try {
@@ -397,7 +476,7 @@ const TestPage = () => {
       await submitTest(state.testId, { answers });
       dispatch({ type: 'SUBMIT_TEST' });
       // router.push(`/test/${state.testId}/submitted`);
-      localStorage.setItem('notification', { type: 'success', message: 'Test submitted successfully!' });
+      localStorage.setItem('notification', JSON.stringify({ type: 'success', message: 'Test submitted successfully!' }));
       router.push('/');
     } catch (error) {
       console.error('Submission failed:', {
@@ -455,6 +534,9 @@ const TestPage = () => {
 
       {/* Sidebar */}
       <div className="w-1/5 bg-[#edead7] p-6 space-y-6 shadow-lg relative z-40">
+        {/* Question Summary */}
+        <QuestionSummary questions={questions} />
+      
         {/* Question Navigation */}
         <div className="grid grid-cols-5 gap-2 mt-16">
           {questions.map((q, index) => (
@@ -467,7 +549,7 @@ const TestPage = () => {
                 q.status === 'not-visited' && "bg-gray-200 text-gray-500",
                 q.status === 'visited' && "bg-yellow-200 text-yellow-800",
                 q.status === 'attempted' && "bg-green-200 text-green-800",
-                q.status === 'marked-review' && "bg-orange-200 text-orange-800",
+                q.reviewMarked && "bg-orange-200 text-orange-800",
                 currentQuestionIndex === index && "ring-2 ring-[#d56c4e]"
               )}
               onClick={() => dispatch({ 
@@ -584,8 +666,8 @@ const TestPage = () => {
                   <p>Are you sure you want to submit the test?</p>
                   <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4">
                     <p className="text-yellow-700">
-                      Test Completion: {calculateTestCompletion()}%
-                      {calculateTestCompletion() < 100 && (
+                      Test Completion: {calculateTestCompletion({questions})}%
+                      {calculateTestCompletion({questions}) < 100 && (
                         <span className="block mt-2 text-sm">
                           You have not attempted all questions. Are you sure you want to submit?
                         </span>
