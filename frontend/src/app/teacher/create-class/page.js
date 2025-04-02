@@ -24,6 +24,7 @@ export default function CreateClass() {
   
   const fileInputRef = useRef(null);
   const pdfInputRef = useRef(null);
+  const subjectDropdownRef = useRef(null);
   const router = useRouter();
   const { showError } = useError();
   
@@ -55,6 +56,25 @@ export default function CreateClass() {
     
     checkAuth();
   }, [router, showError]);
+
+  // Add event listener to close dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (subjectDropdownRef.current && !subjectDropdownRef.current.contains(event.target)) {
+        setShowSubjectDropdown(false);
+      }
+    }
+
+    // Add event listener when dropdown is open
+    if (showSubjectDropdown) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    
+    // Cleanup event listener
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showSubjectDropdown]);
   
   // Handle adding a student email
   const handleAddStudent = () => {
@@ -135,6 +155,7 @@ export default function CreateClass() {
     } else {
       setSelectedSubjects([...selectedSubjects, subject]);
     }
+    // Don't close dropdown here to allow multiple selections
   };
   
   // Format file size for display
@@ -253,22 +274,35 @@ export default function CreateClass() {
             </div>
             
             {/* Subjects */}
-            <div className="mb-6 relative">
+            <div className="mb-6 relative" ref={subjectDropdownRef}>
               <label htmlFor="subjects" className="block text-gray-700 font-medium mb-2">
                 Subjects
               </label>
               <div 
-                className="w-full px-4 py-2 border border-gray-300 rounded-md cursor-pointer bg-white"
+                className="w-full px-4 py-2 border border-gray-300 rounded-md cursor-pointer bg-white flex justify-between items-center"
                 onClick={() => setShowSubjectDropdown(!showSubjectDropdown)}
               >
-                {selectedSubjects.length === 0 
-                  ? <span className="text-gray-500">Select subjects</span> 
-                  : <span>{selectedSubjects.join(', ')}</span>
-                }
+                <div className="truncate">
+                  {selectedSubjects.length === 0 
+                    ? <span className="text-gray-500">Select subjects</span> 
+                    : <span>{selectedSubjects.join(', ')}</span>
+                  }
+                </div>
+                <div className="text-gray-400">▼</div>
               </div>
               
               {showSubjectDropdown && (
                 <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
+                  <div className="p-2 border-b border-gray-200 flex justify-between">
+                    <span className="font-medium text-gray-700">Select Subjects</span>
+                    <button 
+                      type="button" 
+                      className="text-sm text-blue-500 hover:text-blue-700"
+                      onClick={() => setShowSubjectDropdown(false)}
+                    >
+                      Done
+                    </button>
+                  </div>
                   {availableSubjects.map((subject, index) => (
                     <div 
                       key={index}

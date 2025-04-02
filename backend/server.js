@@ -55,7 +55,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/classes", authMiddleware,classRoutes);
 app.use("/api/tests", authMiddleware, testRoutes);
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 8000;
 
 (async () => {
   try {
