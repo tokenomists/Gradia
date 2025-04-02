@@ -1,7 +1,7 @@
 // components/Toast.js
 import { useState, useEffect } from 'react';
 
-export default function Toast({ message, type = 'error', duration = 8000, onClose }) {
+export default function Toast({ message, type = 'error', duration = 5000, onClose }) {
   const [visible, setVisible] = useState(true);
 
   useEffect(() => {
