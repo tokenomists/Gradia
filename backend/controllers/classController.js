@@ -49,7 +49,7 @@ export const createClass = async (req, res) => {
     const newClass = await Class.create({
       name,
       description,
-      subjects: JSON.parse(subjects),
+      subject: req.body.subject,
       classCode: finalClassCode,
       teacher: teacher._id,
       invitedEmails: JSON.parse(invitedEmails),
