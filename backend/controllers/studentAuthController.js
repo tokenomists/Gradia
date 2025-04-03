@@ -3,6 +3,7 @@ import Teacher from '../models/Teacher.js';
 import Test from "../models/Test.js";
 import jwt from 'jsonwebtoken'
 import bcrypt from "bcryptjs";
+import Submission from "../models/Submission.js";
 
 const generateToken = (id) => {
   return jwt.sign({ id, role: "student" }, process.env.JWT_SECRET, { expiresIn: "7d" });
@@ -34,21 +35,21 @@ export const registerStudent = async (req, res) => {
       httpOnly: true,  // Prevents access via JavaScript for security
       secure: process.env.NODE_ENV === "production",  // Use secure cookies in production
       sameSite: "Strict",  // Prevent CSRF attacks
-      maxAge: 3600000,  // Cookie expiration time (1 hour)
+      maxAge: 3153600000,  // Cookie expiration time (100 years)
     });
     
     res.cookie("role", "student", {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "Strict",
-      maxAge: 3600000,
+      maxAge: 3153600000,
     });
 
     res.cookie("email", email, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "Strict",
-      maxAge: 3600000,
+      maxAge: 3153600000,
     });
     
     res.status(201).json({ message: "Student registered successfully", token: token });
@@ -84,21 +85,21 @@ export const loginStudent = async (req, res) => {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "Strict",
-        maxAge: 3600000,
+        maxAge: 3153600000,
     });
 
     res.cookie("role", "student", {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "Strict",
-      maxAge: 3600000,
+      maxAge: 3153600000,
     });
 
     res.cookie("email", email, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "Strict",
-      maxAge: 3600000,
+      maxAge: 3153600000,
     });
 
     res.status(200).json({ success: true, message: "Student logged in successfully", token: token });
@@ -143,16 +144,43 @@ export const getStudentTests = async (req, res) => {
 
     // Fetch upcoming and past tests
     const currentTime = new Date();
-    
-    const upcomingTests = await Test.find({
-      classAssignment: { $in: classIds },
-      endTime: { $gte: currentTime },
-    }).sort({ startTime: 1 });
 
-    const previousTests = await Test.find({
-      classAssignment: { $in: classIds },
-      endTime: { $lt: currentTime },
+    // Get all tests (both upcoming and previous)
+    const allTests = await Test.find({
+      classAssignment: { $in: classIds }
     }).sort({ endTime: -1 });
+
+    // Get student submissions for these tests
+    const submissions = await Submission.find({
+      student: studentId,
+      test: { $in: allTests.map(t => t._id) }
+    });
+
+    const submittedTestIds = new Set(
+      submissions.map(sub => sub.test.toString())
+    );
+
+    // Categorize tests with submission check
+    const categorized = allTests.reduce((acc, test) => {
+      const isSubmitted = submittedTestIds.has(test._id.toString());
+      const isPastDeadline = test.endTime < currentTime;
+
+      if (isSubmitted || isPastDeadline) {
+        acc.previous.push(test);
+      } else {
+        acc.upcoming.push(test);
+      }
+      return acc;
+    }, { upcoming: [], previous: [] });
+
+    // Sort the results
+    const upcomingTests = categorized.upcoming.sort(
+      (a, b) => a.startTime - b.startTime
+    );
+    
+    const previousTests = categorized.previous.sort(
+      (a, b) => b.endTime - a.endTime
+    );
 
     res.status(200).json({ upcomingTests, previousTests });
   } catch (error) {

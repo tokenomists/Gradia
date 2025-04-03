@@ -66,7 +66,7 @@ export default function StudentDashboard() {
   useEffect(() => {
     const fetchTests = async () => {
       const testData = await getTestsForStudent();
-      // console.log(testData);
+      console.log(testData);
       setTestData(testData);
     };
 
@@ -266,7 +266,7 @@ export default function StudentDashboard() {
                   >
                     {testData.upcomingTests.map((test) => (
                       <motion.div 
-                        key={test.id}
+                        key={test._id}
                         variants={itemVariants}
                         whileHover={{ 
                           y: -3, 
@@ -284,7 +284,8 @@ export default function StudentDashboard() {
                             <span className="text-gray-700 text-sm">{test.duration} mins</span>
                           </div>
                           {test.status === 'ready' ? (
-                            <motion.button 
+                            <motion.button
+                              onClick={() => router.push(`/student/test/${test._id}`)} 
                               whileHover={{ scale: 1.05 }}
                               whileTap={{ scale: 0.95 }}
                               className="bg-[#e07a5f] text-white px-4 py-1 rounded-full text-sm font-medium shadow-sm hover:shadow-md transition-all duration-300"
@@ -388,7 +389,7 @@ export default function StudentDashboard() {
             <div className="space-y-6">
               {testData.previousTests.map((test, index) => (
                 <motion.div 
-                  key={test.id}
+                  key={test._id}
                   variants={itemVariants}
                   className={`${index !== testData.previousTests.length - 1 ? "border-b border-gray-300 pb-4" : ""}`}
                 >
