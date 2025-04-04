@@ -170,7 +170,7 @@ export default function PastTestsPage() {
                       <div className="mb-2">
                         <div className="flex justify-between text-sm mb-1">
                           <span>Score</span>
-                          <span className="font-medium">{test.score}/{test.maxScore}</span>
+                          {test.score !== 'N/A' ? <span className="font-medium">{test.score}/{test.maxScore}</span> : <span className="font-medium">N/A</span>}
                         </div>
                         <div className="w-full bg-gray-200 rounded-full h-2">
                           <div 
