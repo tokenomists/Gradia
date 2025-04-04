@@ -36,6 +36,33 @@ export const getTestsForStudent = async () => {
     }
 };
 
+export const getSubmissionsForStudent = async () => {
+    try {
+        const response = await instance.get('/api/auth/student/submissions');
+        const data = response.data;
+
+        return data;
+    } catch(error) {
+        console.log("Error fetching submissions!");
+        return [];
+    }
+}
+
+export const getSubmissionByTestId = async (testId) => {
+    try {
+        const response = await instance.get('/api/auth/student/submission/' + testId);
+        const data = response.data;
+        console.log(data);
+        if (!data || data === undefined) {
+            console.log("Invalid data format:", data);
+            return [];
+        }
+        return data[0];
+    } catch (error) {
+        console.error('Error fetching submission:', error);
+        return [];
+    }
+};
 
 export const getTestsForTeacher = async () => {
     try {

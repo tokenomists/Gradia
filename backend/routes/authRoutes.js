@@ -1,7 +1,7 @@
 import express from 'express';
 const router = express.Router();
 import passport from 'passport';
-import { registerStudent, loginStudent, getStudentProfile, getStudentTests } from '../controllers/studentAuthController.js';
+import { registerStudent, loginStudent, getStudentProfile, getStudentTests, getStudentSubmissions, getStudentSubmissionByTestId } from '../controllers/studentAuthController.js';
 import { registerTeacher, loginTeacher, getTeacherProfile, getTeacherClasses } from '../controllers/teacherAuthController.js';
 import authMiddleware from '../middlewares/authMiddleware.js';
 import Student from '../models/Student.js';
@@ -173,6 +173,8 @@ router.post("/student/register", registerStudent);
 router.post("/student/login", loginStudent);
 // router.get("/student/delete", deleteStudent);
 router.get("/student/tests", getStudentTests);
+router.get("/student/submissions", getStudentSubmissions);
+router.get("/student/submission/:testId", getStudentSubmissionByTestId);
 
 // Teacher Auth Routes
 router.post("/teacher/register", registerTeacher);
