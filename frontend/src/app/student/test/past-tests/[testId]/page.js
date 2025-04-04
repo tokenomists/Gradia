@@ -93,7 +93,7 @@ export default function TestDetailPage() {
         <div className="bg-white p-8 rounded-lg shadow-md">
           <h2 className="text-2xl font-bold text-gray-800 mb-4">Submission Not Found</h2>
           <p className="text-gray-600 mb-6">The test submission you&apos;re looking for doesn&apos;t exist or has been removed.</p>
-          <Link href="/tests" className="bg-[#dd7a5f] text-white px-4 py-2 rounded-md hover:bg-[#c76a51] transition">
+          <Link href="/student/test/past-tests" className="bg-[#dd7a5f] text-white px-4 py-2 rounded-md hover:bg-[#c76a51] transition">
             Back to Tests
           </Link>
         </div>
@@ -158,7 +158,7 @@ export default function TestDetailPage() {
       {/* Main Content */}
       <main className="container mx-auto p-6">
         <div className="mb-8">
-          <Link href="/tests" className="flex items-center text-[#dd7a5f] font-medium mb-4 hover:underline">
+          <Link href="/student/test/past-tests" className="flex items-center text-[#dd7a5f] font-medium mb-4 hover:underline">
             <ArrowLeft size={18} className="mr-2" />
             Back to All Tests
           </Link>
