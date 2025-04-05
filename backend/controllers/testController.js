@@ -23,7 +23,7 @@ export const createTest = async (req, res) => {
       return res.status(400).json({ message: "Missing required fields" });
     }
 
-    // Create new tes
+    // Create new test
     const newTest = new Test({
       title,
       description,
@@ -97,7 +97,7 @@ export const submitTest = async (req, res) => {
     const studentId = decoded.id;
 
     // Validate Test
-    const testt = await Test.findById(testId);
+    const test = await Test.findById(testId);
     if (!test) return res.status(404).json({ message: "Test not found" });
 
     // Validate Student
