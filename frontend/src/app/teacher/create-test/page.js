@@ -94,7 +94,8 @@ export default function CreateTest() {
       enableRubrics: false,
       rubric: {
         criteria: []
-      }
+      },
+      testcases: []
     };  
   
     setTestData({
@@ -161,6 +162,55 @@ const updateQuestionRubricCriterion = (questionIndex, criterionIndex, field, val
 const updateQuestionRubricLevel = (questionIndex, criterionIndex, levelIndex, field, value) => {
   const updatedQuestions = [...testData.questions];
   updatedQuestions[questionIndex].rubric.criteria[criterionIndex].levels[levelIndex][field] = value;
+  
+  setTestData({
+    ...testData,
+    questions: updatedQuestions
+  });
+};
+
+// Add a test case to a coding question
+const addTestCase = (questionIndex) => {
+  const newTestCase = {
+    input: '',
+    output: '',
+    isHidden: false
+  };
+
+  const updatedQuestions = [...testData.questions];
+  
+  // Initialize testCases array if it doesn't exist
+  if (!updatedQuestions[questionIndex].testCases) {
+    updatedQuestions[questionIndex].testCases = [];
+  }
+  
+  updatedQuestions[questionIndex].testCases = [
+    ...updatedQuestions[questionIndex].testCases,
+    newTestCase
+  ];
+  
+  setTestData({
+    ...testData,
+    questions: updatedQuestions
+  });
+};
+
+// Remove a test case
+const removeTestCase = (questionIndex, testCaseIndex) => {
+  const updatedQuestions = [...testData.questions];
+  updatedQuestions[questionIndex].testCases = 
+    updatedQuestions[questionIndex].testCases.filter((_, idx) => idx !== testCaseIndex);
+  
+  setTestData({
+    ...testData,
+    questions: updatedQuestions
+  });
+};
+
+// Update test case
+const updateTestCase = (questionIndex, testCaseIndex, field, value) => {
+  const updatedQuestions = [...testData.questions];
+  updatedQuestions[questionIndex].testCases[testCaseIndex][field] = value;
   
   setTestData({
     ...testData,
@@ -582,6 +632,76 @@ const updateQuestionRubricLevel = (questionIndex, criterionIndex, levelIndex, fi
                 <option value="cpp">C++</option>
                 <option value="csharp">C#</option>
               </select>
+
+              {/* Add test cases section */}
+              <div className="mt-4 pt-4 border-t border-gray-200">
+                <div className="flex justify-between items-center mb-3">
+                  <h4 className="font-medium text-[#d97056]">Test Cases</h4>
+                  <button
+                    type="button"
+                    onClick={() => addTestCase(questionIndex)}
+                    className="text-sm px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 transition"
+                  >
+                    + Add Test Case
+                  </button>
+                </div>
+                
+                {(!question.testCases || question.testCases.length === 0) ? (
+                  <div className="text-center p-4 border border-dashed border-gray-300 rounded-md">
+                    <p className="text-gray-500 text-sm">No test cases added yet. Add test cases to evaluate student code.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {question.testCases.map((testCase, testCaseIndex) => (
+                      <div key={testCaseIndex} className="border border-gray-200 rounded-md p-3 bg-gray-50">
+                        <div className="flex justify-between items-center mb-2">
+                          <h5 className="text-sm font-medium">Test Case {testCaseIndex + 1}</h5>
+                          <button
+                            type="button"
+                            onClick={() => removeTestCase(questionIndex, testCaseIndex)}
+                            className="text-red-500 hover:text-red-700 text-xs"
+                          >
+                            Remove
+                          </button>
+                        </div>
+                        
+                        <div className="flex flex-col sm:flex-row sm:space-x-4 space-y-3 sm:space-y-0 mb-3">
+                          <div className="w-full sm:w-1/2">
+                            <label className="block mb-1 text-xs font-medium">Input</label>
+                            <textarea 
+                              value={testCase.input}
+                              onChange={(e) => updateTestCase(questionIndex, testCaseIndex, 'input', e.target.value)}
+                              placeholder="Enter test input values" 
+                              className="w-full p-2 border border-gray-300 rounded-md text-sm h-20"
+                            ></textarea>
+                          </div>
+                          <div className="w-full sm:w-1/2">
+                            <label className="block mb-1 text-xs font-medium">Expected Output</label>
+                            <textarea 
+                              value={testCase.output}
+                              onChange={(e) => updateTestCase(questionIndex, testCaseIndex, 'output', e.target.value)}
+                              placeholder="Enter expected output" 
+                              className="w-full p-2 border border-gray-300 rounded-md text-sm h-20"
+                            ></textarea>
+                          </div>
+                        </div>
+                        
+                        <div className="flex items-center">
+                          <label className="inline-flex items-center">
+                            <input
+                              type="checkbox"
+                              checked={testCase.isHidden}
+                              onChange={(e) => updateTestCase(questionIndex, testCaseIndex, 'isHidden', e.target.checked)}
+                              className="mr-2"
+                            />
+                            <span className="text-sm">Hidden test case (not shown to students)</span>
+                          </label>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           )}
         </div>
@@ -767,6 +887,16 @@ const updateQuestionRubricLevel = (questionIndex, criterionIndex, levelIndex, fi
                 <span className="text-gray-600">{q.maxMarks} marks</span>
               </div>
               
+              {q.type === 'coding' && q.testCases && q.testCases.length > 0 && (
+                <div className="mt-2 pl-4 border-l-2 border-gray-200">
+                  <p className="text-sm font-medium text-[#d97056]">Test Cases:</p>
+                  <p className="text-sm text-gray-600">
+                    {q.testCases.length} test case{q.testCases.length > 1 ? 's' : ''} 
+                    ({q.testCases.filter(tc => tc.isHidden).length} hidden)
+                  </p>
+                </div>
+              )}
+
               {q.enableRubrics && q.rubric && q.rubric.criteria && q.rubric.criteria.length > 0 ? (
                 <div className="mt-2 pl-4 border-l-2 border-gray-200">
                   <p className="text-sm font-medium text-[#d97056]">Rubric Criteria:</p>

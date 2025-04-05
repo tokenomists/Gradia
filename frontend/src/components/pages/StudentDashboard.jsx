@@ -66,7 +66,7 @@ export default function StudentDashboard() {
   useEffect(() => {
     const fetchTests = async () => {
       const testData = await getTestsForStudent();
-      console.log(testData);
+      // console.log(testData);
       setTestData(testData);
     };
 
