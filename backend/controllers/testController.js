@@ -3,6 +3,7 @@ import Class from "../models/Class.js";
 import Student from "../models/Student.js";
 import jwt from 'jsonwebtoken';
 import Submission from "../models/Submission.js";
+import axios from "axios";
 
 export const createTest = async (req, res) => {
   try {
@@ -77,63 +78,102 @@ export const getTestById = async (req, res) => {
   }
 };
 
-/**
- * @desc Submit test
- * @route POST /api/tests/submit/:testId
- * @access Student (via token)
- */
 export const submitTest = async (req, res) => {
   try {
     const { testId } = req.params;
-    const token = req.cookies.token; 
+    const token = req.cookies.token;
     const { answers } = req.body;
 
     if (!token) {
       return res.status(401).json({ message: "Unauthorized: No token provided" });
     }
 
-    // Decode the token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const studentId = decoded.id;
 
-    // Validate Test
-    const test = await Test.findById(testId);
-    if (!test) return res.status(404).json({ message: "Test not found" });
+    const [test, student] = await Promise.all([
+      Test.findById(testId),
+      Student.findById(studentId)
+    ]);
 
-    // Validate Student
-    const student = await Student.findById(studentId);
+    if (!test) return res.status(404).json({ message: "Test not found" });
     if (!student) return res.status(404).json({ message: "Student not found" });
 
-    // Check if submission already exists
     const existingSubmission = await Submission.findOne({ test: testId, student: studentId });
     if (existingSubmission) {
       return res.status(400).json({ message: "Test already submitted" });
     }
 
-    // Validate Answers
+    const gradedAnswers = [];
+    const classId = test.classAssignment;
+    let totalScore = 0;
+
     for (const ans of answers) {
-      const question = test.questions.find(q => q._id === ans.questionId);
+      const question = test.questions.find(q => q._id.toString() === ans.questionId);
       if (!question) {
         return res.status(400).json({ message: `Invalid question ID: ${ans.questionId}` });
       }
-      
+
       if (question.type !== ans.questionType) {
         return res.status(400).json({ message: `Incorrect question type for question ID: ${ans.questionId}` });
       }
+
+      let score = 0;
+      let feedback = "";
+
+      if (question.type === "typed") {
+        try {
+          const gradingPayload = {
+            question: question.questionText,
+            student_answer: ans.answerText,
+            max_mark: question.maxMarks,
+            rubric: question.rubric ?? null,
+            bucket_name: classId,
+          };
+
+          const response = await axios.post(
+            `${process.env.GRADIA_PYTHON_BACKEND_URL}/grade`,
+            gradingPayload,
+            {
+              headers: {
+                "x-api-key": process.env.GRADIA_API_KEY
+              }
+            }
+          );
+
+          const { grade, feedback: fb, reference } = response.data;
+          score = grade;
+          feedback = `${fb}${reference ? ` \nReference: ${reference}` : ""}`;
+        } catch (gradingError) {
+          console.error(`Grading failed for question ${ans.questionId}:`, gradingError.message);
+          return res.status(500).json({ message: "Grading failed", error: gradingError.message });
+        }
+      }
+
+      totalScore += score;
+
+      gradedAnswers.push({
+        questionId: ans.questionId,
+        answerText: ans.answerText,
+        questionType: ans.questionType,
+        score,
+        feedback
+      });
     }
 
-    // Create Submission
     const submission = new Submission({
       test: testId,
       student: studentId,
-      answers,
+      answers: gradedAnswers,
+      totalScore,
+      graded: true
     });
 
     await submission.save();
-    res.status(201).json({ message: "Test submitted successfully", submission });
+    res.status(201).json({ message: "Test submitted and graded successfully", submission });
 
   } catch (error) {
     console.error("Error submitting test:", error);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 };
