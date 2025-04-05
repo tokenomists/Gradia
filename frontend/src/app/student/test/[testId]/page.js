@@ -39,6 +39,7 @@ const initialState = {
     status: 'not-visited',
     answer: '',
     images: [],
+    testCases: [],
     reviewMarked: false,
     maxMarks: 0
   }],
@@ -300,6 +301,7 @@ const TestPage = () => {
           status: 'not-visited',
           answer: '',
           images: [],
+          testCases: q.testCases || [],
           reviewMarked: false,
           maxMarks: q.maxMarks
         }));
@@ -381,21 +383,53 @@ const TestPage = () => {
             placeholder="Type your answer here"
           />
         );
-      case 'coding':
-        return (
-            <CodeEditor
-            value={currentQuestion.answer || ''}
-            onChange={(value) => dispatch({
-              type: 'SET_ANSWER',
-              payload: {
-                id: currentQuestion.id,
-                answer: value
-              }
-            })}
-            dispatch={dispatch}
-            currentQuestionId={currentQuestion.id}
-          />
-        );
+        case 'coding':
+          return (
+            <div className="space-y-4">
+              <CodeEditor
+                value={currentQuestion.answer || ''}
+                onChange={(value) => dispatch({
+                  type: 'SET_ANSWER',
+                  payload: {
+                    id: currentQuestion.id,
+                    answer: value
+                  }
+                })}
+                dispatch={dispatch}
+                currentQuestionId={currentQuestion.id}
+              />
+              
+              {/* Test Cases Section */}
+              {currentQuestion.testCases && currentQuestion.testCases.length > 0 && (
+                <div className="mt-6 border-2 border-[#e2c3ae] rounded-lg p-4">
+                  <h3 className="text-xl font-bold text-[#d56c4e] mb-4">Test Cases</h3>
+                  <div className="space-y-3">
+                    {currentQuestion.testCases.filter(tc => !tc.isHidden).map((testCase, index) => (
+                      <div key={index} className="bg-gray-50 p-3 rounded-md">
+                        <div className="flex justify-between">
+                          <div className="space-y-2 w-1/2">
+                            <p className="font-medium text-gray-700">Input:</p>
+                            <pre className="bg-gray-100 p-2 rounded overflow-x-auto text-sm">{testCase.input}</pre>
+                          </div>
+                          <div className="space-y-2 w-1/2 ml-4">
+                            <p className="font-medium text-gray-700">Expected Output:</p>
+                            <pre className="bg-gray-100 p-2 rounded overflow-x-auto text-sm">{testCase.output}</pre>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                    {currentQuestion.testCases.some(tc => tc.isHidden) && (
+                      <div className="bg-yellow-50 p-3 rounded-md border-l-4 border-yellow-400">
+                        <p className="text-yellow-700">
+                          <span className="font-medium">Note:</span> There are hidden test cases that will be evaluated when you submit.
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          );
       case 'handwritten':
         return (
           <div className="space-y-4">
