@@ -22,12 +22,13 @@ const SubmissionSchema = new mongoose.Schema({
       answerText: { type: String }, // Used for theoretical answers
       fileUrl: { type: String }, // Used for handwritten answers
       codeAnswer: { type: String }, // Used for coding answers
+      score: { type: Number, default: 0 }, // Score for this specific question
+      feedback: { type: String, default: "" }, // Feedback for this specific question
     }
   ],
   totalScore: { type: Number, default: 0 },
   submittedAt: { type: Date, default: Date.now },
   graded: { type: Boolean, default: false },
-  feedback: { type: String, default: "" },
 }, { timestamps: true });
 
 const Submission = mongoose.model("Submission", SubmissionSchema);
