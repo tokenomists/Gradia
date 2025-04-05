@@ -130,10 +130,12 @@ export const getStudentTests = async (req, res) => {
     // Extract JWT token from cookies
     const token = req.cookies.token;
     if (!token) return res.status(401).json({ message: "Unauthorized" });
+    console.log(token);
 
     // Decode token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const studentId = decoded.id;
+    console.log(studentId);
 
     // Find student and their enrolled classes
     const student = await Student.findById(studentId).populate("classes");
@@ -186,5 +188,48 @@ export const getStudentTests = async (req, res) => {
   } catch (error) {
     console.error("Error fetching student tests:", error);
     res.status(500).json({ message: "Error fetching tests", error: error.message });
+  }
+};
+
+export const getStudentSubmissions = async (req, res) => {
+  console.log("getStudentSubmissions function was called!");
+  try {
+    const token = req.cookies.token;
+    // console.log("token: ", token);
+    if(!token) return res.status(401).json({ message: "Unauthorized"});
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const studentId = decoded.id;
+    // console.log("decoded: ", decoded);
+    // console.log("student id: ", studentId);
+
+    const submissions = await Submission.find({ student: studentId });
+    res.status(200).json( submissions );
+  } catch(error) {
+    console.log("Error, failed to fetch submissions: ", error);
+    res.status(500).json({ message: "Failed to fetch submissions!" });
+  }
+};
+
+export const getStudentSubmissionByTestId = async (req, res) => {
+  try {
+    const token = req.cookies.token;
+    // console.log("token: ", token);
+    if(!token) return res.status(401).json({ message: "Unauthorized"});
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const studentId = decoded.id;
+
+    const { testId } = req.params;
+
+    const submission = await Submission.find({
+      student: studentId,
+      test: testId
+    }).populate('test');
+
+    res.status(200).json(submission);
+  } catch (error) {
+    console.error('Error, failed to get submission: ', error);
+    res.status(500).json({ message: "Failed to get submission!" + error });
   }
 };

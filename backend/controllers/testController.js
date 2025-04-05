@@ -38,6 +38,8 @@ export const createTest = async (req, res) => {
       isDraft: isDraft ?? true, // Default to draft if not provided
     });
 
+    newTest.maxMarks = questions.reduce((total, question) => total + (question.maxMarks || 0), 0);
+
     // Save to DB
     await newTest.save();
 

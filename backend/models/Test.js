@@ -18,18 +18,8 @@ const TestSchema = new mongoose.Schema({
   classAssignment: { type: mongoose.Schema.Types.ObjectId, ref: "Class", required: true },
   createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "Teacher", required: true },
   questions: [QuestionSchema],
-  rubric: {
-    type: {
-      title: { type: String, default: "" },
-      criteria: [
-        {
-          name: { type: String, required: true },
-          weight: { type: Number, required: true }
-        }
-      ]
-    },
-    default: undefined
-  }, files: {
+  maxMarks: { type: Number, required: true, default: 0 },
+  files: {
     type: [
       {
         name: { type: String, required: true },
