@@ -32,7 +32,6 @@ export const createTest = async (req, res) => {
       rubric,
       files,
       isDraft: isDraft ?? true,
-      isDraft: isDraft ?? true,
     });
 
     newTest.maxMarks = questions.reduce((total, question) => total + (question.maxMarks || 0), 0);
@@ -41,7 +40,6 @@ export const createTest = async (req, res) => {
 
     await Class.findByIdAndUpdate(
       classAssignment,
-      { $push: { tests: newTest._id } },
       { $push: { tests: newTest._id } },
       { new: true }
     );
@@ -93,7 +91,7 @@ export const submitTest = async (req, res) => {
       return res.status(404).json({ message: "Test or Student not found" });
 
     const existingSubmission = await Submission.findOne({ test: testId, student: studentId });
-    if (existingSubmission)
+    if (existingSubmission) {
       return res.status(400).json({ message: "Test already submitted" });
     }
 
@@ -130,6 +128,7 @@ export const submitTest = async (req, res) => {
   } catch (error) {
     console.error("Error submitting test:", error);
     res.status(500).json({ message: "Server error", error: error.message });
+
   }
 };
 
@@ -145,7 +144,6 @@ export const getHeatmapData = async (req, res) => {
 
     // Fetch only classes associated with the logged-in teacher
     const classes = await Class.find({ teacher: teacherId }, 'name _id');
-    console.log('Classes found for teacher:', classes);
 
     const heatmapData = {};
 
@@ -153,17 +151,19 @@ export const getHeatmapData = async (req, res) => {
       const classId = classDoc._id;
       heatmapData[classDoc.name] = {};
 
-      const tests = await Test.find({ classAssignment: classId }, '_id title questions');
-      console.log(`Tests for class ${classDoc.name}:`, tests);
+      const tests = await Test.find({ classAssignment: classId }, '_id title questions createdAt', { sort: { createdAt: -1 } });
 
       for (const test of tests) {
         const testId = test._id;
         const totalPossibleMarks = test.questions.reduce((sum, q) => sum + q.maxMarks, 0);
         const submissions = await Submission.find({ test: testId, graded: true }, 'totalScore student');
-        console.log(`Submissions for test ${test.title}:`, submissions);
 
         if (submissions.length === 0) {
-          heatmapData[classDoc.name][test.title] = { percentage: 'NA', color: 'bg-gray-200' };
+          heatmapData[classDoc.name][test.title] = { 
+            percentage: 'NA', 
+            color: 'bg-gray-200',
+            createdAt: test.createdAt // Include createdAt timestamp
+          };
           continue;
         }
 
@@ -175,7 +175,11 @@ export const getHeatmapData = async (req, res) => {
         if (averagePercentage < 50) color = 'bg-red-500';
         else if (averagePercentage <= 75) color = 'bg-orange-400';
 
-        heatmapData[classDoc.name][test.title] = { percentage: averagePercentage.toFixed(2) + '%', color };
+        heatmapData[classDoc.name][test.title] = { 
+          percentage: averagePercentage.toFixed(2) + '%', 
+          color,
+          createdAt: test.createdAt // Include createdAt timestamp
+        };
       }
     }
 

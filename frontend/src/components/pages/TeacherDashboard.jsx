@@ -162,52 +162,43 @@ export default function TeacherDashboard() {
   };
 
   const renderHeatmap = () => {
-    console.log('Rendering heatmap with data:', heatmapData); // Debug log for full data
-    if (loadingHeatmap) return <p className="text-gray-600">Loading heatmap...</p>;
-    if (Object.keys(heatmapData).length === 0) return <p className="text-gray-600">No heatmap data available.</p>;
-  
-    // Collect all tests with their createdAt timestamps across all classes
-    const allTests = [];
-    Object.values(heatmapData).forEach((testData, classIndex) => {
-      console.log(`Class ${classIndex} testData:`, testData); // Log each class's test data
-      Object.entries(testData).forEach(([testTitle, data]) => {
-        console.log(`Test ${testTitle} data:`, data); // Log each test's data
-        if (Object.keys(testData).length > 0) {
-          allTests.push({ title: testTitle, createdAt: data.createdAt || null }); // Allow null createdAt for debugging
-        }
+    console.log('Rendering heatmap with data:', heatmapData);
+
+    let heatmapContent = null;
+
+    if (loadingHeatmap) {
+      heatmapContent = (
+        <div className="flex items-center justify-center h-48">
+          <p className="text-gray-600">No Student Analytics Found</p>
+        </div>
+      );
+    } else if (Object.keys(heatmapData).length === 0) {
+      heatmapContent = (
+        <div className="flex items-center justify-center h-48">
+          <p className="text-gray-700 font-medium text-lg">No Student Analytics Found</p>
+        </div>
+      );
+    } else {
+      // Collect all tests with their createdAt timestamps across all classes
+      const allTests = [];
+      Object.entries(heatmapData).forEach(([className, testData]) => {
+        Object.entries(testData).forEach(([testTitle, data]) => {
+          allTests.push({ 
+            title: testTitle, 
+            createdAt: data.createdAt || new Date(0).toISOString(), // Use unix epoch if no date
+            className: className
+          });
+        });
       });
-    });
-  
-    console.log('All tests collected:', allTests); // Log all collected tests
-  
-    // Sort by createdAt (latest first) and limit to 3, handle null createdAt
-    const sortedTests = allTests
-      .sort((a, b) => {
-        if (!a.createdAt || !b.createdAt) return 0; // Treat null as equal for now
-        return new Date(b.createdAt) - new Date(a.createdAt);
-      })
-      .slice(0, 3)
-      .map(test => test.title);
-  
-    console.log('Sorted tests (latest 3):', sortedTests); // Log the final sorted tests
-  
-    if (sortedTests.length === 0) {
-      console.log('No valid tests found for sorting. Check createdAt or data structure.');
-      return <p className="text-gray-600">No test data available for heatmap.</p>;
-    }
-  
-    return (
-      <div className="bg-[#edead7] rounded-xl p-6 shadow-md">
-        <h2 className="text-2xl font-bold text-gray-800 mb-4">Student Performance</h2>
+
+      // Sort by createdAt (latest first) and limit to 4
+      const sortedTests = allTests
+        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+        .slice(0, 4)
+        .map(test => test.title);
+
+      heatmapContent = (
         <table className="w-full text-center border-collapse">
-          <thead>
-            <tr>
-              <th className="p-2 border"></th>
-              {sortedTests.map((test) => (
-                <th key={test} className="p-2 border">{test}</th>
-              ))}
-            </tr>
-          </thead>
           <tbody>
             {Object.entries(heatmapData).map(([className, testData], index) => (
               <tr key={index}>
@@ -218,9 +209,12 @@ export default function TeacherDashboard() {
                     <td key={test} className="p-2 border">
                       <motion.div
                         whileHover={{ scale: 1.05 }}
-                        className={`${data.color} text-black font-medium rounded-sm p-4 mx-auto border border-black`}
+                        className={`${data.color} text-black font-medium rounded-sm p-4 mx-auto border border-black relative group`}
                       >
                         {data.percentage}
+                        <div className="absolute opacity-0 group-hover:opacity-100 bg-black text-white p-2 rounded text-xs -top-10 left-1/2 transform -translate-x-1/2 whitespace-nowrap transition-opacity duration-200 pointer-events-none z-10">
+                          {test}
+                        </div>
                       </motion.div>
                     </td>
                   );
@@ -229,6 +223,13 @@ export default function TeacherDashboard() {
             ))}
           </tbody>
         </table>
+      );
+    }
+
+    return (
+      <div className="bg-[#edead7] rounded-xl p-6 shadow-md">
+        <h2 className="text-2xl font-bold text-gray-800 mb-4">Student Performance</h2>
+        <div>{heatmapContent}</div>
         <button
           onClick={() => router.push('/teacher/detailed-analysis')}
           className="mt-6 bg-[#d56c4e] text-white font-medium py-2 px-4 rounded-lg hover:bg-[#c25c3e] flex mx-auto items-center"
@@ -428,7 +429,7 @@ export default function TeacherDashboard() {
         
           {/* Student Performance */}
           <div>
-            {renderHeatmap()} {/* Ensure this is the only content rendered here */}
+            {renderHeatmap()}
           </div>
         </div>
       </div>

@@ -176,7 +176,7 @@ export default function StudentDashboard() {
       (sub) => sub.test === test._id
     );
     const scoredScore = submission ? submission.totalScore : 0;
-    const percentage = (scoredScore / totalScore) * 100;
+    const percentage = ((scoredScore / totalScore) * 100).toFixed(2);
     return {
       ...test,
       percentage,
