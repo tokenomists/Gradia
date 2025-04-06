@@ -27,7 +27,7 @@ export default function PastTestsPage() {
           date: 'N/A',
           duration: test.duration || 0,
           score: 'N/A',
-          maxScore: 100,
+          maxScore: test.maxMarks,
           questions: test.questions?.length || 0,
         }));
 
@@ -45,9 +45,8 @@ export default function PastTestsPage() {
           return test;
         });
 
-        console.log('TestData:', TestData);
-        console.log('SubmissionData:', SubmissionData);
         setSubmissions(SubmissionData);
+        TestData.sort((a, b) => new Date(b.date) - new Date(a.date));
         setTests(TestData);
         setLoading(false);
       } catch (error) {
@@ -118,25 +117,16 @@ export default function PastTestsPage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#fff8e9] to-[#fdf9ea]">
       {/* Header */}
-      <nav className="bg-gradient-to-r from-[#d56c4e] to-[#e07e63] text-white px-6 py-4 flex justify-between items-center sticky top-0 z-50 shadow-md">
+      <nav className="bg-[#d56c4e] text-white px-6 py-4 flex justify-between items-center sticky top-0 z-50 shadow-md">
         <div className="flex items-center">
           <motion.div 
             initial={{ rotate: -5, scale: 0.9 }}
             animate={{ rotate: 0, scale: 1 }}
             transition={{ duration: 0.5, type: "spring" }}
           >
-            <h1 
-              style={{ fontFamily: "'Rage Italic', sans-serif" }}
-              className="text-4xl font-bold text-black relative"
-            >
+            <Link href="/" style={{ fontFamily: "'Rage Italic', sans-serif" }} className="text-4xl font-bold text-black relative">
               Gradia
-              <motion.span 
-                initial={{ width: 0 }}
-                animate={{ width: '100%' }}
-                transition={{ delay: 0.5, duration: 0.8 }}
-                className="absolute bottom-0 left-0 h-1 bg-black rounded-full"
-              />
-            </h1>
+            </Link>
           </motion.div>
         </div>
         <div className="flex space-x-6 items-center">
@@ -241,8 +231,8 @@ export default function PastTestsPage() {
         {loading ? (
           <div className="flex justify-center items-center h-64">
             <div className="relative">
-              <div className="w-16 h-16 rounded-full border-4 border-[#f8e2d8] border-t-[#dd7a5f] animate-spin"></div>
-              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-[#dd7a5f] font-medium">Loading</div>
+              <div className="w-20 h-20 rounded-full border-4 border-[#f8e2d8] border-t-[#dd7a5f] animate-spin"></div>
+              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-[#dd7a5f] font-small">Loading..</div>
             </div>
           </div>
         ) : (
