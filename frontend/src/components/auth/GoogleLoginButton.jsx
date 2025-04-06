@@ -3,13 +3,12 @@ import { FcGoogle } from "react-icons/fc";
 import { motion } from "framer-motion";
 import { useDarkMode } from "@/contexts/DarkModeContext";
 
-const PORT = process.env.PORT || 8000;
-
 const GoogleLoginButton = ({ userType }) => {
   const { darkMode } = useDarkMode();
 
   const handleGoogleLogin = () => {
-    window.location.href = `http://localhost:${PORT}/api/auth/${userType}/google`;
+    const backendBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+    window.location.href = `${backendBaseUrl}/api/auth/${userType}/google`;
   };
 
   return (

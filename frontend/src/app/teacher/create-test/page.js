@@ -94,7 +94,8 @@ export default function CreateTest() {
       enableRubrics: false,
       rubric: {
         criteria: []
-      }
+      },
+      testcases: []
     };  
   
     setTestData({
@@ -161,6 +162,55 @@ const updateQuestionRubricCriterion = (questionIndex, criterionIndex, field, val
 const updateQuestionRubricLevel = (questionIndex, criterionIndex, levelIndex, field, value) => {
   const updatedQuestions = [...testData.questions];
   updatedQuestions[questionIndex].rubric.criteria[criterionIndex].levels[levelIndex][field] = value;
+  
+  setTestData({
+    ...testData,
+    questions: updatedQuestions
+  });
+};
+
+// Add a test case to a coding question
+const addTestCase = (questionIndex) => {
+  const newTestCase = {
+    input: '',
+    output: '',
+    isHidden: false
+  };
+
+  const updatedQuestions = [...testData.questions];
+  
+  // Initialize testCases array if it doesn't exist
+  if (!updatedQuestions[questionIndex].testCases) {
+    updatedQuestions[questionIndex].testCases = [];
+  }
+  
+  updatedQuestions[questionIndex].testCases = [
+    ...updatedQuestions[questionIndex].testCases,
+    newTestCase
+  ];
+  
+  setTestData({
+    ...testData,
+    questions: updatedQuestions
+  });
+};
+
+// Remove a test case
+const removeTestCase = (questionIndex, testCaseIndex) => {
+  const updatedQuestions = [...testData.questions];
+  updatedQuestions[questionIndex].testCases = 
+    updatedQuestions[questionIndex].testCases.filter((_, idx) => idx !== testCaseIndex);
+  
+  setTestData({
+    ...testData,
+    questions: updatedQuestions
+  });
+};
+
+// Update test case
+const updateTestCase = (questionIndex, testCaseIndex, field, value) => {
+  const updatedQuestions = [...testData.questions];
+  updatedQuestions[questionIndex].testCases[testCaseIndex][field] = value;
   
   setTestData({
     ...testData,
@@ -569,19 +619,157 @@ const updateQuestionRubricLevel = (questionIndex, criterionIndex, levelIndex, fi
 
           {/* Coding-specific options */}
           {question.type === 'coding' && (
-            <div className="mt-3">
-              <label className="block mb-1 font-medium">Programming Language</label>
-              <select
-                value={question.codingLanguage || 'python'}
-                onChange={(e) => handleQuestionChange(questionIndex, 'codingLanguage', e.target.value)}
-                className="w-full p-2 border border-gray-300 rounded-md"
-              >
-                <option value="python">Python</option>
-                <option value="javascript">JavaScript</option>
-                <option value="java">Java</option>
-                <option value="cpp">C++</option>
-                <option value="csharp">C#</option>
-              </select>
+            <div className="mt-6 rounded-lg border border-orange-200 bg-orange-50 p-4">
+              <div className="flex items-center justify-between mb-3">
+                <h4 className="text-orange-700 font-semibold flex items-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                  </svg>
+                  Programming Language
+                </h4>
+              </div>
+              
+              <div className="mb-4">
+                <select
+                  value={question.codingLanguage || 'python'}
+                  onChange={(e) => handleQuestionChange(questionIndex, 'codingLanguage', e.target.value)}
+                  className="w-full p-3 border border-orange-300 rounded-md bg-white shadow-sm transition duration-200 focus:ring-2 focus:ring-orange-300 focus:border-orange-500"
+                >
+                  <option value="python">Python</option>
+                  <option value="javascript">JavaScript</option>
+                  <option value="java">Java</option>
+                  <option value="cpp">C++</option>
+                  <option value="csharp">C#</option>
+                </select>
+              </div>
+
+              {/* Test Cases Section with enhanced UI */}
+              <div className="mt-6">
+                <div className="flex items-center justify-between mb-3">
+                  <h4 className="text-orange-700 font-semibold flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                    </svg>
+                    Test Cases
+                  </h4>
+                  <button
+                    type="button"
+                    onClick={() => addTestCase(questionIndex)}
+                    className="px-3 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700 transition duration-200 flex items-center shadow-sm"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                    </svg>
+                    Add Test Case
+                  </button>
+                </div>
+
+                {(!question.testCases || question.testCases.length === 0) ? (
+                  <div className="text-center p-6 border-2 border-dashed border-orange-300 rounded-lg bg-white">
+                    <div className="mx-auto w-16 h-16 mb-3 bg-orange-100 rounded-full flex items-center justify-center">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </div>
+                    <p className="text-orange-700 font-medium mb-1">No test cases added yet</p>
+                    <p className="text-orange-600 text-sm">Add test cases to automatically evaluate student code submissions</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {question.testCases.map((testCase, testCaseIndex) => (
+                      <div key={testCaseIndex} className="bg-white rounded-lg shadow-sm border border-orange-200 overflow-hidden">
+                        <div className="bg-gradient-to-r from-orange-50 to-white px-4 py-3 flex items-center justify-between border-b border-orange-100">
+                          <h5 className="font-medium text-orange-800 flex items-center">
+                            <span className="flex items-center justify-center bg-orange-100 text-orange-700 rounded-full h-6 w-6 mr-2 text-xs font-bold">
+                              {testCaseIndex + 1}
+                            </span>
+                            Test Case {testCaseIndex + 1}
+                            {testCase.isHidden && (
+                              <span className="ml-2 text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">
+                                Hidden
+                              </span>
+                            )}
+                          </h5>
+                          <button
+                            type="button"
+                            onClick={() => removeTestCase(questionIndex, testCaseIndex)}
+                            className="text-red-500 hover:text-red-700 transition duration-200"
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                          </button>
+                        </div>
+
+                        <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <label className="block mb-2 text-sm font-medium text-gray-700">
+                              <span className="flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1 text-orange-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16l-4-4m0 0l4-4m-4 4h18" />
+                                </svg>
+                                Input
+                              </span>
+                            </label>
+                            <textarea
+                              value={testCase.input || ''}
+                              onChange={(e) => updateTestCase(questionIndex, testCaseIndex, 'input', e.target.value)}
+                              placeholder="Enter test input values..." 
+                              className="w-full p-3 border border-gray-300 rounded-md text-sm font-mono bg-gray-50 h-24 focus:ring-2 focus:ring-orange-300 focus:border-orange-500"
+                            ></textarea>
+                          </div>
+
+                          <div>
+                            <label className="block mb-2 text-sm font-medium text-gray-700">
+                              <span className="flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                                </svg>
+                                Expected Output
+                              </span>
+                            </label>
+                            <textarea
+                              value={testCase.output || ''}
+                              onChange={(e) => updateTestCase(questionIndex, testCaseIndex, 'output', e.target.value)}
+                              placeholder="Enter expected output..." 
+                              className="w-full p-3 border border-gray-300 rounded-md text-sm font-mono bg-gray-50 h-24 focus:ring-2 focus:ring-orange-300 focus:border-orange-500"
+                            ></textarea>
+                          </div>
+                        </div>
+
+                        <div className="px-4 py-3 bg-gray-50 border-t border-gray-200">
+                          <label className="inline-flex items-center">
+                            <input
+                              type="checkbox"
+                              checked={testCase.isHidden || false}
+                              onChange={(e) => updateTestCase(questionIndex, testCaseIndex, 'isHidden', e.target.checked)}
+                              className="form-checkbox h-4 w-4 text-orange-600 transition duration-150 ease-in-out"
+                            />
+                            <span className="ml-2 text-sm text-gray-700">
+                              Hidden test case 
+                              <span className="text-gray-500 text-xs ml-1">(not visible to students during test)</span>
+                            </span>
+                          </label>
+                        </div>
+                        
+                        {/* Add additional "Add Test Case" button after each test case for better UX */}
+                        <div className="px-4 py-3 bg-orange-50 border-t border-orange-100 flex justify-center">
+                          <button
+                            type="button"
+                            onClick={() => addTestCase(questionIndex)}
+                            className="px-3 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700 transition duration-200 flex items-center shadow-sm"
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                            </svg>
+                            Add Another Test Case
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           )}
         </div>
@@ -767,6 +955,16 @@ const updateQuestionRubricLevel = (questionIndex, criterionIndex, levelIndex, fi
                 <span className="text-gray-600">{q.maxMarks} marks</span>
               </div>
               
+              {q.type === 'coding' && q.testCases && q.testCases.length > 0 && (
+                <div className="mt-2 pl-4 border-l-2 border-gray-200">
+                  <p className="text-sm font-medium text-[#d97056]">Test Cases:</p>
+                  <p className="text-sm text-gray-600">
+                    {q.testCases.length} test case{q.testCases.length > 1 ? 's' : ''} 
+                    ({q.testCases.filter(tc => tc.isHidden).length} hidden)
+                  </p>
+                </div>
+              )}
+
               {q.enableRubrics && q.rubric && q.rubric.criteria && q.rubric.criteria.length > 0 ? (
                 <div className="mt-2 pl-4 border-l-2 border-gray-200">
                   <p className="text-sm font-medium text-[#d97056]">Rubric Criteria:</p>

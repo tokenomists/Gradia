@@ -242,7 +242,6 @@ export default function PastTestsPage() {
           <div className="flex justify-center items-center h-64">
             <div className="relative">
               <div className="w-16 h-16 rounded-full border-4 border-[#f8e2d8] border-t-[#dd7a5f] animate-spin"></div>
-              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-[#dd7a5f] font-medium">Loading</div>
             </div>
           </div>
         ) : (

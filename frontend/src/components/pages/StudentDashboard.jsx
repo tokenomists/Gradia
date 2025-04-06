@@ -69,7 +69,7 @@ export default function StudentDashboard() {
   useEffect(() => {
     const fetchTests = async () => {
       const testData = await getTestsForStudent();
-      console.log(testData);
+      // console.log(testData);
       setTestData(testData);
     };
 
@@ -156,7 +156,7 @@ export default function StudentDashboard() {
 
   // Handle navigation to all tests page
   const handleViewAllTests = () => {
-    router.push('/student/all-tests');
+    router.push('/student/test/past-tests');
   };
 
   // Get limited number of previous tests for display
