@@ -1,5 +1,4 @@
 'use client';
-
 import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { 
@@ -33,8 +32,12 @@ export default function StudentDashboard() {
   const testsContainerRef = useRef(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
+  const router = useRouter();
 
   const [greeting, setGreeting] = useState("Hello there");
+
+  // Maximum number of past tests to display on dashboard
+  const MAX_DISPLAYED_TESTS = 4;
 
   useEffect(() => {
     if (user?.name) {
@@ -118,7 +121,6 @@ export default function StudentDashboard() {
 
   // State for countdown timer
   const [countdown, setCountdown] = useState({ hours: 0, minutes: 10, seconds: 0 });
-  const router = useRouter();
 
   // Simulate countdown for Test 4
   useEffect(() => {
@@ -151,6 +153,14 @@ export default function StudentDashboard() {
       testsContainerRef.current.scrollBy({ left: 250, behavior: 'smooth' });
     }
   };
+
+  // Handle navigation to all tests page
+  const handleViewAllTests = () => {
+    router.push('/student/all-tests');
+  };
+
+  // Get limited number of previous tests for display
+  const displayedPreviousTests = testData.previousTests.slice(0, MAX_DISPLAYED_TESTS);
 
   // Mock data for charts
   const performanceData = [
@@ -373,7 +383,7 @@ export default function StudentDashboard() {
         </motion.div>
 
         <div className="grid md:grid-cols-2 gap-8">
-          {/* Past Tests Section */}
+          {/* Past Tests Section - MODIFIED */}
           <motion.div 
             variants={containerVariants}
             initial="hidden"
@@ -382,28 +392,48 @@ export default function StudentDashboard() {
           >
             <motion.h3 
               variants={itemVariants}
-              className="text-xl font-semibold text-gray-800 mb-4"
+              className="text-xl font-semibold text-gray-800 mb-4 flex justify-between items-center"
             >
-              Past Tests & Evaluations
-            </motion.h3>
-            <div className="space-y-6">
-              {testData.previousTests.map((test, index) => (
-                <motion.div 
-                  key={test._id}
-                  variants={itemVariants}
-                  className={`${index !== testData.previousTests.length - 1 ? "border-b border-gray-300 pb-4" : ""}`}
+              <span>Past Tests & Evaluations</span>
+              {testData.previousTests.length > MAX_DISPLAYED_TESTS && (
+                <motion.button
+                  onClick={handleViewAllTests}
+                  whileHover={{ scale: 1.05 }}
+                  className="text-sm text-[#d56c4e] font-medium flex items-center"
                 >
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <h4 className="font-semibold text-gray-800">{test.title}</h4>
-                      <p className="text-gray-600 mt-1 text-sm">{test.description}</p>
+                  View All
+                  <ChevronRight size={16} className="ml-1" />
+                </motion.button>
+              )}
+            </motion.h3>
+            
+            <div className="space-y-4">
+              {displayedPreviousTests.length > 0 ? (
+                displayedPreviousTests.map((test, index) => (
+                  <motion.div 
+                    key={test._id}
+                    variants={itemVariants}
+                    className={`${index !== displayedPreviousTests.length - 1 ? "border-b border-gray-300 pb-4" : ""}`}
+                  >
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <h4 className="font-semibold text-gray-800">{test.title}</h4>
+                        <p className="text-gray-600 mt-1 text-sm">{test.description}</p>
+                      </div>
+                      <div className="text-xl font-bold text-gray-800">
+                        {test.score}%
+                      </div>
                     </div>
-                    <div className="text-xl font-bold text-gray-800">
-                      {test.score}%
-                    </div>
-                  </div>
+                  </motion.div>
+                ))
+              ) : (
+                <motion.div
+                  variants={itemVariants}
+                  className="text-center py-4"
+                >
+                  <p className="text-gray-600">No past tests available</p>
                 </motion.div>
-              ))}
+              )}
             </div>
           </motion.div>
 
