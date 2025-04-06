@@ -84,94 +84,43 @@ export const submitTest = async (req, res) => {
     const token = req.cookies.token;
     const { answers } = req.body;
 
-    if (!token) {
-      return res.status(401).json({ message: "Unauthorized: No token provided" });
-    }
+    if (!token) return res.status(401).json({ message: "Unauthorized" });
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const studentId = decoded.id;
 
     const [test, student] = await Promise.all([
       Test.findById(testId),
-      Student.findById(studentId)
+      Student.findById(studentId),
     ]);
 
-    if (!test) return res.status(404).json({ message: "Test not found" });
-    if (!student) return res.status(404).json({ message: "Student not found" });
+    if (!test || !student)
+      return res.status(404).json({ message: "Test or Student not found" });
 
     const existingSubmission = await Submission.findOne({ test: testId, student: studentId });
-    if (existingSubmission) {
+    if (existingSubmission)
       return res.status(400).json({ message: "Test already submitted" });
-    }
-
-    const gradedAnswers = [];
-    const classId = test.classAssignment;
-    let totalScore = 0;
-
-    for (const ans of answers) {
-      const question = test.questions.find(q => q._id.toString() === ans.questionId);
-      if (!question) {
-        return res.status(400).json({ message: `Invalid question ID: ${ans.questionId}` });
-      }
-
-      if (question.type !== ans.questionType) {
-        return res.status(400).json({ message: `Incorrect question type for question ID: ${ans.questionId}` });
-      }
-
-      let score = 0;
-      let feedback = "";
-
-      if (question.type === "typed") {
-        try {
-          const gradingPayload = {
-            question: question.questionText,
-            student_answer: ans.answerText,
-            max_mark: question.maxMarks,
-            rubric: question.rubric ?? null,
-            bucket_name: classId,
-          };
-
-          const response = await axios.post(
-            `${process.env.GRADIA_PYTHON_BACKEND_URL}/grade`,
-            gradingPayload,
-            {
-              headers: {
-                "x-api-key": process.env.GRADIA_API_KEY
-              }
-            }
-          );
-
-          const { grade, feedback: fb, reference } = response.data;
-          score = grade;
-          feedback = `${fb}${reference ? ` \nReference: ${reference}` : ""}`;
-        } catch (gradingError) {
-          console.error(`Grading failed for question ${ans.questionId}:`, gradingError.message);
-          return res.status(500).json({ message: "Grading failed", error: gradingError.message });
-        }
-      }
-
-      totalScore += score;
-
-      gradedAnswers.push({
-        questionId: ans.questionId,
-        answerText: ans.answerText,
-        questionType: ans.questionType,
-        score,
-        feedback
-      });
-    }
 
     const submission = new Submission({
       test: testId,
       student: studentId,
-      answers: gradedAnswers,
-      totalScore,
-      graded: true
+      answers,
+      totalScore: 0,
+      graded: false,
     });
 
     await submission.save();
-    res.status(201).json({ message: "Test submitted and graded successfully", submission });
 
+    axios.post(`${process.env.BACKEND_URI}/api/grade/grade-submission`, {
+      submissionId: submission._id,
+    }).catch((err) => {
+      console.error("Failed to trigger grading:", err.message);
+    });
+
+    res.status(201).json({
+      message: "Submission received. Grading will be done soon.",
+      submissionId: submission._id,
+    });
   } catch (error) {
     console.error("Error submitting test:", error);
     res.status(500).json({ message: "Server error", error: error.message });

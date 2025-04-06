@@ -6,6 +6,7 @@ import connectDb from './config/db.js';
 import authRoutes from "./routes/authRoutes.js";
 import classRoutes from './routes/classRoutes.js';
 import testRoutes from './routes/testRoutes.js';
+import gradeRoutes from './routes/gradeRoutes.js';
 import passport from "passport";
 import session from "express-session";
 import { setupGoogleAuth } from "./config/passport.js";
@@ -54,6 +55,7 @@ setupGoogleAuth("teacher");
 app.use("/api/auth", authRoutes);
 app.use("/api/classes", authMiddleware,classRoutes);
 app.use("/api/tests", authMiddleware, testRoutes);
+app.use("/api/grade", gradeRoutes);
 
 const PORT = process.env.PORT || 8000;
 
