@@ -32,6 +32,7 @@ export const createTest = async (req, res) => {
       rubric,
       files,
       isDraft: isDraft ?? true,
+      isDraft: isDraft ?? true,
     });
 
     newTest.maxMarks = questions.reduce((total, question) => total + (question.maxMarks || 0), 0);
@@ -40,6 +41,7 @@ export const createTest = async (req, res) => {
 
     await Class.findByIdAndUpdate(
       classAssignment,
+      { $push: { tests: newTest._id } },
       { $push: { tests: newTest._id } },
       { new: true }
     );
