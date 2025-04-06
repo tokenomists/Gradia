@@ -168,25 +168,16 @@ export default function TestDetailPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#fdf9ea] to-[#fff5e9]">
       {/* Header */}
-      <nav className="bg-gradient-to-r from-[#d56c4e] to-[#e07e63] text-white px-6 py-4 flex justify-between items-center sticky top-0 z-50 shadow-md">
+      <nav className="bg-[#d56c4e] text-white px-6 py-4 flex justify-between items-center sticky top-0 z-50 shadow-md">
         <div className="flex items-center">
           <motion.div 
             initial={{ rotate: -5, scale: 0.9 }}
             animate={{ rotate: 0, scale: 1 }}
             transition={{ duration: 0.5, type: "spring" }}
           >
-            <h1 
-              style={{ fontFamily: "'Rage Italic', sans-serif" }}
-              className="text-4xl font-bold text-black relative"
-            >
+            <Link href="/" style={{ fontFamily: "'Rage Italic', sans-serif" }} className="text-4xl font-bold text-black relative">
               Gradia
-              <motion.span 
-                initial={{ width: 0 }}
-                animate={{ width: '100%' }}
-                transition={{ delay: 0.5, duration: 0.8 }}
-                className="absolute bottom-0 left-0 h-1 bg-black rounded-full"
-              />
-            </h1>
+            </Link>
           </motion.div>
         </div>
         <div className="flex space-x-6 items-center">

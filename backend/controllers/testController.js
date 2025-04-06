@@ -3,6 +3,7 @@ import Class from "../models/Class.js";
 import Student from "../models/Student.js";
 import jwt from 'jsonwebtoken';
 import Submission from "../models/Submission.js";
+import axios from "axios";
 
 export const createTest = async (req, res) => {
   try {
@@ -77,63 +78,51 @@ export const getTestById = async (req, res) => {
   }
 };
 
-/**
- * @desc Submit test
- * @route POST /api/tests/submit/:testId
- * @access Student (via token)
- */
 export const submitTest = async (req, res) => {
   try {
     const { testId } = req.params;
-    const token = req.cookies.token; 
+    const token = req.cookies.token;
     const { answers } = req.body;
 
-    if (!token) {
-      return res.status(401).json({ message: "Unauthorized: No token provided" });
-    }
+    if (!token) return res.status(401).json({ message: "Unauthorized" });
 
-    // Decode the token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const studentId = decoded.id;
 
-    // Validate Test
-    const test = await Test.findById(testId);
-    if (!test) return res.status(404).json({ message: "Test not found" });
+    const [test, student] = await Promise.all([
+      Test.findById(testId),
+      Student.findById(studentId),
+    ]);
 
-    // Validate Student
-    const student = await Student.findById(studentId);
-    if (!student) return res.status(404).json({ message: "Student not found" });
+    if (!test || !student)
+      return res.status(404).json({ message: "Test or Student not found" });
 
-    // Check if submission already exists
     const existingSubmission = await Submission.findOne({ test: testId, student: studentId });
-    if (existingSubmission) {
+    if (existingSubmission)
       return res.status(400).json({ message: "Test already submitted" });
-    }
 
-    // Validate Answers
-    for (const ans of answers) {
-      const question = test.questions.find(q => q._id === ans.questionId);
-      if (!question) {
-        return res.status(400).json({ message: `Invalid question ID: ${ans.questionId}` });
-      }
-      
-      if (question.type !== ans.questionType) {
-        return res.status(400).json({ message: `Incorrect question type for question ID: ${ans.questionId}` });
-      }
-    }
-
-    // Create Submission
     const submission = new Submission({
       test: testId,
       student: studentId,
       answers,
+      totalScore: 0,
+      graded: false,
     });
 
     await submission.save();
-    res.status(201).json({ message: "Test submitted successfully", submission });
 
+    axios.post(`${process.env.BACKEND_URI}/api/grade/grade-submission`, {
+      submissionId: submission._id,
+    }).catch((err) => {
+      console.error("Failed to trigger grading:", err.message);
+    });
+
+    res.status(201).json({
+      message: "Submission received. Grading will be done soon.",
+      submissionId: submission._id,
+    });
   } catch (error) {
     console.error("Error submitting test:", error);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 };

@@ -40,7 +40,6 @@ export const getSubmissionsForStudent = async () => {
     try {
         const response = await instance.get('/api/auth/student/submissions');
         const data = response.data;
-
         return data;
     } catch(error) {
         console.log("Error fetching submissions!");
