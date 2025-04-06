@@ -13,7 +13,7 @@ import {
 import { useRouter } from 'next/navigation';
 import { UserDropdown } from '@/components/dashboard/UserDropdown.jsx';
 import { isAuthenticated } from '@/utils/auth.js';
-import { getTestsForStudent } from '@/utils/test.js';
+import { getTestsForStudent, getSubmissionsForStudent } from '@/utils/test.js';
 
 export default function StudentDashboard() {
   const [user, setUser] = useState({
@@ -29,6 +29,8 @@ export default function StudentDashboard() {
     previousTests: []
   });
 
+  const [submissions, setSubmissions] = useState([]);
+  
   const testsContainerRef = useRef(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
@@ -36,8 +38,7 @@ export default function StudentDashboard() {
 
   const [greeting, setGreeting] = useState("Hello there");
 
-  // Maximum number of past tests to display on dashboard
-  const MAX_DISPLAYED_TESTS = 4;
+  const MAX_DISPLAYED_TESTS = 5;
 
   useEffect(() => {
     if (user?.name) {
@@ -74,6 +75,15 @@ export default function StudentDashboard() {
     };
 
     fetchTests();
+  }, [user]);
+
+  useEffect(() => {
+    const fetchSubmissions = async () => {
+      const submissionData = await getSubmissionsForStudent();
+      setSubmissions(submissionData);
+    };
+  
+    fetchSubmissions();
   }, [user]);
 
   useEffect(() => {
@@ -156,11 +166,24 @@ export default function StudentDashboard() {
 
   // Handle navigation to all tests page
   const handleViewAllTests = () => {
-    router.push('/student/all-tests');
+    router.push('/student/test/past-tests');
   };
 
-  // Get limited number of previous tests for display
-  const displayedPreviousTests = testData.previousTests.slice(0, MAX_DISPLAYED_TESTS);
+  const displayedPreviousTests = testData.previousTests
+  .map((test) => {
+    const totalScore = test.maxMarks;
+    const submission = submissions.find(
+      (sub) => sub.test === test._id
+    );
+    const scoredScore = submission ? submission.totalScore : 0;
+    const percentage = (scoredScore / totalScore) * 100;
+    return {
+      ...test,
+      percentage,
+    };
+  })
+  .sort((a, b) => new Date(b.startTime) - new Date(a.startTime))
+  .slice(0, MAX_DISPLAYED_TESTS);
 
   // Mock data for charts
   const performanceData = [
@@ -421,7 +444,7 @@ export default function StudentDashboard() {
                         <p className="text-gray-600 mt-1 text-sm">{test.description}</p>
                       </div>
                       <div className="text-xl font-bold text-gray-800">
-                        {test.score}%
+                        {test.percentage}%
                       </div>
                     </div>
                   </motion.div>
