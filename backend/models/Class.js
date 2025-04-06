@@ -42,18 +42,33 @@ const ClassSchema = new mongoose.Schema({
 });
 
 // Generate a unique class code
-ClassSchema.statics.generateClassCode = function() {
+ClassSchema.statics.generateClassCode = async function() {
   const prefix = 'GRD-';
   const codeLength = 6;
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-  let code = prefix;
-  
-  for (let i = 0; i < codeLength; i++) {
-    code += characters.charAt(Math.floor(Math.random() * characters.length));
+
+  const generateRandomCode = () => {
+    let code = prefix;
+    for (let i = 0; i < codeLength; i++) {
+      code += characters.charAt(Math.floor(Math.random() * characters.length));
+    }
+    return code;
+  };
+
+  let unique = false;
+  let newCode;
+
+  while (!unique) {
+    newCode = generateRandomCode();
+    const existingClass = await this.findOne({ classCode: newCode });
+    if (!existingClass) {
+      unique = true;
+    }
   }
-  
-  return code;
+
+  return newCode;
 };
+
 
 const Class = mongoose.model("Class", ClassSchema);
 export default Class;
