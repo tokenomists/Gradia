@@ -25,28 +25,30 @@ export default function PastTestsPage() {
           description: test.description || 'No description available',
           status: 'missed',
           date: 'N/A',
+          createdAt: test.createdAt || "N/A",
           duration: test.duration || 0,
           score: 'N/A',
+          graded: false,
           maxScore: test.maxMarks,
           questions: test.questions?.length || 0,
         }));
 
         // Fetch submission data
         const SubmissionData = await getSubmissionsForStudent();
-
+        
         // Update TestData with scores from SubmissionData
         TestData = TestData.map((test) => {
           const submission = SubmissionData.find((sub) => sub.test === test.id);
           if (submission) {
+            test.graded = submission.graded || false,
             test.score = submission.totalScore || 'N/A';
             test.date = submission.submittedAt;
             test.status = 'submitted';
           }
           return test;
         });
-
         setSubmissions(SubmissionData);
-        TestData.sort((a, b) => new Date(b.date) - new Date(a.date));
+        TestData.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
         setTests(TestData);
         setLoading(false);
       } catch (error) {
@@ -54,6 +56,7 @@ export default function PastTestsPage() {
         setLoading(false);
       }
     };
+    
 
     fetchTests();
     
@@ -231,8 +234,7 @@ export default function PastTestsPage() {
         {loading ? (
           <div className="flex justify-center items-center h-64">
             <div className="relative">
-              <div className="w-20 h-20 rounded-full border-4 border-[#f8e2d8] border-t-[#dd7a5f] animate-spin"></div>
-              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-[#dd7a5f] font-small">Loading..</div>
+              <div className="w-12 h-12 rounded-full border-4 border-[#f8e2d8] border-t-[#dd7a5f] animate-spin"></div>
             </div>
           </div>
         ) : (

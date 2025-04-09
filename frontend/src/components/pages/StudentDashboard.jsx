@@ -1,4 +1,5 @@
 'use client';
+
 import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { 
@@ -38,7 +39,7 @@ export default function StudentDashboard() {
 
   const [greeting, setGreeting] = useState("Hello there");
 
-  const MAX_DISPLAYED_TESTS = 5;
+  const MAX_DISPLAYED_TESTS = 4;
 
   useEffect(() => {
     if (user?.name) {
@@ -213,18 +214,20 @@ export default function StudentDashboard() {
           </motion.h1>
         </div>
         <div className="flex space-x-6 items-center">
-          <motion.span 
-            whileHover={{ scale: 1.05 }}
-            className="cursor-pointer font-sans font-medium"
-          >
-            Practice
-          </motion.span>
-          <motion.span 
-            whileHover={{ scale: 1.05 }}
-            className="cursor-pointer font-sans font-medium"
-          >
-            Performance
-          </motion.span>
+        <motion.a
+          whileHover={{ scale: 1.05 }}
+          className="cursor-pointer font-sans font-medium"
+          href="/"
+        >
+          Practice
+        </motion.a>
+        <motion.a
+          whileHover={{ scale: 1.05 }}
+          className="cursor-pointer font-sans font-medium"
+          href="/student/test/past-tests"
+        >
+          Performance
+        </motion.a>
           <UserDropdown />
         </div>
       </nav>
@@ -366,7 +369,7 @@ export default function StudentDashboard() {
             </motion.h3>
             
             {/* Classes grid container */}
-            <div className="grid md:grid-cols-3 gap-4">
+            <div className="grid md:grid-cols-4 gap-4">
               {user.classes != undefined && user.classes.length > 0 ? (
                 user.classes.map((classItem) => (
                   <motion.div 
@@ -506,13 +509,6 @@ export default function StudentDashboard() {
               <p className="text-sm">
                 Your performance shows steady improvement over the past 8 tests. Starting with an average of 40%, you've progressed to consistently scoring above 70%. Continue with your current study routine for optimal results.
               </p>
-              <motion.button 
-                whileHover={{ scale: 1.03 }}
-                className="mt-4 flex items-center text-[#d56c4e] font-medium"
-              >
-                View detailed insights
-                <ChevronRight size={16} className="ml-1" />
-              </motion.button>
             </div>
           </motion.div>
         </div>
