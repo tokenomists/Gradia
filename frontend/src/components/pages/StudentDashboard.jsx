@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
+import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { 
   User, 
@@ -169,17 +170,18 @@ export default function StudentDashboard() {
   const handleViewAllTests = () => {
     router.push('/student/test/past-tests');
   };
-
   const displayedPreviousTests = testData.previousTests
   .map((test) => {
     const totalScore = test.maxMarks;
     const submission = submissions.find(
       (sub) => sub.test === test._id
     );
+    const attempted = submission ? true : false;
     const scoredScore = submission ? submission.totalScore : 0;
     const percentage = ((scoredScore / totalScore) * 100).toFixed(2);
     return {
       ...test,
+      attempted,
       percentage,
     };
   })
@@ -441,15 +443,19 @@ export default function StudentDashboard() {
                     variants={itemVariants}
                     className={`${index !== displayedPreviousTests.length - 1 ? "border-b border-gray-300 pb-4" : ""}`}
                   >
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <h4 className="font-semibold text-gray-800">{test.title}</h4>
-                        <p className="text-gray-600 mt-1 text-sm">{test.description}</p>
+                    <Link href={`/student/test/past-tests/${test._id}`}>
+                      <div className="block hover:bg-[#cccab8] rounded-md p-2 -m-2 transition cursor-pointer">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <h4 className="font-semibold text-gray-800">{test.title}</h4>
+                            <p className="text-gray-600 mt-1 text-sm">{test.description}</p>
+                          </div>
+                          <div className="text-xl font-bold text-gray-800">
+                            {test.attempted == false ? "Missed" : `${test.percentage}%`}
+                          </div>
+                        </div>
                       </div>
-                      <div className="text-xl font-bold text-gray-800">
-                        {test.percentage}%
-                      </div>
-                    </div>
+                    </Link>
                   </motion.div>
                 ))
               ) : (
