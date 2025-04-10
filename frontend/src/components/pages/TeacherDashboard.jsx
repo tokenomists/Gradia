@@ -227,7 +227,12 @@ export default function TeacherDashboard() {
     }
 
     return (
-      <div className="bg-[#edead7] rounded-xl p-6 shadow-md">
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.2 }}
+        className="bg-[#edead7] rounded-xl p-6 shadow-md"
+      >
         <h2 className="text-2xl font-bold text-gray-800 mb-4">Student Performance</h2>
         <div>{heatmapContent}</div>
         <button
@@ -236,7 +241,7 @@ export default function TeacherDashboard() {
         >
           View Detailed Analysis
         </button>
-      </div>
+      </motion.div>
     );
   };
 
