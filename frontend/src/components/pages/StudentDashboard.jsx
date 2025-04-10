@@ -213,17 +213,26 @@ export default function StudentDashboard() {
   .sort((a, b) => new Date(b.startTime) - new Date(a.startTime))
   .slice(0, MAX_DISPLAYED_TESTS);
 
-  // Mock data for charts
-  const performanceData = [
-    { name: 'Test 1', score: 40 },
-    { name: 'Test 2', score: 42 },
-    { name: 'Test 3', score: 45 },
-    { name: 'Test 4', score: 68 },
-    { name: 'Test 5', score: 75 },
-    { name: 'Test 6', score: 70 },
-    { name: 'Test 7', score: 65 },
-    { name: 'Test 8', score: 75 }
-  ];
+  const processPerformanceData = () => {
+    if (!testData.previousTests || !submissions) return [];
+    
+    return testData.previousTests
+      .map(test => {
+        const submission = submissions.find(sub => sub.test === test._id);
+        if (!submission) return null;
+        
+        const totalScore = test.maxMarks;
+        const scoredScore = submission.totalScore;
+        const percentage = ((scoredScore / totalScore) * 100).toFixed(2);
+        return {
+          name: test.title,
+          score: parseFloat(percentage),
+          date: new Date(test.startTime)
+        };
+      })
+      .filter(item => item !== null)
+      .sort((a, b) => a.date - b.date);
+  };
 
   return (
     <div className="min-h-screen bg-[#fcf9ea]">
@@ -514,11 +523,11 @@ export default function StudentDashboard() {
             <div className="h-[350px] w-full">
               <Line
                 data={{
-                  labels: performanceData.map(p => p.name),
+                  labels: processPerformanceData().map(p => p.name),
                   datasets: [
                     {
                       label: 'Test Scores',
-                      data: performanceData.map(p => p.score),
+                      data: processPerformanceData().map(p => p.score),
                       fill: true,
                       backgroundColor: 'rgba(213, 108, 78, 0.1)',
                       borderColor: '#d56c4e',
@@ -536,12 +545,14 @@ export default function StudentDashboard() {
                   scales: {
                     y: {
                       beginAtZero: true,
-                      max: 100,
+                      suggestedMax: 110,
+                      max: 110,
                       grid: {
                         color: 'rgba(0, 0, 0, 0.1)',
                       },
                       ticks: {
-                        callback: (value) => `${value}%`
+                        callback: (value) => value > 100 ? '' : `${value}%`,
+                        stepSize: 10, 
                       }
                     },
                     x: {
@@ -563,7 +574,13 @@ export default function StudentDashboard() {
                       padding: 10,
                       displayColors: false,
                       callbacks: {
-                        label: (context) => `Score: ${context.parsed.y}%`
+                        title: (context) => {
+                          const dataIndex = context[0].dataIndex;
+                          const dataset = processPerformanceData();
+                          return `${dataset[dataIndex].name}`;
+                        },
+                        label: (context) => `Score: ${context.parsed.y}%`,
+                        labelTextColor: (context) => '#666'
                       }
                     }
                   },
