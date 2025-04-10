@@ -11,11 +11,36 @@ import {
   Clock, 
   Pencil,
   BookIcon,
+  ChartLine,
+  History
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { UserDropdown } from '@/components/dashboard/UserDropdown.jsx';
 import { isAuthenticated } from '@/utils/auth.js';
 import { getTestsForStudent, getSubmissionsForStudent } from '@/utils/test.js';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+  Filler
+} from 'chart.js';
+import { Line } from 'react-chartjs-2';
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+  Filler
+);
 
 export default function StudentDashboard() {
   const [user, setUser] = useState({
@@ -40,7 +65,7 @@ export default function StudentDashboard() {
 
   const [greeting, setGreeting] = useState("Hello there");
 
-  const MAX_DISPLAYED_TESTS = 4;
+  const MAX_DISPLAYED_TESTS = 5;
 
   useEffect(() => {
     if (user?.name) {
@@ -422,7 +447,10 @@ export default function StudentDashboard() {
               variants={itemVariants}
               className="text-xl font-semibold text-gray-800 mb-4 flex justify-between items-center"
             >
-              <span>Past Tests & Evaluations</span>
+              <div className="flex items-center">
+                <History size={20} className="mr-2" />
+                <span>Past Tests & Evaluations</span>
+              </div>
               {testData.previousTests.length > MAX_DISPLAYED_TESTS && (
                 <motion.button
                   onClick={handleViewAllTests}
@@ -478,44 +506,75 @@ export default function StudentDashboard() {
           >
             <motion.h3 
               variants={itemVariants}
-              className="text-xl font-semibold text-gray-800 mb-4"
+              className="text-xl font-semibold text-gray-800 mb-4 flex items-center"
             >
-              Performance Analysis
+              <ChartLine size={20} className="mr-2" />
+              Performance Chart
             </motion.h3>
-            <div className="h-48 w-full">
-              <div className="relative h-full">
-                <div className="absolute left-0 h-full flex flex-col justify-between py-2">
-                  {[100, 80, 60, 40, 20, 0].map((value) => (
-                    <div key={value} className="text-gray-500 text-sm">{value}</div>
-                  ))}
-                </div>
-                <div className="pl-8 h-full">
-                  <svg width="100%" height="100%" viewBox="0 0 500 180">
-                    <polyline
-                      fill="none"
-                      stroke="#d56c4e"
-                      strokeWidth="3"
-                      points={performanceData.map((p, i) => `${i * 70 + 10},${180 - p.score * 1.8}`).join(' ')}
-                    />
-                    {performanceData.map((p, i) => (
-                      <circle
-                        key={i}
-                        cx={i * 70 + 10}
-                        cy={180 - p.score * 1.8}
-                        r="4"
-                        fill="#d56c4e"
-                      />
-                    ))}
-                  </svg>
-                </div>
-              </div>
+            <div className="h-[350px] w-full">
+              <Line
+                data={{
+                  labels: performanceData.map(p => p.name),
+                  datasets: [
+                    {
+                      label: 'Test Scores',
+                      data: performanceData.map(p => p.score),
+                      fill: true,
+                      backgroundColor: 'rgba(213, 108, 78, 0.1)',
+                      borderColor: '#d56c4e',
+                      tension: 0.4,
+                      pointBackgroundColor: '#d56c4e',
+                      pointBorderWidth: 2,
+                      pointRadius: 5,
+                      pointHoverRadius: 7,
+                    }
+                  ]
+                }}
+                options={{
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  scales: {
+                    y: {
+                      beginAtZero: true,
+                      max: 100,
+                      grid: {
+                        color: 'rgba(0, 0, 0, 0.1)',
+                      },
+                      ticks: {
+                        callback: (value) => `${value}%`
+                      }
+                    },
+                    x: {
+                      grid: {
+                        display: false
+                      }
+                    }
+                  },
+                  plugins: {
+                    legend: {
+                      display: false
+                    },
+                    tooltip: {
+                      backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                      titleColor: '#000',
+                      bodyColor: '#666',
+                      borderColor: '#d56c4e',
+                      borderWidth: 1,
+                      padding: 10,
+                      displayColors: false,
+                      callbacks: {
+                        label: (context) => `Score: ${context.parsed.y}%`
+                      }
+                    }
+                  },
+                  interaction: {
+                    intersect: false,
+                    mode: 'index'
+                  }
+                }}
+              />
             </div>
-            <div className="text-center text-sm text-gray-500 mt-2">SCORE PERCENTAGES</div>
-            <div className="mt-4 text-gray-600">
-              <p className="text-sm">
-                Your performance shows steady improvement over the past 8 tests. Starting with an average of 40%, you've progressed to consistently scoring above 70%. Continue with your current study routine for optimal results.
-              </p>
-            </div>
+            <div className="text-center text-sm text-gray-500 mt-4">SCORE PERCENTAGES</div>
           </motion.div>
         </div>
       </div>
