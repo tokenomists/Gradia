@@ -428,42 +428,24 @@ export default function TeacherDashboard() {
             
             <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2">
               {displayedTests.map((test) => (
-                <div key={test._id} className="border-b border-gray-300 pb-4">
-                  <div 
-                    className="flex justify-between items-start cursor-pointer"
-                    onClick={() => setExpandedTest(expandedTest === test._id ? null : test._id)}
-                  >
-                    <div>
+                <div key={test._id} className="border-b border-gray-300 pb-2">
+                  <div className="flex justify-between items-start">
+                    <div 
+                      className="flex-1 cursor-pointer px-2 py-1 rounded-lg hover:bg-[#cccab8] transition-colors duration-200"
+                      onClick={() => router.push(`/teacher/tests/${test._id}`)}
+                    >
                       <h3 className="text-lg font-bold text-gray-800">{test.title}</h3>
                       <p className="text-gray-600 text-sm">{test.description}</p>
                     </div>
-                    <motion.div
-                      animate={{ rotate: expandedTest === test._id ? 180 : 0 }}
-                      transition={{ duration: 0.3 }}
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => router.push(`/teacher/tests/edit/${test._id}`)}
+                      className="ml-4 p-2 bg-[#e2c3ae] hover:bg-[#d5b69d] rounded-md transition-colors duration-200"
                     >
-                      <ChevronDown size={20} className="text-gray-600" />
-                    </motion.div>
+                      <PenLine size={16} className="text-gray-600" />
+                    </motion.button>
                   </div>
-                  
-                  {expandedTest === test._id && (
-                    <motion.div 
-                      initial={{ opacity: 0, height: 0 }}
-                      animate={{ opacity: 1, height: 'auto' }}
-                      exit={{ opacity: 0, height: 0 }}
-                      transition={{ duration: 0.3 }}
-                      className="mt-3 pl-2 border-l-2 border-[#d56c4e]"
-                    >
-                      <p className="text-gray-700">Date: {new Date(test.startTime).toLocaleDateString()}</p>
-                      <div className="flex mt-2 space-x-2">
-                        <button className="bg-[#d56c4e] text-white px-3 py-1 rounded-md text-sm">
-                          View Results
-                        </button>
-                        <button className="bg-gray-200 text-gray-700 px-3 py-1 rounded-md text-sm">
-                          Edit
-                        </button>
-                      </div>
-                    </motion.div>
-                  )}
                 </div>
               ))}
 
