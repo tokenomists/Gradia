@@ -249,16 +249,16 @@ export default function TeacherDashboard() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.2 }}
-        className="bg-[#edead7] rounded-xl p-6 shadow-md"
+        className="bg-[#edead7] rounded-xl p-6 shadow-md h-[400px] overflow-hidden"
       >
         <div className="flex items-center mb-4">
           <LineChart size={24} className="mr-2 text-gray-800" />
           <h2 className="text-2xl font-bold text-gray-800">Student Performance</h2>
         </div>
-        <div>{heatmapContent}</div>
+        <div className="h-[calc(100%-120px)]">{heatmapContent}</div>
         <button
           onClick={() => router.push('/teacher/detailed-analysis')}
-          className="mt-6 bg-[#d56c4e] text-white font-medium py-2 px-4 rounded-lg hover:bg-[#c25c3e] flex mx-auto items-center"
+          className="mt-4 bg-[#d56c4e] text-white font-medium py-2 px-4 rounded-lg hover:bg-[#c25c3e] flex mx-auto items-center"
         >
           View Detailed Analysis
         </button>
@@ -292,7 +292,7 @@ export default function TeacherDashboard() {
             whileHover={{ scale: 1.05 }}
             className="font-sans cursor-pointer font-medium"
           >
-            <Link href="/teacher/analysis">Analysis</Link>
+            <Link href="/teacher/detailed-analysis">Analysis</Link>
           </motion.span>
           <UserDropdown />
         </div>
