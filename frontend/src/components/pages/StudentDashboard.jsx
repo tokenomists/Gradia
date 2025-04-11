@@ -1,5 +1,7 @@
 'use client';
+
 import React, { useState, useEffect, useRef } from 'react';
+import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { 
   User, 
@@ -9,11 +11,36 @@ import {
   Clock, 
   Pencil,
   BookIcon,
+  ChartLine,
+  History
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { UserDropdown } from '@/components/dashboard/UserDropdown.jsx';
 import { isAuthenticated } from '@/utils/auth.js';
 import { getTestsForStudent, getSubmissionsForStudent } from '@/utils/test.js';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+  Filler
+} from 'chart.js';
+import { Line } from 'react-chartjs-2';
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+  Filler
+);
 
 export default function StudentDashboard() {
   const [user, setUser] = useState({
@@ -164,7 +191,6 @@ export default function StudentDashboard() {
     }
   };
 
-  // Handle navigation to all tests page
   const handleViewAllTests = () => {
     router.push('/student/test/past-tests');
   };
@@ -175,27 +201,38 @@ export default function StudentDashboard() {
     const submission = submissions.find(
       (sub) => sub.test === test._id
     );
+    const attempted = submission ? true : false;
     const scoredScore = submission ? submission.totalScore : 0;
     const percentage = ((scoredScore / totalScore) * 100).toFixed(2);
     return {
       ...test,
+      attempted,
       percentage,
     };
   })
   .sort((a, b) => new Date(b.startTime) - new Date(a.startTime))
   .slice(0, MAX_DISPLAYED_TESTS);
 
-  // Mock data for charts
-  const performanceData = [
-    { name: 'Test 1', score: 40 },
-    { name: 'Test 2', score: 42 },
-    { name: 'Test 3', score: 45 },
-    { name: 'Test 4', score: 68 },
-    { name: 'Test 5', score: 75 },
-    { name: 'Test 6', score: 70 },
-    { name: 'Test 7', score: 65 },
-    { name: 'Test 8', score: 75 }
-  ];
+  const processPerformanceData = () => {
+    if (!testData.previousTests || !submissions) return [];
+    
+    return testData.previousTests
+      .map(test => {
+        const submission = submissions.find(sub => sub.test === test._id);
+        if (!submission) return null;
+        
+        const totalScore = test.maxMarks;
+        const scoredScore = submission.totalScore;
+        const percentage = ((scoredScore / totalScore) * 100).toFixed(2);
+        return {
+          name: test.title,
+          score: parseFloat(percentage),
+          date: new Date(test.startTime)
+        };
+      })
+      .filter(item => item !== null)
+      .sort((a, b) => a.date - b.date);
+  };
 
   return (
     <div className="min-h-screen bg-[#fcf9ea]">
@@ -213,18 +250,20 @@ export default function StudentDashboard() {
           </motion.h1>
         </div>
         <div className="flex space-x-6 items-center">
-          <motion.span 
-            whileHover={{ scale: 1.05 }}
-            className="cursor-pointer font-sans font-medium"
-          >
-            Practice
-          </motion.span>
-          <motion.span 
-            whileHover={{ scale: 1.05 }}
-            className="cursor-pointer font-sans font-medium"
-          >
-            Performance
-          </motion.span>
+        <motion.a
+          whileHover={{ scale: 1.05 }}
+          className="cursor-pointer font-sans font-medium"
+          href="/"
+        >
+          Practice
+        </motion.a>
+        <motion.a
+          whileHover={{ scale: 1.05 }}
+          className="cursor-pointer font-sans font-medium"
+          href="/student/test/past-tests"
+        >
+          Performance
+        </motion.a>
           <UserDropdown />
         </div>
       </nav>
@@ -366,7 +405,7 @@ export default function StudentDashboard() {
             </motion.h3>
             
             {/* Classes grid container */}
-            <div className="grid md:grid-cols-3 gap-4">
+            <div className="grid md:grid-cols-4 gap-4">
               {user.classes != undefined && user.classes.length > 0 ? (
                 user.classes.map((classItem) => (
                   <motion.div 
@@ -417,7 +456,10 @@ export default function StudentDashboard() {
               variants={itemVariants}
               className="text-xl font-semibold text-gray-800 mb-4 flex justify-between items-center"
             >
-              <span>Past Tests & Evaluations</span>
+              <div className="flex items-center">
+                <History size={20} className="mr-2" />
+                <span>Past Tests & Evaluations</span>
+              </div>
               {testData.previousTests.length > MAX_DISPLAYED_TESTS && (
                 <motion.button
                   onClick={handleViewAllTests}
@@ -438,15 +480,19 @@ export default function StudentDashboard() {
                     variants={itemVariants}
                     className={`${index !== displayedPreviousTests.length - 1 ? "border-b border-gray-300 pb-4" : ""}`}
                   >
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <h4 className="font-semibold text-gray-800">{test.title}</h4>
-                        <p className="text-gray-600 mt-1 text-sm">{test.description}</p>
+                    <Link href={`/student/test/past-tests/${test._id}`}>
+                      <div className="block hover:bg-[#cccab8] rounded-md p-2 -m-2 transition cursor-pointer">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <h4 className="font-semibold text-gray-800">{test.title}</h4>
+                            <p className="text-gray-600 mt-1 text-sm">{test.description}</p>
+                          </div>
+                          <div className="text-xl font-bold text-gray-800">
+                            {test.attempted == false ? "Missed" : `${test.percentage}%`}
+                          </div>
+                        </div>
                       </div>
-                      <div className="text-xl font-bold text-gray-800">
-                        {test.percentage}%
-                      </div>
-                    </div>
+                    </Link>
                   </motion.div>
                 ))
               ) : (
@@ -469,51 +515,83 @@ export default function StudentDashboard() {
           >
             <motion.h3 
               variants={itemVariants}
-              className="text-xl font-semibold text-gray-800 mb-4"
+              className="text-xl font-semibold text-gray-800 mb-4 flex items-center"
             >
-              Performance Analysis
+              <ChartLine size={20} className="mr-2" />
+              Performance Chart
             </motion.h3>
-            <div className="h-48 w-full">
-              <div className="relative h-full">
-                <div className="absolute left-0 h-full flex flex-col justify-between py-2">
-                  {[100, 80, 60, 40, 20, 0].map((value) => (
-                    <div key={value} className="text-gray-500 text-sm">{value}</div>
-                  ))}
-                </div>
-                <div className="pl-8 h-full">
-                  <svg width="100%" height="100%" viewBox="0 0 500 180">
-                    <polyline
-                      fill="none"
-                      stroke="#d56c4e"
-                      strokeWidth="3"
-                      points={performanceData.map((p, i) => `${i * 70 + 10},${180 - p.score * 1.8}`).join(' ')}
-                    />
-                    {performanceData.map((p, i) => (
-                      <circle
-                        key={i}
-                        cx={i * 70 + 10}
-                        cy={180 - p.score * 1.8}
-                        r="4"
-                        fill="#d56c4e"
-                      />
-                    ))}
-                  </svg>
-                </div>
-              </div>
+            <div className="h-[350px] w-full">
+              <Line
+                data={{
+                  labels: processPerformanceData().map(p => p.name),
+                  datasets: [
+                    {
+                      label: 'Test Scores',
+                      data: processPerformanceData().map(p => p.score),
+                      fill: true,
+                      backgroundColor: 'rgba(213, 108, 78, 0.1)',
+                      borderColor: '#d56c4e',
+                      tension: 0.4,
+                      pointBackgroundColor: '#d56c4e',
+                      pointBorderWidth: 2,
+                      pointRadius: 5,
+                      pointHoverRadius: 7,
+                    }
+                  ]
+                }}
+                options={{
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  scales: {
+                    y: {
+                      beginAtZero: true,
+                      suggestedMax: 110,
+                      max: 110,
+                      grid: {
+                        color: 'rgba(0, 0, 0, 0.1)',
+                      },
+                      ticks: {
+                        callback: (value) => value > 100 ? '' : `${value}%`,
+                        stepSize: 10, 
+                      }
+                    },
+                    x: {
+                      grid: {
+                        display: false
+                      }
+                    }
+                  },
+                  plugins: {
+                    legend: {
+                      display: false
+                    },
+                    tooltip: {
+                      backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                      titleColor: '#000',
+                      bodyColor: '#666',
+                      borderColor: '#d56c4e',
+                      borderWidth: 1,
+                      padding: 10,
+                      displayColors: false,
+                      callbacks: {
+                        title: (context) => {
+                          const dataIndex = context[0].dataIndex;
+                          const dataset = processPerformanceData();
+                          return `${dataset[dataIndex].name}`;
+                        },
+                        label: (context) => `Score: ${context.parsed.y}%`,
+                        labelTextColor: (context) => '#666'
+                      }
+                    }
+                  },
+                  interaction: {
+                    intersect: false,
+                    mode: 'index'
+                  }
+                }}
+              />
             </div>
-            <div className="text-center text-sm text-gray-500 mt-2">SCORE PERCENTAGES</div>
-            <div className="mt-4 text-gray-600">
-              <p className="text-sm">
-                Your performance shows steady improvement over the past 8 tests. Starting with an average of 40%, you've progressed to consistently scoring above 70%. Continue with your current study routine for optimal results.
-              </p>
-              <motion.button 
-                whileHover={{ scale: 1.03 }}
-                className="mt-4 flex items-center text-[#d56c4e] font-medium"
-              >
-                View detailed insights
-                <ChevronRight size={16} className="ml-1" />
-              </motion.button>
-            </div>
+            <div className="text-center text-sm text-gray-500 mt-4">SCORE PERCENTAGES</div>
           </motion.div>
         </div>
       </div>

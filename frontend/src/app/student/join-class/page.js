@@ -61,8 +61,8 @@ export default function JoinClass() {
           </Link>
         </div>
         <div className="flex items-center space-x-6">
-        <Link href="/student/assignments" className="font-sans font-medium transition-transform transform hover:scale-110">Assignments</Link>
-        <Link href="/student/grades" className="font-sans font-medium transition-transform transform hover:scale-110">Grades</Link>
+        <Link href="/" className="font-sans font-medium transition-transform transform hover:scale-110">Practice</Link>
+        <Link href="/student/test/past-tests" className="font-sans font-medium transition-transform transform hover:scale-110">Performance</Link>
           <UserDropdown />
         </div>
       </nav>

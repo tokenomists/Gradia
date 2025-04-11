@@ -183,7 +183,7 @@ export const getHeatmapData = async (req, res) => {
       }
     }
 
-    console.log('Heatmap data:', heatmapData);
+    // console.log('Heatmap data:', heatmapData);
     res.json(heatmapData);
   } catch (error) {
     console.error('Heatmap data error:', error);

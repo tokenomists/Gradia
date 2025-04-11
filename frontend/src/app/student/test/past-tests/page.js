@@ -11,7 +11,6 @@ export default function PastTestsPage() {
   const [submissions, setSubmissions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
-  const [showHero, setShowHero] = useState(true);
 
   useEffect(() => {
     const fetchTests = async () => {
@@ -25,28 +24,30 @@ export default function PastTestsPage() {
           description: test.description || 'No description available',
           status: 'missed',
           date: 'N/A',
+          createdAt: test.createdAt || "N/A",
           duration: test.duration || 0,
           score: 'N/A',
+          graded: false,
           maxScore: test.maxMarks,
           questions: test.questions?.length || 0,
         }));
 
         // Fetch submission data
         const SubmissionData = await getSubmissionsForStudent();
-
+        
         // Update TestData with scores from SubmissionData
         TestData = TestData.map((test) => {
           const submission = SubmissionData.find((sub) => sub.test === test.id);
           if (submission) {
+            test.graded = submission.graded || false,
             test.score = submission.totalScore || 'N/A';
             test.date = submission.submittedAt;
             test.status = 'submitted';
           }
           return test;
         });
-
         setSubmissions(SubmissionData);
-        TestData.sort((a, b) => new Date(b.date) - new Date(a.date));
+        TestData.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
         setTests(TestData);
         setLoading(false);
       } catch (error) {
@@ -54,15 +55,9 @@ export default function PastTestsPage() {
         setLoading(false);
       }
     };
+    
 
     fetchTests();
-    
-    // Hide hero section after 5 seconds
-    const timer = setTimeout(() => {
-      setShowHero(false);
-    }, 50000);
-    
-    return () => clearTimeout(timer);
   }, []);
 
   const formatDate = (dateString) => {
@@ -130,61 +125,58 @@ export default function PastTestsPage() {
           </motion.div>
         </div>
         <div className="flex space-x-6 items-center">
-          <motion.span 
-            whileHover={{ scale: 1.05, y: -2 }}
-            className="cursor-pointer font-sans font-medium flex items-center"
-          >
-            <BookOpen size={18} className="mr-1.5" />
-            Practice
-          </motion.span>
-          <motion.span 
-            whileHover={{ scale: 1.05, y: -2 }}
-            className="cursor-pointer font-sans font-medium flex items-center"
-          >
-            <Award size={18} className="mr-1.5" />
-            Performance
-          </motion.span>
+          <Link href="/">
+            <motion.span 
+              whileHover={{ scale: 1.05 }}
+              className="cursor-pointer font-sans font-medium flex items-center"
+            >
+              Practice
+            </motion.span>
+          </Link>
+          <Link href="/student/test/past-tests">
+            <motion.span 
+              whileHover={{ scale: 1.05 }}
+              className="cursor-pointer font-sans font-medium flex items-center"
+            >
+              Performance
+            </motion.span>
+          </Link>
           <UserDropdown />
         </div>
       </nav>
 
-      {/* Hero Section - Animated and disappears after 5 seconds */}
-      <AnimatePresence>
-        {showHero && (
-          <motion.div 
-            initial={{ opacity: 0, height: "auto" }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.5 }}
-            className="bg-gradient-to-r from-[#d56c4e] to-[#e07e63] text-white px-8 py-12 mb-6"
-          >
-            <motion.div 
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.2 }}
-              className="container mx-auto text-center"
-            >
-              <h2 className="text-4xl font-bold mb-4">Your Learning Journey</h2>
-              <p className="text-lg max-w-2xl mx-auto mb-8 opacity-90">Track your progress and review past evaluations to identify strengths and areas for improvement.</p>
-              
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-3xl mx-auto">
-                <div className="bg-white/20 backdrop-blur-sm rounded-xl p-5 shadow-lg">
-                  <h3 className="text-xl font-semibold mb-1">Tests Taken</h3>
-                  <p className="text-3xl font-bold">{completedTests}</p>
-                </div>
-                <div className="bg-white/20 backdrop-blur-sm rounded-xl p-5 shadow-lg">
-                  <h3 className="text-xl font-semibold mb-1">Average Score</h3>
-                  <p className="text-3xl font-bold">{averageScore.toFixed(1)}%</p>
-                </div>
-                <div className="bg-white/20 backdrop-blur-sm rounded-xl p-5 shadow-lg">
-                  <h3 className="text-xl font-semibold mb-1">Missed Tests</h3>
-                  <p className="text-3xl font-bold">{tests.length - completedTests}</p>
-                </div>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Hero Section */}
+      <motion.div 
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5 }}
+        className="bg-gradient-to-r from-[#d56c4e] to-[#e07e63] text-white px-8 py-12 mb-6"
+      >
+        <motion.div 
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.2 }}
+          className="container mx-auto text-center"
+        >
+          <h2 className="text-4xl font-bold mb-4">Your Learning Journey</h2>
+          <p className="text-lg max-w-2xl mx-auto mb-8 opacity-90">Track your progress and review past evaluations to identify strengths and areas for improvement.</p>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-3xl mx-auto">
+            <div className="bg-white/20 backdrop-blur-sm rounded-xl p-5 shadow-lg">
+              <h3 className="text-xl font-semibold mb-1">Tests Taken</h3>
+              <p className="text-3xl font-bold">{completedTests}</p>
+            </div>
+            <div className="bg-white/20 backdrop-blur-sm rounded-xl p-5 shadow-lg">
+              <h3 className="text-xl font-semibold mb-1">Average Score</h3>
+              <p className="text-3xl font-bold">{averageScore.toFixed(1)}%</p>
+            </div>
+            <div className="bg-white/20 backdrop-blur-sm rounded-xl p-5 shadow-lg">
+              <h3 className="text-xl font-semibold mb-1">Missed Tests</h3>
+              <p className="text-3xl font-bold">{tests.length - completedTests}</p>
+            </div>
+          </div>
+        </motion.div>
+      </motion.div>
 
       {/* Main Content */}
       <main className="container mx-auto p-6">
@@ -231,8 +223,7 @@ export default function PastTestsPage() {
         {loading ? (
           <div className="flex justify-center items-center h-64">
             <div className="relative">
-              <div className="w-20 h-20 rounded-full border-4 border-[#f8e2d8] border-t-[#dd7a5f] animate-spin"></div>
-              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-[#dd7a5f] font-small">Loading..</div>
+              <div className="w-12 h-12 rounded-full border-4 border-[#f8e2d8] border-t-[#dd7a5f] animate-spin"></div>
             </div>
           </div>
         ) : (

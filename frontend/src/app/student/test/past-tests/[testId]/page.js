@@ -181,20 +181,22 @@ export default function TestDetailPage() {
           </motion.div>
         </div>
         <div className="flex space-x-6 items-center">
-          <motion.span 
-            whileHover={{ scale: 1.05, y: -2 }}
-            className="cursor-pointer font-sans font-medium flex items-center"
-          >
-            <BookOpen size={18} className="mr-1.5" />
-            Practice
-          </motion.span>
-          <motion.span 
-            whileHover={{ scale: 1.05, y: -2 }}
-            className="cursor-pointer font-sans font-medium flex items-center"
-          >
-            <Award size={18} className="mr-1.5" />
-            Performance
-          </motion.span>
+          <Link href="/">
+            <motion.span 
+              whileHover={{ scale: 1.05 }}
+              className="cursor-pointer font-sans font-medium flex items-center"
+            >
+              Practice
+            </motion.span>
+          </Link>
+          <Link href="/student/test/past-tests">
+            <motion.span 
+              whileHover={{ scale: 1.05 }}
+              className="cursor-pointer font-sans font-medium flex items-center"
+            >
+              Performance
+            </motion.span>
+          </Link>
           <UserDropdown />
         </div>
       </nav>
