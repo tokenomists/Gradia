@@ -191,10 +191,10 @@ export default function StudentDashboard() {
     }
   };
 
-  // Handle navigation to all tests page
   const handleViewAllTests = () => {
     router.push('/student/test/past-tests');
   };
+
   const displayedPreviousTests = testData.previousTests
   .map((test) => {
     const totalScore = test.maxMarks;

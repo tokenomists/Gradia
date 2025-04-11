@@ -2,7 +2,16 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { PenLine, Plus, ChevronDown, X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { 
+  PenLine, 
+  Plus, 
+  ChevronDown, 
+  ChevronLeft, 
+  ChevronRight,
+  BookIcon,
+  ClipboardList, 
+  LineChart      
+} from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { UserDropdown } from '@/components/dashboard/UserDropdown.jsx';
@@ -19,6 +28,8 @@ const teacherQuotes = [
   "Teachers plant seeds of knowledge that grow forever.",
   "The mediocre teacher tells. The good teacher explains. The superior teacher demonstrates. The great teacher inspires."
 ];
+
+const MAX_DISPLAYED_TESTS = 4;
 
 export default function TeacherDashboard() {
   const [currentQuote, setCurrentQuote] = useState('');
@@ -88,7 +99,6 @@ export default function TeacherDashboard() {
     fetchHeatmapData();
   }, []);
 
-  // Rotate quotes every 60 seconds
   useEffect(() => {
     const randomQuote = teacherQuotes[Math.floor(Math.random() * teacherQuotes.length)];
     setCurrentQuote(randomQuote);
@@ -161,6 +171,14 @@ export default function TeacherDashboard() {
     }
   };
 
+  const displayedTests = testsData
+    .sort((a, b) => new Date(b.startTime) - new Date(a.startTime))
+    .slice(0, MAX_DISPLAYED_TESTS);
+
+  const handleViewAllTests = () => {
+    router.push('/teacher/tests');
+  };
+
   const renderHeatmap = () => {
     console.log('Rendering heatmap with data:', heatmapData);
 
@@ -199,30 +217,30 @@ export default function TeacherDashboard() {
 
       heatmapContent = (
         <table className="w-full text-center border-collapse">
-          <tbody>
-            {Object.entries(heatmapData).map(([className, testData], index) => (
-              <tr key={index}>
+            <tbody>
+              {Object.entries(heatmapData).map(([className, testData], index) => (
+                <tr key={index}>
                 <td className="p-2 text-left font-medium border">{className}</td>
-                {sortedTests.map((test) => {
-                  const data = testData[test] || { percentage: 'NA', color: 'bg-gray-200' };
-                  return (
+                  {sortedTests.map((test) => {
+                    const data = testData[test] || { percentage: 'NA', color: 'bg-gray-200' };
+                    return (
                     <td key={test} className="p-2 border">
-                      <motion.div
-                        whileHover={{ scale: 1.05 }}
-                        className={`${data.color} text-black font-medium rounded-sm p-4 mx-auto border border-black relative group`}
-                      >
-                        {data.percentage}
-                        <div className="absolute opacity-0 group-hover:opacity-100 bg-black text-white p-2 rounded text-xs -top-10 left-1/2 transform -translate-x-1/2 whitespace-nowrap transition-opacity duration-200 pointer-events-none z-10">
-                          {test}
-                        </div>
-                      </motion.div>
-                    </td>
-                  );
-                })}
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                        <motion.div
+                          whileHover={{ scale: 1.05 }}
+                          className={`${data.color} text-black font-medium rounded-sm p-4 mx-auto border border-black relative group`}
+                        >
+                          {data.percentage}
+                          <div className="absolute opacity-0 group-hover:opacity-100 bg-black text-white p-2 rounded text-xs -top-10 left-1/2 transform -translate-x-1/2 whitespace-nowrap transition-opacity duration-200 pointer-events-none z-10">
+                            {test}
+                          </div>
+                        </motion.div>
+                      </td>
+                    );
+                  })}
+                </tr>
+              ))}
+            </tbody>
+          </table>
       );
     }
 
@@ -233,7 +251,10 @@ export default function TeacherDashboard() {
         transition={{ duration: 0.5, delay: 0.2 }}
         className="bg-[#edead7] rounded-xl p-6 shadow-md"
       >
-        <h2 className="text-2xl font-bold text-gray-800 mb-4">Student Performance</h2>
+        <div className="flex items-center mb-4">
+          <LineChart size={24} className="mr-2 text-gray-800" />
+          <h2 className="text-2xl font-bold text-gray-800">Student Performance</h2>
+        </div>
         <div>{heatmapContent}</div>
         <button
           onClick={() => router.push('/teacher/detailed-analysis')}
@@ -321,7 +342,10 @@ export default function TeacherDashboard() {
           transition={{ duration: 0.5, delay: 0.1 }}
           className="bg-[#edead7] rounded-xl p-4 shadow-md mb-8"
         >
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">Classes</h2>
+          <div className="flex items-center mb-4">
+            <BookIcon size={24} className="mr-2 text-gray-800" />
+            <h2 className="text-2xl font-bold text-gray-800">Classes</h2>
+          </div>
 
           {/* Scrollable Classes Container */}
           <div className="relative bg-[#edead7] rounded-xl">
@@ -375,18 +399,35 @@ export default function TeacherDashboard() {
           </div>
         </motion.div>
              
-        {/* Past Tests & Evaluations */}
+        {/* Tests & Evaluations */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="bg-[#edead7] rounded-xl p-6 shadow-md"
+            className="bg-[#edead7] rounded-xl p-6 shadow-md overflow-hidden h-[400px]"
           >
-            <h2 className="text-2xl font-bold text-gray-800 mb-4">Past Tests & Evaluations</h2>
+            <motion.h3 
+              className="text-xl font-semibold text-gray-800 mb-4 flex justify-between items-center"
+            >
+              <div className="flex items-center">
+                <ClipboardList size={24} className="mr-2 text-gray-800" />
+                <span className="text-2xl font-bold">Tests & Evaluations</span>
+              </div>
+              {testsData.length > MAX_DISPLAYED_TESTS && (
+                <motion.button
+                  onClick={handleViewAllTests}
+                  whileHover={{ scale: 1.05 }}
+                  className="text-sm text-[#d56c4e] font-medium flex items-center"
+                >
+                  View All
+                  <ChevronRight size={16} className="ml-1" />
+                </motion.button>
+              )}
+            </motion.h3>
             
-            <div className="space-y-4">
-              {testsData !== undefined && testsData !== null && testsData.map((test) => (
+            <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2">
+              {displayedTests.map((test) => (
                 <div key={test._id} className="border-b border-gray-300 pb-4">
                   <div 
                     className="flex justify-between items-start cursor-pointer"
@@ -425,11 +466,13 @@ export default function TeacherDashboard() {
                   )}
                 </div>
               ))}
+
+              {displayedTests.length === 0 && (
+                <div className="text-center py-4">
+                  <p className="text-gray-600">No past tests available</p>
+                </div>
+              )}
             </div>
-            
-            <button className="mt-4 text-[#d56c4e] font-medium hover:underline flex items-center">
-              View All Tests <ChevronDown size={16} className="ml-1" />
-            </button>
           </motion.div>
         
           {/* Student Performance */}
