@@ -388,7 +388,7 @@ const updateTestCase = (questionIndex, testCaseIndex, field, value) => {
             <Link href="/teacher/tests" className="font-sans font-medium transition-transform transform hover:scale-110">
               Tests
             </Link>
-            <Link href="/teacher/analysis" className="font-sans font-medium transition-transform transform hover:scale-110">
+            <Link href="/teacher/detailed-analysis" className="font-sans font-medium transition-transform transform hover:scale-110">
               Analysis
             </Link>
             <UserDropdown />

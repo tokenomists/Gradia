@@ -17,7 +17,7 @@ export default function DetailedAnalysis() {
       setLoading(true);
       try {
         const response = await axios.get('/api/tests/heatmap');
-        console.log('Detailed heatmap data:', response.data);
+        // console.log('Detailed heatmap data:', response.data);
         setHeatmapData(response.data);
       } catch (error) {
         console.error('Error fetching detailed heatmap data:', error.response?.data || error.message);
@@ -101,7 +101,7 @@ export default function DetailedAnalysis() {
             <Link href="/teacher/tests">Tests</Link>
           </motion.span>
           <motion.span whileHover={{ scale: 1.05 }} className="font-sans cursor-pointer font-medium">
-            <Link href="/teacher/analysis">Analysis</Link>
+            <Link href="/teacher/detailed-analysis">Analysis</Link>
           </motion.span>
           <UserDropdown />
         </div>
