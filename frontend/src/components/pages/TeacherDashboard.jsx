@@ -5,7 +5,6 @@ import { motion } from 'framer-motion';
 import { 
   PenLine, 
   Plus, 
-  ChevronDown, 
   ChevronLeft, 
   ChevronRight,
   BookIcon,
@@ -180,8 +179,6 @@ export default function TeacherDashboard() {
   };
 
   const renderHeatmap = () => {
-    console.log('Rendering heatmap with data:', heatmapData);
-
     let heatmapContent = null;
 
     if (loadingHeatmap) {
