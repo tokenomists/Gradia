@@ -275,7 +275,7 @@ export default function TeacherDashboard() {
             style={{ fontFamily: "'Rage Italic', sans-serif" }}
             className="text-4xl font-bold text-black"
           >
-            <Link href="/teacher/dashboard">Gradia</Link>
+            <Link href="/">Gradia</Link>
           </motion.h1>
         </div>
         <div className="flex space-x-6 items-center">
