@@ -5,6 +5,8 @@ import jwt from 'jsonwebtoken';
 import Submission from "../models/Submission.js";
 import axios from "axios";
 
+const BACKEND_URL = process.env.BACKEND_URL || "http://localhost:8000";
+
 export const createTest = async (req, res) => {
   try {
     const token = req.cookies.token;
@@ -115,7 +117,7 @@ export const submitTest = async (req, res) => {
 
     await submission.save();
 
-    axios.post(`${process.env.BACKEND_URI}/api/grade/grade-submission`, {
+    axios.post(`${BACKEND_URL}/api/grade/grade-submission`, {
       submissionId: submission._id,
     }).catch((err) => {
       console.error("Failed to trigger grading:", err.message);
