@@ -16,7 +16,6 @@ export default function DetailedAnalysis() {
     const fetchHeatmapData = async () => {
       setLoading(true);
       try {
-        // Make sure this endpoint matches your API route that connects to testController.getHeatmapData
         const response = await axios.get('/api/tests/heatmap');
         console.log('Detailed heatmap data:', response.data);
         setHeatmapData(response.data);
@@ -35,12 +34,11 @@ export default function DetailedAnalysis() {
       return (
         <div className="flex justify-center items-center h-64">
           <div className="relative">
-            <div className="w-20 h-20 rounded-full border-4 border-[#f8e2d8] border-t-[#dd7a5f] animate-spin"></div>
+            <div className="w-12 h-12 rounded-full border-4 border-[#f8e2d8] border-t-[#dd7a5f] animate-spin"></div>
           </div>
         </div>
       );
 
-    // If we have real data from the API, use it, otherwise show a message
     if (Object.keys(heatmapData).length === 0) {
       return (
         <div className="flex justify-center items-center h-64">
@@ -72,7 +70,7 @@ export default function DetailedAnalysis() {
     const testNames = sortedTests.map((test) => test.name);
 
     return (
-      <div className="overflow-x-auto pb-8 pt-16">
+      <div className="overflow-x-auto pb-8 pt-10">
         <table className="w-full text-center border-collapse">
           <tbody>
             {Object.entries(heatmapData).map(([className, testData], index) => (
@@ -87,7 +85,7 @@ export default function DetailedAnalysis() {
                         className={`${data.color} text-black font-medium rounded-sm p-4 mx-auto border border-black relative group cursor-pointer`}
                       >
                         {data.percentage}
-                        <div className="absolute opacity-0 group-hover:opacity-100 bg-black text-white p-2 rounded text-sm -top-16 left-1/2 transform -translate-x-1/2 whitespace-nowrap transition-opacity duration-200 pointer-events-none z-10 shadow-lg">
+                        <div className="absolute opacity-0 group-hover:opacity-100 bg-black text-white p-2 rounded text-sm -top-10 left-1/2 transform -translate-x-1/2 whitespace-nowrap transition-opacity duration-200 pointer-events-none z-10 shadow-lg">
                           {testName}
                         </div>
                       </motion.div>
@@ -129,7 +127,7 @@ export default function DetailedAnalysis() {
       </nav>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-6 py-8">
+      <div className="max-w-7xl mx-auto px-6 py-10">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-800">Detailed Student Performance Analysis</h1>
         </div>
@@ -138,7 +136,7 @@ export default function DetailedAnalysis() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="bg-[#edead7] rounded-xl p-8 shadow-md max-w-full mx-auto"
+          className="bg-[#edead7] rounded-xl px-6 shadow-md max-w-full mx-auto"
         >
           {renderHeatmap()}
         </motion.div>
@@ -146,9 +144,8 @@ export default function DetailedAnalysis() {
         <div className="mt-6 flex justify-center">
           <motion.button
             onClick={() => router.push('/')}
-            whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="bg-[#d56c4e] hover:bg-[#d5b69d] text-gray-800 font-medium py-2 px-4 rounded-lg"
+            className="bg-[#d56c4e] hover:bg-[#c25c3e] text-white font-medium py-2 px-4 rounded-lg"
           >
             Back to Dashboard
           </motion.button>
