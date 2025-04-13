@@ -20,7 +20,7 @@ const getUserFromToken = (token) => {
 // Create a new class
 export const createClass = async (req, res) => {
   try {
-    const { name, description, subjects, invitedEmails, classCode } = req.body;
+    const { name, description, invitedEmails, classCode } = req.body;
     const classFiles = req.files;
 
     if (!name) {
@@ -49,7 +49,6 @@ export const createClass = async (req, res) => {
     const newClass = await Class.create({
       name,
       description,
-      subject: req.body.subject,
       classCode: finalClassCode,
       teacher: teacher._id,
       invitedEmails: JSON.parse(invitedEmails),

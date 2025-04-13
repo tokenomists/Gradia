@@ -138,10 +138,9 @@ export default function CreateClass() {
     try {
       const formData = new FormData();
       
-      formData.append('name', className);
+      formData.append('name', `${className} - ${subject}`);
       formData.append('description', classDescription);
       formData.append('classCode', classCode);
-      formData.append('subject', subject); // Changed from subjects array to single subject
       formData.append('invitedEmails', JSON.stringify([])); // Changed from JSON.stringify([studentList]) as feature is not implemented yet
       
       classFiles.forEach(file => {
@@ -231,10 +230,10 @@ export default function CreateClass() {
               />
             </div>
             
-            {/* Subject - Changed from dropdown to textbox */}
+            {/* Subject */}
             <div className="mb-6">
               <label htmlFor="subject" className="block text-gray-700 font-medium mb-2">
-                Subject
+                Subject*
               </label>
               <input
                 type="text"
@@ -243,6 +242,7 @@ export default function CreateClass() {
                 onChange={(e) => setSubject(e.target.value)}
                 className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#e07a5f]"
                 placeholder="e.g., Operating Systems"
+                required
               />
             </div>
             

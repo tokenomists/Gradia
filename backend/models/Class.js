@@ -8,9 +8,6 @@ const ClassSchema = new mongoose.Schema({
   description: { 
     type: String 
   },
-  subjects: [{ 
-    type: String 
-  }],
   classCode: { 
     type: String, 
     required: true, 
