@@ -1,12 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter, useParams } from 'next/navigation';
 import { UserDropdown } from '@/components/dashboard/UserDropdown.jsx';
-import { Copy, Check, Trash, Upload, ArrowLeft, File } from "lucide-react";
+import { Copy, Check, Trash, Upload, ArrowLeft, File, Loader2 } from "lucide-react";
 import axios from 'axios';
 
 export default function ClassPage() {
@@ -19,9 +19,10 @@ export default function ClassPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [deleteStatus, setDeleteStatus] = useState({ isDeleting: false, fileName: null });
+  const [uploading, setUploading] = useState(false);
+  const [uploadSuccess, setUploadSuccess] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
   
-  // Fetch class details
   useEffect(() => {
     if (!classId) return;
     
@@ -48,30 +49,29 @@ export default function ClassPage() {
     fetchClassDetails();
   }, [classId]);
   
-  // Fetch class materials
-  useEffect(() => {
+  const fetchClassMaterials = useCallback(async () => {
     if (!classId) return;
 
-    const fetchClassMaterials = async () => {
-      try {
-        const response = await axios.post(
-          `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/classes/get-class-materials`,
-          { classId },
-          { withCredentials: true }
-        );
-        if (response.data.success) {
-          const files = Array.isArray(response.data.files.pdf_files) ? response.data.files.pdf_files : [];
-          setClassFiles(files);
-        } else {
-          console.error('Backend responded with failure:', response.data.message);
-        }
-      } catch (err) {
-        console.error('Error fetching class materials:', err);
+    try {
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/classes/get-class-materials`,
+        { classId },
+        { withCredentials: true }
+      );
+      if (response.data.success) {
+        const files = Array.isArray(response.data.files.pdf_files) ? response.data.files.pdf_files : [];
+        setClassFiles(files);
+      } else {
+        console.error('Backend responded with failure:', response.data.message);
       }
-    };
-
-    fetchClassMaterials();
+    } catch (err) {
+      console.error('Error fetching class materials:', err);
+    }
   }, [classId]);
+ 
+  useEffect(() => {
+    fetchClassMaterials();
+  }, [classId, fetchClassMaterials]);
   
   const handleDeleteFile = async (fileName) => {
     try {
@@ -94,6 +94,38 @@ export default function ClassPage() {
       alert('Failed to delete file. Please try again.');
     } finally {
       setDeleteStatus({ isDeleting: false, fileName: null });
+    }
+  };
+
+  const handleFileUpload = async (e) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    const formData = new FormData();
+    for (let file of files) {
+      formData.append('classFiles', file);
+    }
+    formData.append('bucketName', classId);
+
+    try {
+      setUploading(true);
+      setUploadSuccess(false);
+
+      const res = await axios.post( `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/classes/upload-class-material`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+        withCredentials: true,
+      });
+
+      await fetchClassMaterials();
+      setUploadSuccess(true);
+      setTimeout(() => setUploadSuccess(false), 2000);
+    } catch (err) {
+      console.error(err);
+      alert('Upload failed');
+    } finally {
+      setUploading(false);
     }
   };
   
@@ -305,12 +337,28 @@ export default function ClassPage() {
                 htmlFor="file-upload" 
                 className="cursor-pointer bg-[#e2c3ae] text-black px-4 py-2 rounded-md hover:bg-[#d1a78f] inline-block flex items-center gap-2"
               >
-                <Upload size={18} className="text-gray-800" />
-                Upload PDF
+                {uploading ? (
+                  <Loader2 size={18} className="animate-spin text-black" />
+                ) : uploadSuccess ? (
+                  <Check size={18} className="text-green-800" />
+                ) : (
+                  <Upload size={18} className="text-gray-800" />
+                )}
+
+                <span>
+                  {uploading ? 'Uploading...' : uploadSuccess ? 'Uploaded!' : 'Upload PDF'}
+                </span>
               </label>
-              <input id="file-upload" type="file" className="hidden" />
+              <input 
+                id="file-upload" 
+                type="file" 
+                accept="application/pdf" 
+                className="hidden" 
+                onChange={handleFileUpload}
+                multiple 
+              />
             </div>
-            
+                   
             {classFiles.length === 0 ? (
               <div className="flex justify-center items-center h-48">
                 <p className="text-gray-500">No materials uploaded yet.</p>

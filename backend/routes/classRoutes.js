@@ -8,7 +8,8 @@ import {
   joinClass,
   getClassDetails,
   getClassMaterials,
-  deleteClassMaterial
+  deleteClassMaterial,
+  uploadClassMaterial
 } from '../controllers/classController.js';
 
 const storage = multer.diskStorage({
@@ -38,6 +39,8 @@ router.post('/join', joinClass);
 router.get('/:classId', getClassDetails);
 
 router.post('/get-class-materials', getClassMaterials);
+
+router.post('/upload-class-material', upload.array('classFiles'), uploadClassMaterial);
 
 router.post('/delete-class-material', deleteClassMaterial);
 
