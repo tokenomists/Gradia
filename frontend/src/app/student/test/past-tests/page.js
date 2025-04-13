@@ -12,52 +12,55 @@ export default function PastTestsPage() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
 
+  const fetchTests = async () => {
+    try {
+      // Fetch test data
+      let TestData = await getTestsForStudent();
+      TestData = TestData.previousTests;
+      TestData = TestData.map((test, index) => ({
+        id: test._id || (index + 1).toString(),
+        title: test.title || 'Untitled Test',
+        description: test.description || 'No description available',
+        status: 'missed',
+        date: 'N/A',
+        createdAt: test.createdAt || "N/A",
+        duration: test.duration || 0,
+        score: 'N/A',
+        graded: false,
+        maxScore: test.maxMarks,
+        questions: test.questions?.length || 0,
+      }));
+
+      // Fetch submission data
+      const SubmissionData = await getSubmissionsForStudent();
+      
+      // Update TestData with scores from SubmissionData
+      TestData = TestData.map((test) => {
+        const submission = SubmissionData.find((sub) => sub.test === test.id);
+        if (submission) {
+          test.graded = submission.graded || false;
+          test.score = submission.totalScore || 'N/A';
+          test.date = submission.submittedAt;
+          test.status = 'submitted';
+        }
+        return test;
+      });
+      setSubmissions(SubmissionData);
+      TestData.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      setTests(TestData);
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching tests:', error);
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchTests = async () => {
-      try {
-        // Fetch test data
-        let TestData = await getTestsForStudent();
-        TestData = TestData.previousTests;
-        TestData = TestData.map((test, index) => ({
-          id: test._id || (index + 1).toString(),
-          title: test.title || 'Untitled Test',
-          description: test.description || 'No description available',
-          status: 'missed',
-          date: 'N/A',
-          createdAt: test.createdAt || "N/A",
-          duration: test.duration || 0,
-          score: 'N/A',
-          graded: false,
-          maxScore: test.maxMarks,
-          questions: test.questions?.length || 0,
-        }));
-
-        // Fetch submission data
-        const SubmissionData = await getSubmissionsForStudent();
-        
-        // Update TestData with scores from SubmissionData
-        TestData = TestData.map((test) => {
-          const submission = SubmissionData.find((sub) => sub.test === test.id);
-          if (submission) {
-            test.graded = submission.graded || false,
-            test.score = submission.totalScore || 'N/A';
-            test.date = submission.submittedAt;
-            test.status = 'submitted';
-          }
-          return test;
-        });
-        setSubmissions(SubmissionData);
-        TestData.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-        setTests(TestData);
-        setLoading(false);
-      } catch (error) {
-        console.error('Error fetching tests:', error);
-        setLoading(false);
-      }
-    };
-    
-
     fetchTests();
+    const interval = setInterval(() => {
+      fetchTests();
+    }, 5000);
+    return () => clearInterval(interval);
   }, []);
 
   const formatDate = (dateString) => {
@@ -248,10 +251,11 @@ export default function PastTestsPage() {
                 className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
               >
                 {filteredTests.map((test) => {
-                  const isGraded = !test.graded && test.date !== 'N/A';
+                  const isGrading = !test.graded && test.date !== 'N/A';
+
                   return (
                     <motion.div key={test.id} variants={fadeIn}>
-                      {isGraded ? (
+                      {isGrading ? (
                         <div className="relative rounded-xl shadow-md h-full w-full backdrop-blur-md bg-white/90">
                           <div className="h-full w-full flex flex-col items-center justify-center text-center px-6 py-10">
                             <h3 className="text-2xl font-bold text-[#df7d61] mb-2 animate-pulse">Grading...</h3>
@@ -275,10 +279,10 @@ export default function PastTestsPage() {
                               </span>
                               <span className="text-gray-400 text-sm">{test.questions} questions</span>
                             </div>
-                            
+
                             <h3 className="text-xl font-bold text-gray-800 mb-2 group-hover:text-[#dd7a5f] transition-colors">{test.title}</h3>
                             <p className="text-gray-600 mb-4 line-clamp-2">{test.description}</p>
-                            
+
                             <div className="flex items-center text-gray-500 mb-2">
                               <Calendar size={16} className="mr-2 text-[#dd7a5f]" />
                               <span>{test.date !== 'N/A' ? formatDate(test.date) : 'Not attempted'}</span>
@@ -287,7 +291,7 @@ export default function PastTestsPage() {
                               <Clock size={16} className="mr-2 text-[#dd7a5f]" />
                               <span>{test.duration} mins</span>
                             </div>
-                            
+
                             <div className="mb-2">
                               <div className="flex justify-between text-sm mb-1">
                                 <span className="font-medium text-gray-700">Score</span>
@@ -304,7 +308,7 @@ export default function PastTestsPage() {
                               </div>
                             </div>
                           </div>
-                          
+
                           <div className="bg-gradient-to-r from-[#f8e2d8] to-[#faeae3] p-4 text-right group-hover:bg-gradient-to-r group-hover:from-[#dd7a5f] group-hover:to-[#e58b73] transition-all duration-300">
                             <span className="text-[#dd7a5f] font-medium group-hover:text-white transition-colors flex items-center justify-end">
                               View Details 
