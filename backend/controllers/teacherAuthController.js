@@ -126,7 +126,7 @@ export const getTeacherTests = async (req, res) => {
       createdBy: teacherId,
       endTime: { $lt: currentTime },
     }).sort({ endTime: -1 });
-    console.log({ testsData, upcomingTests, previousTests });
+    // console.log({ testsData, upcomingTests, previousTests });
     res.status(200).json({ testsData, upcomingTests, previousTests });
   } catch (error) {
     res.status(500).json({ message: "Error fetching tests", error: error.message });

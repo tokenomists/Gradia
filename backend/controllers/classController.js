@@ -1,5 +1,5 @@
-import fs from "fs";
-import axios from "axios";
+import fs from 'fs';
+import axios from 'axios';
 import FormData from "form-data"; 
 import jwt from "jsonwebtoken";
 
@@ -265,6 +265,91 @@ export const getClassDetails = async (req, res) => {
       success: false, 
       message: "Error fetching class details", 
       error: error.message 
+    });
+  }
+};
+
+export const getClassMaterials = async (req, res) => {
+  try {
+    const { classId } = req.body;
+
+    const token = req.cookies.token;
+    const decoded = getUserFromToken(token);
+
+    if (!decoded || decoded.role !== 'teacher') {
+      return res.status(401).json({ success: false, message: 'Unauthorized' });
+    }
+
+    if (!classId) {
+      return res.status(400).json({ success: false, message: 'Missing classId' });
+    }
+
+    const response = await axios.post(
+      `${process.env.GRADIA_PYTHON_BACKEND_URL}/list-gcs-files`,
+      { bucket_name: classId },
+      {
+        headers: {
+          'x-api-key': process.env.GRADIA_API_KEY,
+        },
+      }
+    );
+
+    return res.status(200).json({
+      success: true,
+      files: response.data || [],
+    });
+  } catch (error) {
+    console.error('Error fetching class materials:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Error fetching class materials',
+      error: error.message,
+    });
+  }
+};
+
+export const deleteClassMaterial = async (req, res) => {
+  try {
+    const { classId, fileName } = req.body;
+
+    const token = req.cookies.token;
+    const decoded = getUserFromToken(token);
+    
+    if (!decoded || decoded.role !== 'teacher') {
+      return res.status(401).json({ success: false, message: 'Unauthorized' });
+    }
+
+    if (!classId || !fileName) {
+      return res.status(400).json({ success: false, message: 'Missing details. ClassId and FileName are required' });
+    }
+    
+    const response = await axios.delete(
+      `${process.env.GRADIA_PYTHON_BACKEND_URL}/delete-gcs-file`,
+      {
+        headers: {
+          'x-api-key': process.env.GRADIA_API_KEY,
+        },
+        data: { bucket_name: classId, file_name: fileName }
+      }
+    );
+    
+    if (response.data && response.data.message && response.data.message.includes('deleted successfully')) {
+      return res.status(200).json({
+        success: true,
+        message: 'File deleted successfully',
+      });
+    } else {
+      return res.status(500).json({
+        success: false,
+        message: 'Failed to delete file.',
+      });
+    }
+  } catch (error) {
+    console.error('Error deleting file from GCS:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Error deleting file',
+      error: error.message,
     });
   }
 };

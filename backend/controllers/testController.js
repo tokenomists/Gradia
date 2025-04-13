@@ -136,7 +136,6 @@ export const submitTest = async (req, res) => {
 
 export const getHeatmapData = async (req, res) => {
   try {
-    console.log('Fetching heatmap data...');
     // Decode token to get teacher ID
     const token = req.cookies.token;
     if (!token) return res.status(401).json({ message: "Unauthorized: No token provided" });

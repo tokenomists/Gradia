@@ -323,7 +323,6 @@ const TestPage = () => {
         });
       } catch (error) {
         console.error('Error fetching test:', error);
-        // Show error to user before redirecting
         alert(`Failed to load test: ${error.message}`);
         router.push('/');
       }

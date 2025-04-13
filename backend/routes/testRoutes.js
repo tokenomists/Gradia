@@ -5,7 +5,6 @@ import { getTeacherTests } from "../controllers/teacherAuthController.js";
 
 const router = express.Router();
 
-// Define static routes before dynamic routes to avoid conflicts
 router.get("/heatmap", getHeatmapData); // Static route for heatmap data
 router.post("/create-test", createTest);
 router.get("/tests", getTests);

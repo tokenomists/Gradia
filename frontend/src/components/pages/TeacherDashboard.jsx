@@ -83,7 +83,7 @@ export default function TeacherDashboard() {
       setLoadingHeatmap(true);
       try {
         const response = await axios.get('/api/tests/heatmap');
-        console.log('Heatmap data received:', response.data);
+        // console.log('Heatmap data received:', response.data);
         setHeatmapData(response.data);
       } catch (error) {
         console.error('Error fetching heatmap data:', error.response?.data || error.message);
@@ -379,18 +379,19 @@ export default function TeacherDashboard() {
               style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
             >
               {classesData.map((classItem) => (
-                <motion.div
-                  key={classItem._id}
-                  whileHover={{ 
-                    scale: 1.005, 
-                    boxShadow: "0px 8px 20px rgba(0, 0, 0, 0.08)"
-                  }}
-                  className="bg-[#e2c3ae] rounded-lg p-3 min-w-[240px] w-[240px] cursor-pointer flex-shrink-0 border border-black"
-                >
-                  <p className="text-lg font-bold text-gray-800 truncate">{classItem.name}</p>
-                  <h3 className="text-gray-700 text-sm">{classItem.classCode}</h3>
-                  <p className="text-gray-600 text-sm mt-2">{classItem.students.length} students</p>
-                </motion.div>
+                <Link href={`/teacher/class/${classItem._id}`} key={classItem._id}>
+                  <motion.div
+                    whileHover={{ 
+                      scale: 1.005, 
+                      boxShadow: "0px 8px 20px rgba(0, 0, 0, 0.08)"
+                    }}
+                    className="bg-[#e2c3ae] rounded-lg p-3 min-w-[240px] w-[240px] cursor-pointer flex-shrink-0 border border-black"
+                  >
+                    <p className="text-lg font-bold text-gray-800 truncate">{classItem.name}</p>
+                    <h3 className="text-gray-700 text-sm">{classItem.classCode}</h3>
+                    <p className="text-gray-600 text-sm mt-2">{classItem.students.length} students</p>
+                  </motion.div>
+                </Link>
               ))}
             </div>
           </div>

@@ -6,7 +6,9 @@ import {
   createClass, 
   getTeacherClasses,
   joinClass,
-  getClassDetails
+  getClassDetails,
+  getClassMaterials,
+  deleteClassMaterial
 } from '../controllers/classController.js';
 
 const storage = multer.diskStorage({
@@ -26,16 +28,17 @@ const upload = multer({ storage: storage });
 
 const router = express.Router();
 
-// Create a new class (teachers only)
 router.post('/create', upload.array('classFiles'), createClass);
 
 // Get all classes for a teacher
 // router.get('/teacher/classes', getTeacherClasses);
 
-// Join a class (students only)
 router.post('/join', joinClass);
 
-// Get class details
 router.get('/:classId', getClassDetails);
+
+router.post('/get-class-materials', getClassMaterials);
+
+router.post('/delete-class-material', deleteClassMaterial);
 
 export default router;
