@@ -423,12 +423,12 @@ export default function StudentDashboard() {
                       <Calendar size={14} className="mr-1" />
                       <span>Next: {classItem.nextClass || "No Upcoming Tests!"}</span>
                     </div>
-                    <button 
+                    {/* <button 
                       className="mt-3 flex items-center text-[#d56c4e] font-medium text-sm"
                     >
                       View class
                       <ChevronRight size={14} className="ml-1" />
-                    </button>
+                    </button> */}
                   </motion.div>
                 ))
               ) : (
