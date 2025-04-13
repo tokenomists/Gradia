@@ -39,7 +39,7 @@ export default function PastTestsPage() {
         const submission = SubmissionData.find((sub) => sub.test === test.id);
         if (submission) {
           test.graded = submission.graded || false;
-          test.score = submission.totalScore || 'N/A';
+          test.score = submission.totalScore || 0;
           test.date = submission.submittedAt;
           test.status = 'submitted';
         }
