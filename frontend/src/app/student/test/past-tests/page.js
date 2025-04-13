@@ -106,8 +106,12 @@ export default function PastTestsPage() {
   // Stats for hero section
   const completedTests = tests.filter(test => test.status === 'submitted').length;
   const averageScore = tests.reduce((acc, test) => {
-    if (test.score !== 'N/A') {
-      return acc + (test.score / test.maxScore) * 100;
+    if (
+      test.status === 'submitted' &&
+      test.score !== 'N/A' &&
+      Number(test.maxScore) !== 0
+    ) {
+      return acc + (Number(test.score) / Number(test.maxScore)) * 100;
     }
     return acc;
   }, 0) / (completedTests || 1);
