@@ -1,9 +1,109 @@
+import axios from "axios";
+import jwt from 'jsonwebtoken';
 import Test from "../models/Test.js";
 import Class from "../models/Class.js";
 import Student from "../models/Student.js";
-import jwt from 'jsonwebtoken';
 import Submission from "../models/Submission.js";
-import axios from "axios";
+
+export const gradeSubmission = async (submissionId) => {
+  const submission = await Submission.findById(submissionId);
+  if (!submission) throw new Error("Submission not found");
+
+  const test = await Test.findById(submission.test);
+  if (!test) throw new Error("Test not found");
+
+  const classId = test.classAssignment;
+  let totalScore = 0;
+  const gradedAnswers = [];
+
+  for (const ans of submission.answers) {
+    const question = test.questions.find(q => q._id.toString() === ans.questionId);
+    if (!question) continue;
+
+    let score = 0;
+    let feedback = "";
+
+    if (question.type === "typed") {
+      try {
+        const gradingPayload = {
+          question: question.questionText,
+          student_answer: ans.answerText,
+          max_mark: question.maxMarks,
+          rubric: question.rubric ?? null,
+          bucket_name: classId,
+        };
+
+        const response = await axios.post(
+          `${process.env.GRADIA_PYTHON_BACKEND_URL}/grade`,
+          gradingPayload,
+          {
+            headers: {
+              "x-api-key": process.env.GRADIA_API_KEY,
+            },
+          }
+        );
+
+        const { grade, feedback: fb, reference } = response.data;
+        score = grade;
+        feedback = `${fb}${reference ? ` \nReference: ${reference}` : ""}`;
+      } catch (err) {
+        console.error(`Grading failed for typed question ${ans.questionId}:`, err.message);
+      }
+    }
+
+    else if (question.type === "coding") {
+      try {
+        const source_code = ans.codeAnswer;
+        const language = "python3";
+
+        const test_cases = question.testCases.map((tc) => ({
+          input: tc.input,
+          expected_output: tc.output,
+        }));
+
+        const codingPayload = {
+          source_code,
+          language,
+          test_cases,
+        };
+
+        const response = await axios.post(
+          `${process.env.GRADIA_PYTHON_BACKEND_URL}/submit-code`,
+          codingPayload,
+          {
+            headers: {
+              "x-api-key": process.env.GRADIA_API_KEY,
+            },
+          }
+        );
+
+        const { passed_test_cases, total_test_cases } = response.data;
+
+        const perTestMark = question.maxMarks / total_test_cases;
+        score = Math.round(perTestMark * passed_test_cases);
+        feedback = `${passed_test_cases}/${total_test_cases} test cases passed.`;
+      } catch (err) {
+        console.error(`Grading failed for coding question ${ans.questionId}:`, err.message);
+      }
+    }
+
+    totalScore += score;
+
+    gradedAnswers.push({
+      ...ans,
+      score,
+      feedback,
+    });
+  }
+
+  submission.answers = gradedAnswers;
+  submission.totalScore = totalScore;
+  submission.graded = true;
+
+  await submission.save();
+
+  return { message: "Grading complete", submissionId };
+};
 
 export const createTest = async (req, res) => {
   try {
@@ -115,9 +215,7 @@ export const submitTest = async (req, res) => {
 
     await submission.save();
 
-    axios.post(`${process.env.BACKEND_URI}/api/grade/grade-submission`, {
-      submissionId: submission._id,
-    }).catch((err) => {
+    gradeSubmission(submission._id).catch((err) => {
       console.error("Failed to trigger grading:", err.message);
     });
 
@@ -134,7 +232,6 @@ export const submitTest = async (req, res) => {
 
 export const getHeatmapData = async (req, res) => {
   try {
-    console.log('Fetching heatmap data...');
     // Decode token to get teacher ID
     const token = req.cookies.token;
     if (!token) return res.status(401).json({ message: "Unauthorized: No token provided" });

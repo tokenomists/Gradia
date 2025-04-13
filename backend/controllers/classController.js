@@ -1,5 +1,5 @@
-import fs from "fs";
-import axios from "axios";
+import fs from 'fs';
+import axios from 'axios';
 import FormData from "form-data"; 
 import jwt from "jsonwebtoken";
 
@@ -72,43 +72,7 @@ export const createClass = async (req, res) => {
       );
 
       if (classFiles && classFiles.length > 0) {
-        for (const file of classFiles) {
-          const formData = new FormData();
-          formData.append("file", fs.createReadStream(file.path));
-          formData.append("bucket_name", newClass._id.toString());
-
-          try {
-            await axios.post(`${gradia_python_backend_url}/upload-gcs-file`, formData, {
-              headers: {
-                "x-api-key": gradia_api_key,
-                ...formData.getHeaders(),
-              },
-            });
-          } catch (uploadError) {
-            console.error(`Failed to upload ${file.originalname} to GCS:`, uploadError.message);
-          } finally {
-            try {
-              fs.unlinkSync(file.path);
-            } catch (deleteError) {
-              console.error(`Failed to delete ${file.path}:`, deleteError.message);
-            }
-          }
-        }
-      }
-
-      try {
-        const uploadDir = "uploads/";
-        const filesInDir = fs.readdirSync(uploadDir);
-        if (filesInDir.length === 0) {
-          fs.rmdirSync(uploadDir);
-          console.log(`Removed empty directory: ${uploadDir}`);
-        } else {
-          console.log(`Directory ${uploadDir} not empty, skipping deletion`);
-        }
-      } catch (dirError) {
-        if (dirError.code !== 'ENOENT') {
-          console.error(`Failed to remove ${uploadDir}:`, dirError.message);
-        }
+        await uploadFilesToGCS(classFiles, newClass._id.toString());
       }
 
       res.status(201).json({
@@ -265,6 +229,146 @@ export const getClassDetails = async (req, res) => {
       success: false, 
       message: "Error fetching class details", 
       error: error.message 
+    });
+  }
+};
+
+export const uploadFilesToGCS = async (files, bucketName) => {
+  for (const file of files) {
+    const formData = new FormData();
+    formData.append("file", fs.createReadStream(file.path));
+    formData.append("bucket_name", bucketName);
+
+    try {
+      await axios.post(`${process.env.GRADIA_PYTHON_BACKEND_URL}/upload-gcs-file`, formData, {
+        headers: {
+          "x-api-key": process.env.GRADIA_API_KEY,
+          ...formData.getHeaders(),
+        },
+      });
+    } catch (uploadErr) {
+      console.error(`Failed to upload ${file.originalname} to GCS:`, uploadErr.message);
+    } finally {
+      try {
+        fs.unlinkSync(file.path);
+      } catch (delErr) {
+        console.error(`Failed to delete ${file.path}:`, delErr.message);
+      }
+    }
+  }
+
+  try {
+    const uploadDir = "uploads/";
+    const filesInDir = fs.readdirSync(uploadDir);
+
+    if (filesInDir.length === 0) {
+      fs.rmSync(uploadDir, { recursive: true, force: true });
+    }
+  } catch (err) {
+    if (err.code !== 'ENOENT') {
+      console.error("Error cleaning uploads dir:", err.message);
+    }
+  }
+};
+
+export const getClassMaterials = async (req, res) => {
+  try {
+    const { classId } = req.body;
+
+    const token = req.cookies.token;
+    const decoded = getUserFromToken(token);
+
+    if (!decoded || decoded.role !== 'teacher') {
+      return res.status(401).json({ success: false, message: 'Unauthorized' });
+    }
+
+    if (!classId) {
+      return res.status(400).json({ success: false, message: 'Missing classId' });
+    }
+
+    const response = await axios.post(
+      `${process.env.GRADIA_PYTHON_BACKEND_URL}/list-gcs-files`,
+      { bucket_name: classId },
+      {
+        headers: {
+          'x-api-key': process.env.GRADIA_API_KEY,
+        },
+      }
+    );
+
+    return res.status(200).json({
+      success: true,
+      files: response.data || [],
+    });
+  } catch (error) {
+    console.error('Error fetching class materials:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Error fetching class materials',
+      error: error.message,
+    });
+  }
+};
+
+export const uploadClassMaterial = async (req, res) => {
+  const files = req.files;
+  const bucketName = req.body.bucketName;
+
+  if (!files || files.length === 0 || !bucketName) {
+    return res.status(400).json({ success: false, message: "Missing files or bucketName" });
+  }
+
+  try {
+    await uploadFilesToGCS(files, bucketName);
+    return res.status(200).json({ success: true, message: "Files uploaded successfully" });
+  } catch (err) {
+    console.error("Upload failed:", err.message);
+    return res.status(500).json({ success: false, message: "Upload failed" });
+  }
+};
+
+export const deleteClassMaterial = async (req, res) => {
+  try {
+    const { classId, fileName } = req.body;
+
+    const token = req.cookies.token;
+    const decoded = getUserFromToken(token);
+    
+    if (!decoded || decoded.role !== 'teacher') {
+      return res.status(401).json({ success: false, message: 'Unauthorized' });
+    }
+
+    if (!classId || !fileName) {
+      return res.status(400).json({ success: false, message: 'Missing details. ClassId and FileName are required' });
+    }
+    
+    const response = await axios.delete(
+      `${process.env.GRADIA_PYTHON_BACKEND_URL}/delete-gcs-file`,
+      {
+        headers: {
+          'x-api-key': process.env.GRADIA_API_KEY,
+        },
+        data: { bucket_name: classId, file_name: fileName }
+      }
+    );
+    
+    if (response.data && response.data.message && response.data.message.includes('deleted successfully')) {
+      return res.status(200).json({
+        success: true,
+        message: 'File deleted successfully',
+      });
+    } else {
+      return res.status(500).json({
+        success: false,
+        message: 'Failed to delete file.',
+      });
+    }
+  } catch (error) {
+    console.error('Error deleting file from GCS:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Error deleting file',
+      error: error.message,
     });
   }
 };

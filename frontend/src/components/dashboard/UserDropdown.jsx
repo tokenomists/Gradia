@@ -78,7 +78,9 @@ export const UserDropdown = () => {
         {user?.profilePic ? (
           <Image src={user.profilePic} width={20} height={20} alt="User Profile" className="w-full h-full rounded-full" />
         ) : (
-          <User className="text-[#d56c4e]" size={20} />
+          <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-[15px] font-semibold text-[#d56c4e] uppercase">
+            <span>{user?.fname?.[0]}{user?.lname?.[0]}</span>
+          </div>
         )}
       </motion.div>
 

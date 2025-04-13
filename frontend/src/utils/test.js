@@ -51,7 +51,7 @@ export const getSubmissionByTestId = async (testId) => {
     try {
         const response = await instance.get('/api/auth/student/submission/' + testId);
         const data = response.data;
-        console.log(data);
+        // console.log(data);
         if (!data || data === undefined) {
             console.log("Invalid data format:", data);
             return [];
@@ -78,7 +78,7 @@ export const getTestsForTeacher = async () => {
 
 export const publishTest = async (updatedTestData) => {
     try {
-        console.log(updatedTestData);
+        // console.log(updatedTestData);
         const response = await instance.post('/api/tests/create-test', updatedTestData);
         const data = response.data;
         // console.log(data);
