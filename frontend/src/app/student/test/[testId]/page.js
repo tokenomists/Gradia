@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useReducer, useCallback, useMemo } from 'react';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
+import { CheckCircle } from 'lucide-react';
 import { cn } from "@/lib/utils";
 import { 
   Clock, 
@@ -535,26 +536,26 @@ const TestPage = () => {
   if (submitted) {
     return (
       <div className="flex items-center justify-center h-screen bg-[#fcf9ea]">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.5 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="bg-white rounded-2xl shadow-2xl p-12 text-center"
+      <motion.div
+        initial={{ opacity: 0, scale: 0.5 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="bg-white rounded-2xl shadow-2xl p-6 text-center max-w-[34rem]"
+      >
+        <div className="flex justify-center mb-6">
+          <CheckCircle className="w-16 h-16 text-green-500" />
+        </div>
+        <h2 className="text-3xl font-bold text-[#d56c4e] mb-6">Test Submitted Successfully!</h2>
+        <p className="text-lg text-gray-600 mb-8">
+          We&apos;ve received your answers and they&apos;re now being graded. Great job!
+        </p>
+        <button 
+          onClick={() => router.push('/')}
+          className="px-8 py-3 bg-[#d56c4e] text-white rounded-lg hover:bg-[#d56c4e]/90 transition-colors"
         >
-          <h2 className="text-4xl font-bold text-[#d56c4e] mb-6">Test Submitted Successfully!</h2>
-          <p className="text-xl text-gray-600 mb-8">
-            Your test has been recorded. Please wait for further instructions.
-          </p>
-          <button 
-            className="px-10 py-4 bg-[#d56c4e] text-white rounded-xl hover:bg-[#d56c4e]/80 transition-all"
-            onClick={() => {
-              // Return to dashboard
-              window.location.href = '/';
-            }}
-          >
-            Return to Dashboard
-          </button>
-        </motion.div>
-      </div>
+          Return to Dashboard
+        </button>
+      </motion.div>
+    </div>
     );
   }
 
