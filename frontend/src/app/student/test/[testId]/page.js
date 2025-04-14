@@ -149,11 +149,21 @@ const initialState = {
     const isRunningOut = seconds <= 60;
     
     return (
-      <div className={`bg-white/70 backdrop-blur-sm rounded-lg ${
-        isRunningOut ? 'border border-red-500' : 'border border-[#f4c2a1]'
-      } px-4 py-2 shadow-md`}>
+      <motion.div 
+        className={`bg-white/70 backdrop-blur-sm rounded-lg ${
+          isRunningOut ? 'border-2 border-red-500' : 'border border-[#f4c2a1]'
+        } px-4 py-2 shadow-md`}
+        animate={isRunningOut ? {
+          scale: [1, 1.02, 1],
+          transition: {
+            duration: 1.5,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }
+        } : {}}
+      >
         <div className="flex items-center gap-2">
-          <Clock size={20} className={`${isRunningOut ? "text-red-500" : "text-[#d56c4e]"}`} />
+          <Clock size={20} className={isRunningOut ? "text-red-500" : "text-[#d56c4e]"} />
           <div className="flex items-center">
             {[
               { value: formatTime(hours), separator: ":" },
@@ -161,7 +171,9 @@ const initialState = {
               { value: formatTime(secs), separator: "" }
             ].map((unit, idx) => (
               <div key={idx} className="flex items-center">
-                <div className={`${isRunningOut ? "bg-red-500" : "bg-[#d56c4e]"} text-white px-2.5 py-1.5 rounded text-xl font-mono font-medium`}>
+                <div className={`${
+                  isRunningOut ? "bg-red-500" : "bg-[#d56c4e]"
+                } text-white px-2.5 py-1.5 rounded text-xl font-mono font-medium`}>
                   {unit.value}
                 </div>
                 {unit.separator && (
@@ -171,7 +183,7 @@ const initialState = {
             ))}
           </div>
         </div>
-      </div>
+      </motion.div>
     );
   };
 
