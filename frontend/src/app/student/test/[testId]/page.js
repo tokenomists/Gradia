@@ -140,66 +140,37 @@ const initialState = {
     }
   }
 
-  const EnhancedTimer = ({ seconds }) => {
+  const TestTimer = ({ seconds }) => {
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
     const secs = seconds % 60;
-    const isTimeRunningOut = seconds <= 60;
-  
+    
     const formatTime = (time) => time.toString().padStart(2, '0');
-  
+    const isRunningOut = seconds <= 60;
+    
     return (
-      <div className="fixed top-6 left-1/2 transform -translate-x-1/2 z-50">
-        <motion.div 
-          initial={{ opacity: 0, y: -50 }}
-          animate={{ 
-            opacity: 1, 
-            y: 0,
-            backgroundColor: isTimeRunningOut ? 'rgba(220, 38, 38, 0.9)' : 'rgba(255, 255, 255, 0.9)'
-          }}
-          transition={{ type: "spring", stiffness: 300, damping: 20 }}
-          className={`flex items-center backdrop-blur-lg rounded-full px-8 py-4 shadow-2xl ${
-            isTimeRunningOut 
-              ? 'ring-4 ring-red-500/60 animate-pulse' 
-              : 'ring-4 ring-[#d56c4e]/20'
-          }`}
-        >
-          <Clock className={`${isTimeRunningOut ? 'text-white' : 'text-[#d56c4e]'} w-10 h-10 mr-4 ${isTimeRunningOut ? 'animate-bounce' : 'animate-pulse'}`} />
-          <div className="flex items-center space-x-2">
-            {[hours, minutes, secs].map((time, index) => (
-              <React.Fragment key={index}>
-                <div className="flex space-x-1">
-                  {formatTime(time).split('').map((digit, digitIndex) => (
-                    <motion.div 
-                      key={digitIndex}
-                      className={`${
-                        isTimeRunningOut 
-                          ? 'bg-red-600 text-white' 
-                          : 'bg-[#d56c4e] text-white'
-                      } px-4 py-2 rounded-xl text-2xl font-bold w-12 text-center shadow-lg`}
-                      initial={{ opacity: 0, scale: 0.5 }}
-                      animate={{ 
-                        opacity: 1, 
-                        scale: isTimeRunningOut && index === 1 ? [1, 1.1, 1] : 1 
-                      }}
-                      transition={{ 
-                        delay: (index * 2 + digitIndex) * 0.1,
-                        type: "spring",
-                        stiffness: 300,
-                        ...(isTimeRunningOut && index === 1 ? { repeat: Infinity, repeatType: "reverse", duration: 0.5 } : {})
-                      }}
-                    >
-                      {digit}
-                    </motion.div>
-                  ))}
+      <div className={`bg-white/70 backdrop-blur-sm rounded-lg ${
+        isRunningOut ? 'border border-red-500' : 'border border-[#f4c2a1]'
+      } px-4 py-2 shadow-md`}>
+        <div className="flex items-center gap-2">
+          <Clock size={20} className={`${isRunningOut ? "text-red-500" : "text-[#d56c4e]"}`} />
+          <div className="flex items-center">
+            {[
+              { value: formatTime(hours), separator: ":" },
+              { value: formatTime(minutes), separator: ":" },
+              { value: formatTime(secs), separator: "" }
+            ].map((unit, idx) => (
+              <div key={idx} className="flex items-center">
+                <div className={`${isRunningOut ? "bg-red-500" : "bg-[#d56c4e]"} text-white px-2.5 py-1.5 rounded text-xl font-mono font-medium`}>
+                  {unit.value}
                 </div>
-                {index < 2 && (
-                  <span className={`${isTimeRunningOut ? 'text-white' : 'text-[#d56c4e]'} font-bold text-2xl mx-2`}>:</span>
+                {unit.separator && (
+                  <span className="mx-0.5 text-gray-600 font-medium">{unit.separator}</span>
                 )}
-              </React.Fragment>
+              </div>
             ))}
           </div>
-        </motion.div>
+        </div>
       </div>
     );
   };
@@ -580,9 +551,6 @@ const TestPage = () => {
 
   return (
     <div className="relative flex h-screen bg-[#fcf9ea] overflow-hidden">
-      {/* Enhanced Timer */}
-      <EnhancedTimer seconds={timer} />
-
       {/* Sidebar */}
       <div className="w-1/5 bg-[#edead7] p-6 space-y-6 shadow-lg relative z-40">
         {/* Question Summary */}
@@ -624,7 +592,13 @@ const TestPage = () => {
       </div>
 
       {/* Main Content Area - Enhanced */}
-      <div className="w-4/5 flex flex-col relative pt-24">
+      <div className="w-4/5 flex flex-col">
+        <div className="flex justify-between items-center px-8 py-4 bg-[#fbf8e9] backdrop-blur-sm border-b border-[#e2c3ae]">
+          <h1 className="text-2xl font-bold text-[#d56c4e]">
+            {state.testDetails?.title || 'Test'}
+          </h1>
+          <TestTimer seconds={timer} />
+        </div>
         <div className="flex-grow p-8 overflow-y-auto">
           <AnimatePresence mode="wait">
             <motion.div
