@@ -1,9 +1,9 @@
 'use client';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Calendar, Clock, FileText, Code, Edit3, CheckCircle, Download, Award, Zap, BookOpen } from 'lucide-react';
+import { ArrowLeft, Calendar, Clock, FileText, Code, Edit3, CheckCircle, Award } from 'lucide-react';
 import { useParams } from 'next/navigation';
-import { getSubmissionByTestId, getSubmissionsForStudent } from '@/utils/test';
+import { getSubmissionByTestId } from '@/utils/test';
 import { UserDropdown } from '@/components/dashboard/UserDropdown';
 import { motion } from 'framer-motion';
 
@@ -89,18 +89,9 @@ export default function TestDetailPage() {
           transition={{ duration: 0.2 }}
           src={fileUrl} 
           alt="Handwritten answer" 
-          className="max-w-full h-auto rounded-md hover:shadow-lg transition-all"
+          className="max-w-[500px] h-auto rounded-md hover:shadow-lg transition-all"
         />
       </div>
-      <a 
-        href={fileUrl} 
-        target="_blank" 
-        rel="noopener noreferrer" 
-        className="flex items-center text-blue-600 mt-3 hover:text-blue-800 transition-colors group"
-      >
-        <Download size={16} className="mr-1 group-hover:animate-bounce" />
-        View full size
-      </a>
     </motion.div>
   );
 
@@ -161,7 +152,7 @@ export default function TestDetailPage() {
       codeAnswer: answer.codeAnswer || '',
       fileUrl: answer.fileUrl || '',
       feedback: answer.feedback || 'No feedback provided',
-      codingLanguage: question.codingLanguage || 'javascript'
+      codingLanguage: question.codingLanguage || 'python3'
     };
   });
 
@@ -281,7 +272,7 @@ export default function TestDetailPage() {
               <div className="flex mb-2 items-center justify-between">
                 <div>
                   <span className="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-white bg-[#dd7a5f]">
-                    Your Progress
+                    Your Score
                   </span>
                 </div>
                 <div className="text-right">

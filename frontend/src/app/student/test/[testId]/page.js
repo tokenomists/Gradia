@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useEffect, useReducer, useCallback, useMemo } from 'react';
-import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CheckCircle } from 'lucide-react';
 import { cn } from "@/lib/utils";
@@ -271,6 +270,8 @@ const QuestionSummary = ({ questions }) => {
   );
 };
 
+const MAX_FILE_SIZE = 2 * 1024 * 1024;
+
 const TestPage = () => {
   const [state, dispatch] = useReducer(testReducer, initialState);
   const { questions, currentQuestionIndex, timer, submitted } = state;
@@ -350,7 +351,13 @@ const TestPage = () => {
   // Image Upload Handler
   const handleImageUpload = (e) => {
     const files = Array.from(e.target.files);
+    
     files.forEach(file => {
+      if (file.size > MAX_FILE_SIZE) {
+        alert(`File ${file.name} is too large. Maximum size is 2MB`);
+        return;
+      }
+  
       const reader = new FileReader();
       reader.onloadend = () => {
         dispatch({
@@ -361,8 +368,13 @@ const TestPage = () => {
           }
         });
       };
+      reader.onerror = () => {
+        alert(`Error reading file ${file.name}`);
+      };
       reader.readAsDataURL(file);
     });
+    
+    e.target.value = '';
   };
 
   // Render Question Components
@@ -437,7 +449,6 @@ const TestPage = () => {
               <input 
                 type="file" 
                 accept="image/*" 
-                multiple 
                 onChange={handleImageUpload}
                 className="hidden" 
                 id="image-upload"
@@ -453,13 +464,11 @@ const TestPage = () => {
             {currentQuestion.images.length > 0 && (
               <div className="grid grid-cols-3 gap-4">
                 {currentQuestion.images.map((image, index) => (
-                  <div key={index} className="relative">
-                    <Image 
+                  <div key={index} className="relative group">
+                    <img 
                       src={image} 
                       alt={`Uploaded solution ${index + 1}`}
-                      width={"100%"}
-                      height={"100%"}
-                      className="w-full h-48 object-cover rounded-lg"
+                      className="w-full h-48 object-cover rounded-lg border-2 border-[#e2c3ae]"
                     />
                     <button
                       onClick={() => dispatch({
@@ -469,7 +478,7 @@ const TestPage = () => {
                           index 
                         }
                       })}
-                      className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full"
+                      className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
                     >
                       <X className="w-4 h-4" />
                     </button>
