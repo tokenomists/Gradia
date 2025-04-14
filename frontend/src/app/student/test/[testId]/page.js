@@ -398,6 +398,11 @@ const TestPage = () => {
         case 'coding':
           return (
             <div className="space-y-4">
+              <div className="bg-blue-50 border-l-4 border-blue-400 p-3 rounded-r-md mb-4">
+                <p className="text-sm text-blue-700">
+                  Note: Your function must be named <code className="bg-blue-100 px-1 rounded">solution</code> and should return the answer
+                </p>
+              </div>
               <CodeEditor
                 value={currentQuestion.answer || ''}
                 onChange={(value) => dispatch({
@@ -445,6 +450,11 @@ const TestPage = () => {
       case 'handwritten':
         return (
           <div className="space-y-4">
+            <div className="bg-blue-50 border-l-4 border-blue-400 p-3 rounded-r-md mb-4">
+              <p className="text-sm text-blue-700">
+                Note: Please upload only one image. If multiple images are uploaded, only the first one will be considered for grading.
+              </p>
+            </div>
             <div className="border-2 border-dashed border-[#e2c3ae] rounded-lg p-4 text-center">
               <input 
                 type="file" 
@@ -468,7 +478,7 @@ const TestPage = () => {
                     <img 
                       src={image} 
                       alt={`Uploaded solution ${index + 1}`}
-                      className="w-full h-48 object-cover rounded-lg border-2 border-[#e2c3ae]"
+                      className="w-full h-full object-cover rounded-lg border-2 border-[#e2c3ae]"
                     />
                     <button
                       onClick={() => dispatch({
