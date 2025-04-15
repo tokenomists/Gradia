@@ -1,5 +1,7 @@
 import axios from "axios";
 import jwt from 'jsonwebtoken';
+import FormData from "form-data";
+import { Buffer } from "buffer";
 import Test from "../models/Test.js";
 import Class from "../models/Class.js";
 import Student from "../models/Student.js";
@@ -84,6 +86,56 @@ export const gradeSubmission = async (submissionId) => {
         feedback = `${passed_test_cases}/${total_test_cases} test cases passed.`;
       } catch (err) {
         console.error(`Grading failed for coding question ${ans.questionId}:`, err.message);
+      }
+    }
+
+    else if (question.type === "handwritten") {
+      try {
+        const base64Data = ans.fileUrl.split(",")[1]; 
+        const imageBuffer = Buffer.from(base64Data, "base64");
+
+        const formData = new FormData();
+        formData.append("file", imageBuffer, {
+          filename: "handwritten.jpg",
+          contentType: "image/jpeg",
+        });
+
+        const ocrResponse = await axios.post(
+          `${process.env.GRADIA_PYTHON_BACKEND_URL}/handwritten-ocr`,
+          formData,
+          {
+            headers: {
+              ...formData.getHeaders(),
+              "x-api-key": process.env.GRADIA_API_KEY,
+            },
+          }
+        );
+
+        const extractedText = ocrResponse.data.extracted_text;
+
+        const gradingPayload = {
+          question: question.questionText,
+          student_answer: extractedText,
+          max_mark: question.maxMarks,
+          rubric: question.rubric ?? null,
+          bucket_name: classId,
+        };
+
+        const gradingResponse = await axios.post(
+          `${process.env.GRADIA_PYTHON_BACKEND_URL}/grade`,
+          gradingPayload,
+          {
+            headers: {
+              "x-api-key": process.env.GRADIA_API_KEY,
+            },
+          }
+        );
+
+        const { grade, feedback: fb, reference } = gradingResponse.data;
+        score = grade;
+        feedback = `${fb}${reference ? ` \nReference: ${reference}` : ""}`;
+      } catch (err) {
+        console.error(`Grading failed for handwritten question ${ans.questionId}:`, err.message);
       }
     }
 
@@ -226,7 +278,6 @@ export const submitTest = async (req, res) => {
   } catch (error) {
     console.error("Error submitting test:", error);
     res.status(500).json({ message: "Server error", error: error.message });
-
   }
 };
 

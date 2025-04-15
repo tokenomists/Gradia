@@ -6,7 +6,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter, useParams } from 'next/navigation';
 import { UserDropdown } from '@/components/dashboard/UserDropdown.jsx';
-import { Copy, Check, Trash, Upload, ArrowLeft, File, Loader2 } from "lucide-react";
+import { Copy, Check, Trash, Upload, ArrowLeft, File, Loader2, X } from "lucide-react";
 import axios from 'axios';
 
 export default function ClassPage() {
@@ -21,6 +21,7 @@ export default function ClassPage() {
   const [deleteStatus, setDeleteStatus] = useState({ isDeleting: false, fileName: null });
   const [uploading, setUploading] = useState(false);
   const [uploadSuccess, setUploadSuccess] = useState(false);
+  const [uploadError, setUploadError] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
   
   useEffect(() => {
@@ -110,6 +111,7 @@ export default function ClassPage() {
     try {
       setUploading(true);
       setUploadSuccess(false);
+      setUploadError(false);
 
       const res = await axios.post( `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/classes/upload-class-material`, formData, {
         headers: {
@@ -118,12 +120,18 @@ export default function ClassPage() {
         withCredentials: true,
       });
 
-      await fetchClassMaterials();
-      setUploadSuccess(true);
-      setTimeout(() => setUploadSuccess(false), 2000);
+      if (res.data.success) {
+        await fetchClassMaterials();
+        setUploadSuccess(true);
+        setTimeout(() => setUploadSuccess(false), 2000);
+      } else {
+        throw new Error(res.data.message || "Upload failed!");
+      }
+
     } catch (err) {
       console.error(err);
-      alert('Upload failed');
+      setUploadError(true);
+      setTimeout(() => setUploadError(false), 5000);
     } finally {
       setUploading(false);
     }
@@ -340,13 +348,14 @@ export default function ClassPage() {
                 {uploading ? (
                   <Loader2 size={18} className="animate-spin text-black" />
                 ) : uploadSuccess ? (
-                  <Check size={18} className="text-green-800" />
+                  <Check size={18} className="text-green-700" />
+                ) : uploadError ? (
+                  <X size={18} className="text-red-700" />
                 ) : (
                   <Upload size={18} className="text-gray-800" />
                 )}
-
                 <span>
-                  {uploading ? 'Uploading...' : uploadSuccess ? 'Uploaded!' : 'Upload PDF'}
+                  {uploading ? "Uploading..." : uploadSuccess ? "Uploaded!" : uploadError ? "Upload Failed!" : "Upload PDF"}
                 </span>
               </label>
               <input 

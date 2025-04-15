@@ -681,17 +681,23 @@ export default function LandingPage() {
                     <h3 className="text-xl font-bold text-white mb-2">{demo.title}</h3>
                     <p className="text-white/80">{demo.description}</p>
                     
-                    <motion.button
-                      variants={{
-                        rest: { opacity: 0, y: 10 },
-                        hover: { opacity: 1, y: 0 },
-                      }}
-                      transition={{ duration: 0.3, delay: 0.1 }}
-                      className={`mt-4 px-4 py-2 rounded-full ${darkMode ? "bg-[#ff8f6e]" : "bg-[#d56c4e]"} text-white text-sm font-medium flex items-center space-x-1`}
+                    <a
+                      href="https://youtu.be/4ia0UlskKhs"
+                      target="_blank"
+                      rel="noopener noreferrer"
                     >
-                      <span>Watch Demo</span>
-                      <ArrowRight size={14} />
-                    </motion.button>
+                      <motion.button
+                        variants={{
+                          rest: { opacity: 0, y: 10 },
+                          hover: { opacity: 1, y: 0 },
+                        }}
+                        transition={{ duration: 0.3, delay: 0.1 }}
+                        className={`mt-4 px-4 py-2 rounded-full ${darkMode ? "bg-[#d56c4e]" : "bg-[#d56c4e]"} text-white text-sm font-medium flex items-center space-x-1`}
+                      >
+                        <span>Watch Demo</span>
+                        <ArrowRight size={14} />
+                      </motion.button>
+                    </a>
                   </motion.div>
                 </motion.div>
               ))}
