@@ -233,20 +233,27 @@ export const getClassDetails = async (req, res) => {
 };
 
 export const uploadFilesToGCS = async (files, bucketName) => {
+  const failedUploads = [];
+
   for (const file of files) {
     const formData = new FormData();
     formData.append("file", fs.createReadStream(file.path));
     formData.append("bucket_name", bucketName);
 
     try {
-      await axios.post(`${process.env.GRADIA_PYTHON_BACKEND_URL}/upload-gcs-file`, formData, {
+      const response = await axios.post(`${process.env.GRADIA_PYTHON_BACKEND_URL}/upload-gcs-file`, formData, {
         headers: {
           "x-api-key": process.env.GRADIA_API_KEY,
           ...formData.getHeaders(),
         },
       });
+
+      if (!response.data.success) {
+        console.error(`Failed to upload ${file.originalname}`);
+      }
     } catch (uploadErr) {
       console.error(`Failed to upload ${file.originalname} to GCS:`, uploadErr.message);
+      failedUploads.push(file.originalname);
     } finally {
       try {
         fs.unlinkSync(file.path);
@@ -267,6 +274,10 @@ export const uploadFilesToGCS = async (files, bucketName) => {
     if (err.code !== 'ENOENT') {
       console.error("Error cleaning uploads dir:", err.message);
     }
+  }
+
+  if (failedUploads.length > 0) {
+    throw new Error(`Failed to upload: ${failedUploads.join(', ')}`);
   }
 };
 
@@ -322,7 +333,7 @@ export const uploadClassMaterial = async (req, res) => {
     return res.status(200).json({ success: true, message: "Files uploaded successfully" });
   } catch (err) {
     console.error("Upload failed:", err.message);
-    return res.status(500).json({ success: false, message: "Upload failed" });
+    return res.status(500).json({ success: false, message: err.message });
   }
 };
 
