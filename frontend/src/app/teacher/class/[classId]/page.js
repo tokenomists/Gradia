@@ -133,7 +133,7 @@ export default function ClassPage() {
     } catch (err) {
       console.error(err);
       setUploadError(true);
-      setTimeout(() => setUploadError(false), 2000);
+      setTimeout(() => setUploadError(false), 5000);
     } finally {
       setUploading(false);
     }
