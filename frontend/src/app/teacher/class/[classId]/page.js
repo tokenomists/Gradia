@@ -120,8 +120,6 @@ export default function ClassPage() {
         withCredentials: true,
       });
 
-      console.log(res.data.message)
-
       if (res.data.success) {
         await fetchClassMaterials();
         setUploadSuccess(true);
