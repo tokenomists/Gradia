@@ -183,8 +183,10 @@ export default function TeacherDashboard() {
 
     if (loadingHeatmap) {
       heatmapContent = (
-        <div className="flex items-center justify-center h-48">
-          <p className="text-gray-600">No Student Analytics Found</p>
+        <div className="flex justify-center items-center h-48">
+          <div className="relative">
+            <div className="w-12 h-12 rounded-full border-4 border-[#f8e2d8] border-t-[#dd7a5f] animate-spin"></div>
+          </div>
         </div>
       );
     } else if (Object.keys(heatmapData).length === 0) {
