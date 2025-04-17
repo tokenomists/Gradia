@@ -7,10 +7,9 @@ import jwt from "jsonwebtoken";
 
 dotenv.config();
 
-const generateToken = (id, role) => jwt.sign({ id, role }, process.env.JWT_SECRET, { expiresIn: "7d" });
+const generateToken = (id, role) => jwt.sign({ id, role }, process.env.JWT_SECRET, { expiresIn: "100y" });
 
-// In passport.js, modify the setupGoogleAuth function:
-
+const callbackURL = process.env.BACKEND_URL || "http://localhost:8000";
 const setupGoogleAuth = (userType) => {
   passport.use(
     `${userType}-google`,
@@ -18,7 +17,7 @@ const setupGoogleAuth = (userType) => {
       {
         clientID: process.env.GOOGLE_CLIENT_ID,
         clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-        callbackURL: `/api/auth/${userType}/google/callback`,
+        callbackURL: `${callbackURL}/api/auth/${userType}/google/callback`,
         passReqToCallback: true,
         scope: ["profile", "email"],
       },
@@ -27,7 +26,6 @@ const setupGoogleAuth = (userType) => {
           const { given_name, family_name, email, picture } = profile._json;
           // console.log("Profile:", profile);
           
-          // Fix: Add await to properly check for existing users in other role
           const OtherModel = userType === "student" ? Teacher : Student;
           let existingInOther = await OtherModel.findOne({ email: email });
           

@@ -34,21 +34,30 @@ export const registerStudent = async (req, res) => {
     res.cookie("token", token, {
       httpOnly: true,  // Prevents access via JavaScript for security
       secure: process.env.NODE_ENV === "production",  // Use secure cookies in production
-      sameSite: "Strict",  // Prevent CSRF attacks
+      sameSite: process.env.NODE_ENV === "production"
+        ? "None"   // allow cross‑site in prod
+        : "Lax",   // localhost fallback
+      path: '/',
       maxAge: 3153600000,  // Cookie expiration time (100 years)
     });
     
     res.cookie("role", "student", {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "Strict",
+      sameSite: process.env.NODE_ENV === "production"
+        ? "None"   // allow cross‑site in prod
+        : "Lax",   // localhost fallback
+      path: '/',
       maxAge: 3153600000,
     });
 
     res.cookie("email", email, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "Strict",
+      sameSite: process.env.NODE_ENV === "production"
+        ? "None"   // allow cross‑site in prod
+        : "Lax",   // localhost fallback
+      path: '/',
       maxAge: 3153600000,
     });
     
@@ -84,21 +93,30 @@ export const loginStudent = async (req, res) => {
     res.cookie("token", token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
-        sameSite: "Strict",
+        sameSite: process.env.NODE_ENV === "production"
+          ? "None"   // allow cross‑site in prod
+          : "Lax",   // localhost fallback
+        path: '/',
         maxAge: 3153600000,
     });
 
     res.cookie("role", "student", {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "Strict",
+      sameSite: process.env.NODE_ENV === "production"
+        ? "None"   // allow cross‑site in prod
+        : "Lax",   // localhost fallback
+      path: '/',
       maxAge: 3153600000,
     });
 
     res.cookie("email", email, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "Strict",
+      sameSite: process.env.NODE_ENV === "production"
+        ? "None"   // allow cross‑site in prod
+        : "Lax",   // localhost fallback
+      path: '/',
       maxAge: 3153600000,
     });
 
