@@ -234,6 +234,16 @@ export default function StudentDashboard() {
       .sort((a, b) => a.date - b.date);
   };
 
+  const getUpcomingTestForClass = (classId) => {
+    if (!testData.upcomingTests || testData.upcomingTests.length === 0) {
+      return null;
+    }
+    const classTests = testData.upcomingTests
+      .filter(test => test.classAssignment === classId)
+      .sort((a, b) => new Date(a.startTime) - new Date(b.startTime));
+    return classTests[0];
+  };
+
   return (
     <div className="min-h-screen bg-[#fcf9ea]">
       {/* Navbar */}
@@ -407,30 +417,35 @@ export default function StudentDashboard() {
             {/* Classes grid container */}
             <div className="grid md:grid-cols-4 gap-4">
               {user.classes != undefined && user.classes.length > 0 ? (
-                user.classes.map((classItem) => (
-                  <motion.div 
-                    key={classItem._id}
-                    variants={itemVariants}
-                    whileHover={{ 
-                      y: -5, 
-                      boxShadow: "0px 10px 20px rgba(0, 0, 0, 0.1)",
-                      transition: { type: "spring", stiffness: 300, damping: 15 }
-                    }}
-                    className="bg-[#ebd5c1] rounded-xl p-4 shadow-sm border-l-4 border-[#d56c4e] transition-all duration-300 hover:shadow-md"
-                  >
-                    <h4 className="font-semibold text-gray-800">{classItem.name}</h4>
-                    <div className="flex items-center mt-3 text-xs text-gray-500">
-                      <Calendar size={14} className="mr-1" />
-                      <span>Next: {classItem.nextClass || "No Upcoming Tests!"}</span>
-                    </div>
+                user.classes.map((classItem) => {
+                  const nextTest = getUpcomingTestForClass(classItem._id);
+                  return (
+                    <motion.div 
+                      key={classItem._id}
+                      variants={itemVariants}
+                      whileHover={{ 
+                        y: -5, 
+                        boxShadow: "0px 10px 20px rgba(0, 0, 0, 0.1)",
+                        transition: { type: "spring", stiffness: 300, damping: 15 }
+                      }}
+                      className="bg-[#ebd5c1] rounded-xl p-4 shadow-sm border-l-4 border-[#d56c4e] transition-all duration-300 hover:shadow-md"
+                    >
+                      <h4 className="font-semibold text-gray-800">{classItem.name}</h4>
+                      <div className="flex items-center mt-3 text-xs text-gray-500">
+                        <Calendar size={14} className="mr-1" />
+                        <span>
+                          Next: {nextTest ? nextTest.title : "No Upcoming Tests!"}
+                        </span>
+                      </div>
                     {/* <button 
                       className="mt-3 flex items-center text-[#d56c4e] font-medium text-sm"
                     >
                       View class
                       <ChevronRight size={14} className="ml-1" />
                     </button> */}
-                  </motion.div>
-                ))
+                    </motion.div>
+                  );
+                })
               ) : (
                 <motion.div
                   variants={itemVariants}
