@@ -1,0 +1,11 @@
+steps:
+  - name: 'gcr.io/cloud-builders/docker'
+    args: [
+      'build',
+      '-t', 'gcr.io/gradia-454815/gradia-backend',
+      '.'
+    ]
+    dir: backend
+
+images:
+  - 'gcr.io/gradia-454815/gradia-backend'
