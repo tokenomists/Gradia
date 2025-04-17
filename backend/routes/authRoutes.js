@@ -45,22 +45,31 @@ router.get(
       res.cookie("token", token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
-        sameSite: "Strict",
-        maxAge: 3600000,
+        sameSite: process.env.NODE_ENV === "production"
+          ? "None"   // allow cross‑site in prod
+          : "Lax",   // localhost fallback
+        path: '/',
+        maxAge: 3153600000,
       });
 
       res.cookie("role", "student", {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
-        sameSite: "Strict",
-        maxAge: 3600000,
+        sameSite: process.env.NODE_ENV === "production"
+          ? "None"   // allow cross‑site in prod
+          : "Lax",   // localhost fallback
+        path: '/',
+        maxAge: 3153600000,
       });
 
       res.cookie("email", email, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
-        sameSite: "Strict",
-        maxAge: 3600000,
+        sameSite: process.env.NODE_ENV === "production"
+          ? "None"   // allow cross‑site in prod
+          : "Lax",   // localhost fallback
+        path: '/',
+        maxAge: 3153600000,
       });
 
       // Redirect to success page
@@ -99,29 +108,41 @@ router.get(
       res.cookie("token", token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
-        sameSite: "Strict",
-        maxAge: 3600000,
+        sameSite: process.env.NODE_ENV === "production"
+          ? "None"   // allow cross‑site in prod
+          : "Lax",   // localhost fallback
+        path: '/',
+        maxAge: 3153600000,
       });
 
       res.cookie("role", "teacher", {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
-        sameSite: "Strict",
-        maxAge: 3600000,
+        sameSite: process.env.NODE_ENV === "production"
+          ? "None"   // allow cross‑site in prod
+          : "Lax",   // localhost fallback
+        path: '/',
+        maxAge: 3153600000,
       });
 
       res.cookie("email", email, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
-        sameSite: "Strict",
-        maxAge: 3600000,
+        sameSite: process.env.NODE_ENV === "production"
+          ? "None"   // allow cross‑site in prod
+          : "Lax",   // localhost fallback
+        path: '/',
+        maxAge: 3153600000,
       });
 
       res.cookie("profilePicture", picture, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
-        sameSite: "Strict",
-        maxAge: 3600000,
+        sameSite: process.env.NODE_ENV === "production"
+          ? "None"   // allow cross‑site in prod
+          : "Lax",   // localhost fallback
+        path: '/',
+        maxAge: 3153600000,
       });
 
       // Redirect to success page
@@ -187,7 +208,10 @@ router.post("/logout", (req, res) => {
     res.clearCookie(cookie, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "Strict",
+      sameSite: process.env.NODE_ENV === "production"
+        ? "None"   // allow cross‑site in prod
+        : "Lax",   // localhost fallback
+      path: '/',
     });
   }
 

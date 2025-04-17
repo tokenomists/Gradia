@@ -16,14 +16,14 @@ const OAuthSuccess = () => {
     const token = searchParams.get('token');
 
     if (error && message) {
-      router.push(`/?error=${error}&message=${message}`);
+      window.location.href = `/?error=${error}&message=${message}`;
       return;
     }
 
     if (token) {
-      router.push('/');
+      window.location.href = `/`;
     } else {
-      router.push('/signin');
+      window.location.href = '/signin';
     }
   }, [searchParams, router, showError]);
 
