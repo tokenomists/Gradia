@@ -44,6 +44,7 @@ export default function TeacherDashboard() {
   const [classesData, setClassesData] = useState([]);
   const [heatmapData, setHeatmapData] = useState({});
   const [loadingHeatmap, setLoadingHeatmap] = useState(true);
+  const [loadingTests, setLoadingTests] = useState(true);
   const [greeting, setGreeting] = useState("Hello there");
 
   const router = useRouter();
@@ -68,10 +69,17 @@ export default function TeacherDashboard() {
     };
 
     const fetchTests = async () => {
-      let tests = await getTestsForTeacher();
-      if (tests) tests = tests.previousTests;
-      else tests = [];
-      setTestsData(tests);
+      setLoadingTests(true);
+      try {
+        let tests = await getTestsForTeacher();
+        if (tests) tests = tests.previousTests;
+        else tests = [];
+        setTestsData(tests);
+      } catch (error) {
+        console.error('Error fetching tests:', error);
+      } finally {
+        setLoadingTests(false);
+      }
     };
 
     const fetchClasses = async () => {
@@ -380,21 +388,27 @@ export default function TeacherDashboard() {
               className="flex space-x-4 overflow-x-auto pb-2 scrollbar-hide"
               style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
             >
-              {classesData.map((classItem) => (
-                <Link href={`/teacher/class/${classItem._id}`} key={classItem._id}>
-                  <motion.div
-                    whileHover={{ 
-                      scale: 1.005, 
-                      boxShadow: "0px 8px 20px rgba(0, 0, 0, 0.08)"
-                    }}
-                    className="bg-[#e2c3ae] rounded-lg p-3 min-w-[240px] w-[240px] cursor-pointer flex-shrink-0 border border-black"
-                  >
-                    <p className="text-lg font-bold text-gray-800 truncate">{classItem.name}</p>
-                    <h3 className="text-gray-700 text-sm">{classItem.classCode}</h3>
-                    <p className="text-gray-600 text-sm mt-2">{classItem.students.length} students</p>
-                  </motion.div>
-                </Link>
-              ))}
+              {classesData.length === 0 ? (
+                <div className="flex items-center justify-center w-full p-10">
+                  <p className="text-gray-700 font-medium text-lg">No Classes Found</p>
+                </div>
+              ) : (
+                classesData.map((classItem) => (
+                  <Link href={`/teacher/class/${classItem._id}`} key={classItem._id}>
+                    <motion.div
+                      whileHover={{ 
+                        scale: 1.005, 
+                        boxShadow: "0px 8px 20px rgba(0, 0, 0, 0.08)"
+                      }}
+                      className="bg-[#e2c3ae] rounded-lg p-3 min-w-[240px] w-[240px] cursor-pointer flex-shrink-0 border border-black"
+                    >
+                      <p className="text-lg font-bold text-gray-800 truncate">{classItem.name}</p>
+                      <h3 className="text-gray-700 text-sm">{classItem.classCode}</h3>
+                      <p className="text-gray-600 text-sm mt-2">{classItem.students.length} students</p>
+                    </motion.div>
+                  </Link>
+                ))
+              )}
             </div>
           </div>
         </motion.div>
@@ -427,32 +441,38 @@ export default function TeacherDashboard() {
             </motion.h3>
             
             <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2">
-              {displayedTests.map((test) => (
-                <div key={test._id} className="border-b border-gray-300 pb-2">
-                  <div className="flex justify-between items-start">
-                    <div 
-                      className="flex-1 cursor-pointer px-2 py-1 rounded-lg hover:bg-[#cccab8] transition-colors duration-200"
-                      onClick={() => router.push(`/teacher/tests/${test._id}`)}
-                    >
-                      <h3 className="text-lg font-bold text-gray-800">{test.title}</h3>
-                      <p className="text-gray-600 text-sm">{test.description}</p>
-                    </div>
-                    <motion.button
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      onClick={() => router.push(`/teacher/tests/edit/${test._id}`)}
-                      className="ml-4 p-2 bg-[#e2c3ae] hover:bg-[#d5b69d] rounded-md transition-colors duration-200"
-                    >
-                      <PenLine size={16} className="text-gray-600" />
-                    </motion.button>
+              {loadingTests ? (
+                <div className="flex justify-center items-center h-48">
+                  <div className="relative">
+                    <div className="w-12 h-12 rounded-full border-4 border-[#f8e2d8] border-t-[#dd7a5f] animate-spin"></div>
                   </div>
                 </div>
-              ))}
-
-              {displayedTests.length === 0 && (
-                <div className="text-center py-4">
-                  <p className="text-gray-600">No past tests available</p>
+              ) : displayedTests.length === 0 ? (
+                <div className="flex items-center justify-center h-48">
+                  <p className="text-gray-700 font-medium text-lg">No Past Tests Found</p>
                 </div>
+              ) : (
+                displayedTests.map((test) => (
+                  <div key={test._id} className="border-b border-gray-300 pb-2">
+                    <div className="flex justify-between items-start">
+                      <div 
+                        className="flex-1 cursor-pointer px-2 py-1 rounded-lg hover:bg-[#cccab8] transition-colors duration-200"
+                        onClick={() => router.push(`/teacher/tests/${test._id}`)}
+                      >
+                        <h3 className="text-lg font-bold text-gray-800">{test.title}</h3>
+                        <p className="text-gray-600 text-sm">{test.description}</p>
+                      </div>
+                      <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => router.push(`/teacher/tests/edit/${test._id}`)}
+                        className="ml-4 p-2 bg-[#e2c3ae] hover:bg-[#d5b69d] rounded-md transition-colors duration-200"
+                      >
+                        <PenLine size={16} className="text-gray-600" />
+                      </motion.button>
+                    </div>
+                  </div>
+                ))
               )}
             </div>
           </motion.div>
