@@ -1,6 +1,9 @@
 import os
 import time
 import requests
+from dotenv import load_dotenv
+
+load_dotenv()
 
 JUDGE0_API_KEY = os.getenv("JUDGE0_API_KEY")
 
