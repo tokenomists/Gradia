@@ -8,10 +8,12 @@ import { useRouter, useParams } from 'next/navigation';
 import { UserDropdown } from '@/components/dashboard/UserDropdown.jsx';
 import { Copy, Check, Trash, Upload, ArrowLeft, File, Loader2, X } from "lucide-react";
 import axios from 'axios';
+import { useError } from '@/contexts/ErrorContext';
 
 export default function ClassPage() {
   const router = useRouter();
   const params = useParams();
+  const { showError } = useError();
   const classId = params.classId;
   
   const [classDetails, setClassDetails] = useState(null);
@@ -107,6 +109,18 @@ export default function ClassPage() {
   const handleFileUpload = async (e) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
+
+    const MAX_FILE_SIZE = 30 * 1024 * 1024;
+  
+    for (let file of files) {
+      if (file.size > MAX_FILE_SIZE) {
+        setUploadError(true);
+        showError(`File is too large. Maximum file size is 30MB.`);
+        e.target.value = '';
+        setTimeout(() => setUploadError(false), 5000);
+        return;
+      }
+    }
 
     const formData = new FormData();
     for (let file of files) {
@@ -369,6 +383,7 @@ export default function ClassPage() {
                 type="file" 
                 accept="application/pdf" 
                 className="hidden" 
+                multiple
                 onChange={handleFileUpload}
               />
             </div>

@@ -64,7 +64,6 @@ export const UserDropdown = () => {
 
   const menuItems = [
     { icon: <User size={16} />, label: "Profile", action: () => console.log("Profile clicked") },
-    { icon: <Settings size={16} />, label: "Settings", action: () => console.log("Settings clicked") },
     { icon: <LogOut size={16} />, label: "Logout", action: handleLogout },
   ];
 

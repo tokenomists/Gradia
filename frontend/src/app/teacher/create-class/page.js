@@ -25,7 +25,6 @@ export default function CreateClass() {
   const router = useRouter();
   const { showError } = useError();
   
-  // Check if user is a teacher
   useEffect(() => {
     const checkAuth = async () => {
       try {
@@ -89,45 +88,46 @@ export default function CreateClass() {
   //   }
   // };
   
-  // Handle PDF file uploads
   const handlePdfUpload = (event) => {
     const files = Array.from(event.target.files);
     
-    // Validate file types (PDF only)
     const invalidFiles = files.filter(file => file.type !== 'application/pdf');
     if (invalidFiles.length > 0) {
       showError('Only PDF files are allowed');
       return;
     }
+
+    const MAX_FILE_SIZE = 30 * 1024 * 1024;
+    const oversizedFiles = files.filter(file => file.size > MAX_FILE_SIZE);
     
-    // Add new files to the existing list
+    if (oversizedFiles.length > 0) {
+      showError(`File is too large. Maximum file size is 30MB.`);
+      event.target.value = '';
+      return;
+    }
+    
     setClassFiles([...classFiles, ...files]);
   };
   
-  // Handle removing a PDF file
   const handleRemoveFile = (fileName) => {
     setClassFiles(classFiles.filter(file => file.name !== fileName));
   };
   
-  // Handle copy class code to clipboard
   const handleCopyCode = () => {
     navigator.clipboard.writeText(classCode);
     setCodeCopied(true);
     setTimeout(() => setCodeCopied(false), 2000);
   };
   
-  // Format file size for display
   const formatFileSize = (bytes) => {
     if (bytes < 1024) return bytes + ' B';
     else if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
     else return (bytes / 1048576).toFixed(1) + ' MB';
   };
   
-  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Check if class name is provided
     if (!className || className.trim() === '') {
       showError('Class name is required');
       return;
