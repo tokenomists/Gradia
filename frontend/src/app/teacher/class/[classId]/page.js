@@ -18,6 +18,7 @@ export default function ClassPage() {
   const [classFiles, setClassFiles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [deleteConfirmation, setDeleteConfirmation] = useState({ isOpen: false, fileName: null });
   const [deleteStatus, setDeleteStatus] = useState({ isDeleting: false, fileName: null });
   const [uploading, setUploading] = useState(false);
   const [uploadSuccess, setUploadSuccess] = useState(false);
@@ -73,10 +74,15 @@ export default function ClassPage() {
   useEffect(() => {
     fetchClassMaterials();
   }, [classId, fetchClassMaterials]);
+
+  const handleDeleteConfirmation = (fileName) => {
+    setDeleteConfirmation({ isOpen: true, fileName });
+  }; 
   
   const handleDeleteFile = async (fileName) => {
     try {
       setDeleteStatus({ isDeleting: true, fileName });
+      setDeleteConfirmation({ isOpen: false, fileName: null });
   
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/classes/delete-class-material`,
@@ -364,7 +370,6 @@ export default function ClassPage() {
                 accept="application/pdf" 
                 className="hidden" 
                 onChange={handleFileUpload}
-                multiple 
               />
             </div>
                    
@@ -381,7 +386,7 @@ export default function ClassPage() {
                       <span className="truncate max-w-xs">{fileName}</span>
                     </div>
                     <button 
-                      onClick={() => handleDeleteFile(fileName)}
+                      onClick={() => handleDeleteConfirmation(fileName)}
                       disabled={deleteStatus.isDeleting && deleteStatus.fileName === fileName}
                       className="text-gray-500 hover:text-red-500"
                     >
@@ -398,6 +403,31 @@ export default function ClassPage() {
           </div>
         </div>
       </div>
+
+      {deleteConfirmation.isOpen && (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+        <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-md mx-4 animate-fade-in">
+          <h3 className="text-xl font-bold text-gray-800 mb-4">Confirm Deletion</h3>
+          <p className="text-gray-600 mb-6">
+            Are you sure you want to delete <span className="font-medium text-red-600">{deleteConfirmation.fileName}</span>? This action cannot be undone.
+          </p>
+          <div className="flex justify-end gap-3">
+            <button
+              onClick={() => setDeleteConfirmation({ isOpen: false, fileName: null })}
+              className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors duration-200"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={() => handleDeleteFile(deleteConfirmation.fileName)}
+              className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition-all duration-200"
+            >
+              Delete
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
     </div>
   );
 }
