@@ -3,14 +3,17 @@ import json
 import tempfile
 import secrets
 
-from flask import Flask, request, jsonify
 from functools import wraps
+from dotenv import load_dotenv
+from flask import Flask, request, jsonify
 from utils import list_pdfs_in_gcs, extract_text_from_pdf, download_pdf_from_gcs, upload_file_to_gcs, delete_file_from_gcs, create_gcs_bucket, delete_gcs_bucket
 from grading import grade_answer, create_vector_db, retrieve_relevant_text
 from handwritten_ocr import detect_handwritten_text
 from code_evaluator import submit_code, get_supported_languages, CodeSubmissionError
 
 app = Flask(__name__)
+
+load_dotenv()
 
 GRADIA_API_KEY = os.getenv("GRADIA_API_KEY")
 

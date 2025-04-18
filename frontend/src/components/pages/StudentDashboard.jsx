@@ -449,7 +449,7 @@ export default function StudentDashboard() {
               ) : (
                 <motion.div
                   variants={itemVariants}
-                  className="bg-[#eeead7] rounded-xl p-2 w-full text-center md:col-span-3"
+                  className="bg-[#eeead7] rounded-xl p-2 w-full text-center md:col-span-4"
                 >
                   <p className="text-gray-600 text-lg">No classes joined yet</p>
                   <p className="text-gray-500 text-sm mt-2">Join a class to get started!</p>
@@ -513,9 +513,10 @@ export default function StudentDashboard() {
               ) : (
                 <motion.div
                   variants={itemVariants}
-                  className="text-center py-4"
+                  className="flex flex-col items-center justify-center h-60"
                 >
-                  <p className="text-gray-600">No past tests available</p>
+                  <p className="text-gray-700 text-lg">No past tests available</p>
+                  <p className="text-gray-500 text-sm mt-2">Take a test to see it here!</p>
                 </motion.div>
               )}
             </div>
