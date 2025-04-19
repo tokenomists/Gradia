@@ -15,6 +15,7 @@ app = Flask(__name__)
 
 load_dotenv()
 
+PORT = os.getenv("PORT")
 GRADIA_API_KEY = os.getenv("GRADIA_API_KEY")
 
 def require_api_key(f):
@@ -199,4 +200,4 @@ def submit_code_endpoint():
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8080)
+    app.run(host="0.0.0.0", port=PORT)
