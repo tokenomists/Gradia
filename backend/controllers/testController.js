@@ -36,7 +36,7 @@ export const gradeSubmission = async (submissionId) => {
         };
 
         const response = await axios.post(
-          `${process.env.GRADIA_PYTHON_BACKEND_URL}/grade`,
+          `${process.env.GRADIA_PYTHON_BACKEND_URL}/api/grading/grade`,
           gradingPayload,
           {
             headers: {
@@ -70,7 +70,7 @@ export const gradeSubmission = async (submissionId) => {
         };
 
         const response = await axios.post(
-          `${process.env.GRADIA_PYTHON_BACKEND_URL}/submit-code`,
+          `${process.env.GRADIA_PYTHON_BACKEND_URL}/api/code-eval/submit`,
           codingPayload,
           {
             headers: {
@@ -101,7 +101,7 @@ export const gradeSubmission = async (submissionId) => {
         });
 
         const ocrResponse = await axios.post(
-          `${process.env.GRADIA_PYTHON_BACKEND_URL}/handwritten-ocr`,
+          `${process.env.GRADIA_PYTHON_BACKEND_URL}/api/ocr/extract-text`,
           formData,
           {
             headers: {
@@ -122,7 +122,7 @@ export const gradeSubmission = async (submissionId) => {
         };
 
         const gradingResponse = await axios.post(
-          `${process.env.GRADIA_PYTHON_BACKEND_URL}/grade`,
+          `${process.env.GRADIA_PYTHON_BACKEND_URL}/api/grading/grade`,
           gradingPayload,
           {
             headers: {
