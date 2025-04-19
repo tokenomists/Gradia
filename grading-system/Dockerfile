@@ -9,4 +9,4 @@ RUN python -c "from sentence_transformers import SentenceTransformer; SentenceTr
 COPY . .
 
 EXPOSE 8080
-CMD ["python", "app.py"]
+CMD ["python", "run.py"]

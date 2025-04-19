@@ -1,11 +1,10 @@
 import os
+import fitz
 import json
 import numpy as np
 from google import genai
-from dotenv import load_dotenv
 from sentence_transformers import SentenceTransformer
-
-load_dotenv()
+from app.services.gcs_service import list_pdfs, download_pdf
 
 client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 model = SentenceTransformer("all-MiniLM-L6-v2")
@@ -23,13 +22,31 @@ def retrieve_relevant_text(query, embeddings, text_chunks, k=3):
     top_k_indices = np.argsort(similarities)[-k:][::-1]
     return [text_chunks[i] for i in top_k_indices]
 
-def grade_answer(question, student_answer, max_mark, retrieved_text, rubrics=None):
+def extract_text_from_pdf(path):
+    text = ''
+    doc = fitz.open(path)
+    for page in doc:
+        text += page.get_text('text') + '\n'
+    return text
+
+def grade_answer(question, student_answer, max_mark, bucket_name, rubrics=None):
     if not student_answer.strip():
         return {
             "grade": 0,
             "feedback": "No answer was provided by the student.",
             "reference": "N/A"
         }
+    
+    pdf_files = list_pdfs(bucket_name)
+    all_text_chunks = []
+    for pdf_file in pdf_files:
+        pdf_path = download_pdf(bucket_name, pdf_file)
+        pdf_text = extract_text_from_pdf(pdf_path)
+        text_chunks = [pdf_text[i:i + 500] for i in range(0, len(pdf_text), 500)]
+        all_text_chunks.extend(text_chunks)
+
+    embeddings, stored_chunks = create_vector_db(all_text_chunks)
+    retrieved_text = retrieve_relevant_text(question, embeddings, stored_chunks)
 
     prompt = f"""
     You are an AI grader. Evaluate the student's answer STRICTLY based on correctness, completeness and understanding of concepts.

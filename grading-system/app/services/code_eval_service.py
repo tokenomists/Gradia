@@ -1,11 +1,14 @@
 import os
 import time
 import requests
-from dotenv import load_dotenv
-
-load_dotenv()
 
 JUDGE0_API_KEY = os.getenv("JUDGE0_API_KEY")
+
+HEADERS = {
+    'X-RapidAPI-Key': JUDGE0_API_KEY,
+    'X-RapidAPI-Host': 'judge0-ce.p.rapidapi.com',
+    'Content-Type': 'application/json'
+}
 
 LANGUAGE_CONFIGS = {
     'python3': {
@@ -50,13 +53,6 @@ def prepare_source_code(user_code, language):
     lang_config = LANGUAGE_CONFIGS[language]
     return lang_config['template'].format(user_code=user_code)
 
-def get_judge0_headers():
-    return {
-        'X-RapidAPI-Key': JUDGE0_API_KEY,
-        'X-RapidAPI-Host': 'judge0-ce.p.rapidapi.com',
-        'Content-Type': 'application/json'
-    }
-
 def submit_code_to_judge0(source_code, language_id, stdin=''):
     payload = {
         'source_code': source_code,
@@ -69,7 +65,8 @@ def submit_code_to_judge0(source_code, language_id, stdin=''):
         response = requests.post(
             "https://judge0-ce.p.rapidapi.com/submissions", 
             json=payload, 
-            headers=get_judge0_headers()
+            headers=HEADERS
+
         )
         response.raise_for_status()
         token = response.json().get('token')
@@ -83,7 +80,7 @@ def get_submission_result(token, timeout=30):
         try:
             response = requests.get(
                 f"https://judge0-ce.p.rapidapi.com/submissions/{token}", 
-                headers=get_judge0_headers()
+                headers=HEADERS
             )
             response.raise_for_status()
             result = response.json()
