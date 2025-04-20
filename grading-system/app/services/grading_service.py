@@ -149,7 +149,7 @@ def grade_code(question, student_code, max_mark):
     IMPORTANT: Respond ONLY in valid JSON format:
     {{
         "grade": A number from 0 to {max_mark},
-        "feedback": "Explain clearly what's good or wrong with the logic and structure and how can improvements be done",
+        "feedback": "4-5 lines of constructive feedback explaining clearly what's good or wrong with the logic and structure of the code and how they can improve it",
     }}
     """
 
