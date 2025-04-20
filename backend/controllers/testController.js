@@ -69,7 +69,7 @@ export const gradeSubmission = async (submissionId) => {
           test_cases,
         };
 
-        const response = await axios.post(
+        const testCaseResponse = await axios.post(
           `${process.env.GRADIA_PYTHON_BACKEND_URL}/api/code-eval/submit`,
           codingPayload,
           {
@@ -79,10 +79,10 @@ export const gradeSubmission = async (submissionId) => {
           }
         );
 
-        const { passed_test_cases, total_test_cases } = response.data;
+        const { passed_test_cases, total_test_cases } = testCaseResponse.data;
 
         const perTestMark = question.maxMarks / total_test_cases;
-        test_case_score = Math.round(perTestMark * passed_test_cases);
+        const testCaseScore = Math.round(perTestMark * passed_test_cases);
 
         const codeGradingPayload = {
           question: question.questionText,
@@ -103,13 +103,14 @@ export const gradeSubmission = async (submissionId) => {
         const { grade: codeScore, feedback: codeFeedback } = codeGradingResponse.data;
     
         if (passed_test_cases === total_test_cases) {
-          score = testCaseScore; 
+          score = testCaseScore;
         } else {
-          score = (testCaseScore / 2) + codeScore;
+          const halfScore = question.maxMarks / 2;
+          const scaledTestCaseScore = (testCaseScore / question.maxMarks) * halfScore;
+          score = Math.round(scaledTestCaseScore + codeScore);
         }
     
         feedback = `${passed_test_cases}/${total_test_cases} test cases passed. Code Feedback: ${codeFeedback}`;
-
       } catch (err) {
         console.error(`Grading failed for coding question ${ans.questionId}:`, err.message);
       }
