@@ -36,7 +36,7 @@ export const gradeSubmission = async (submissionId) => {
         };
 
         const response = await axios.post(
-          `${process.env.GRADIA_PYTHON_BACKEND_URL}/api/grading/grade`,
+          `${process.env.GRADIA_PYTHON_BACKEND_URL}/api/grading/grade-answer`,
           gradingPayload,
           {
             headers: {
@@ -82,8 +82,34 @@ export const gradeSubmission = async (submissionId) => {
         const { passed_test_cases, total_test_cases } = response.data;
 
         const perTestMark = question.maxMarks / total_test_cases;
-        score = Math.round(perTestMark * passed_test_cases);
-        feedback = `${passed_test_cases}/${total_test_cases} test cases passed.`;
+        test_case_score = Math.round(perTestMark * passed_test_cases);
+
+        const codeGradingPayload = {
+          question: question.questionText,
+          student_code: source_code,
+          max_mark: question.maxMarks / 2,
+        };
+    
+        const codeGradingResponse = await axios.post(
+          `${process.env.GRADIA_PYTHON_BACKEND_URL}/api/grading/grade-code`,
+          codeGradingPayload,
+          {
+            headers: {
+              "x-api-key": process.env.GRADIA_API_KEY,
+            },
+          }
+        );
+    
+        const { grade: codeScore, feedback: codeFeedback } = codeGradingResponse.data;
+    
+        if (passed_test_cases === total_test_cases) {
+          score = testCaseScore; 
+        } else {
+          score = (testCaseScore / 2) + codeScore;
+        }
+    
+        feedback = `${passed_test_cases}/${total_test_cases} test cases passed. Code Feedback: ${codeFeedback}`;
+
       } catch (err) {
         console.error(`Grading failed for coding question ${ans.questionId}:`, err.message);
       }
@@ -122,7 +148,7 @@ export const gradeSubmission = async (submissionId) => {
         };
 
         const gradingResponse = await axios.post(
-          `${process.env.GRADIA_PYTHON_BACKEND_URL}/api/grading/grade`,
+          `${process.env.GRADIA_PYTHON_BACKEND_URL}/api/grading/grade-answer`,
           gradingPayload,
           {
             headers: {

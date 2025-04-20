@@ -117,6 +117,62 @@ def grade_answer(question, student_answer, max_mark, bucket_name, rubrics=None):
 
     return {
         "grade": 0,
-        "feedback": "ERROR: System error while grading. Please try again.",
+        "feedback": "ERROR: System error while grading answer. Please try again.",
+        "reference": "N/A"
+    }
+
+def grade_code(question, student_code, max_mark):
+    if not student_code.strip():
+        return {
+            "grade": 0,
+            "feedback": "No valid code was provided by the student.",
+        }   
+    
+    prompt = f"""
+    You are an expert coding grader.
+
+    Grade the following student's solution STRICTLY based on logic and correctness (NOT test cases).
+    Assume test cases already gave partial marks — this is only for evaluating CODE STRUCTURE, LOGIC and APPROACH.
+
+    --- INSTRUCTIONS ---
+    - MAX MARK: {max_mark}
+    - Award full marks only for logically correct, optimized and readable code.
+    - Deduct marks if: wrong approach, unoptimized, missed edge cases, hardcoding, poor structure, etc.
+    - Do not reward working code if the logic is brute-force when better options exist.
+
+    --- QUESTION ---
+    {question}
+
+    --- STUDENT CODE ---
+    {student_code}
+
+    IMPORTANT: Respond ONLY in valid JSON format:
+    {{
+        "grade": A number from 0 to {max_mark},
+        "feedback": "Explain clearly what's good or wrong with the logic and structure and how can improvements be done",
+    }}
+    """
+
+    for _ in range(MAX_RETRIES):
+        response = client.models.generate_content(
+            model="gemini-2.5-pro-exp-03-25",
+            contents=[prompt]
+        )
+
+        try:
+            response_text = response.text.strip()
+            start_idx = response_text.find('{')
+            end_idx = response_text.rfind('}') + 1
+            if start_idx >= 0 and end_idx > start_idx:
+                json_str = response_text[start_idx:end_idx]
+                return json.loads(json_str)
+        except json.JSONDecodeError:
+            pass
+
+        time.sleep(0.5)
+
+    return {
+        "grade": 0,
+        "feedback": "ERROR: System error while grading code. Please try again.",
         "reference": "N/A"
     }
