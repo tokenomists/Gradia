@@ -1,4 +1,5 @@
 'use client';
+
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import axios from 'axios';
@@ -648,7 +649,7 @@ const updateTestCase = (questionIndex, testCaseIndex, field, value) => {
               
               <div className="mb-4">
               <select
-                value={question.codingLanguage || 'python'}
+                value={question.codingLanguage || 'python3'}
                 onChange={(e) => handleQuestionChange(questionIndex, 'codingLanguage', e.target.value)}
                 className="w-full p-3 border border-orange-300 rounded-md bg-white shadow-sm transition duration-200 focus:ring-2 focus:ring-orange-300 focus:border-orange-500"
               >
