@@ -73,6 +73,7 @@ Then, create a service account with the required permissions in IAM and download
     ```
 - In the `grading-system` directory, create a `.env` file with the following:
     ```plaintext
+    PORT=YOUR_PYTHON_BACKEND_PORT
     GEMINI_API_KEY="YOUR_GEMINI_API_KEY"
     GOOGLE_APPLICATION_CREDENTIALS="YOUR_GOOGLE_APPLICATION_CREDENTIALS"
     GOOGLE_CLOUD_PROJECT="YOUR_GCP_PROJECT_ID"
