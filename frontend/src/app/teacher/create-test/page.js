@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import axios from 'axios';
 import { UserDropdown } from '@/components/dashboard/UserDropdown';
 import { isAuthenticated } from '@/utils/auth.js';
 import { TestPublishConfirmationModal } from '@/components/teacher/create-test/TestPublishConfirmationModal';
@@ -27,6 +28,7 @@ export default function CreateTest() {
   const [userData, setUserData] = useState({isLoggedIn: false, role: ''});
   const [activeTab, setActiveTab] = useState('details');
   const [classes, setClasses] = useState([]);
+  const [supportedLanguages, setSupportedLanguages] = useState([]);
   const [isPublishModalOpen, setIsPublishModalOpen] = useState(false);
   const router = useRouter();
   const { showError } = useError();
@@ -59,7 +61,22 @@ export default function CreateTest() {
       fetchClasses();
     }
   }, [userData]);
-  
+
+  useEffect(() => {
+    const fetchSupportedLanguages = async () => {
+      try {
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/tests/get-languages`, {withCredentials: true});
+        const langs = await response.data;
+        const allLangs = ["Any Language", ...langs];
+        setSupportedLanguages(allLangs);
+      } catch (error) {
+        console.error('Error fetching languages:', error);
+        setSupportedLanguages(["Any Language"]);
+      }
+    };
+
+    fetchSupportedLanguages();
+  }, []);
 
   // Calculate duration when start and end times change
   // useEffect(() => {
@@ -515,7 +532,7 @@ const updateTestCase = (questionIndex, testCaseIndex, field, value) => {
                 </div>
                   
                   <div className="w-full md:w-1/2">
-                    <label className="block mb-1 font-medium">Class Assignment <span className="text-red-500">*</span></label>
+                    <label className="block mb-1 font-medium">Class Assigned <span className="text-red-500">*</span></label>
                     <select
                       name="classAssignment"
                       value={testData.classAssignment}
@@ -630,17 +647,17 @@ const updateTestCase = (questionIndex, testCaseIndex, field, value) => {
               </div>
               
               <div className="mb-4">
-                <select
-                  value={question.codingLanguage || 'python'}
-                  onChange={(e) => handleQuestionChange(questionIndex, 'codingLanguage', e.target.value)}
-                  className="w-full p-3 border border-orange-300 rounded-md bg-white shadow-sm transition duration-200 focus:ring-2 focus:ring-orange-300 focus:border-orange-500"
-                >
-                  <option value="python">Python</option>
-                  <option value="javascript">JavaScript</option>
-                  <option value="java">Java</option>
-                  <option value="cpp">C++</option>
-                  <option value="csharp">C#</option>
-                </select>
+              <select
+                value={question.codingLanguage || 'python'}
+                onChange={(e) => handleQuestionChange(questionIndex, 'codingLanguage', e.target.value)}
+                className="w-full p-3 border border-orange-300 rounded-md bg-white shadow-sm transition duration-200 focus:ring-2 focus:ring-orange-300 focus:border-orange-500"
+              >
+                {supportedLanguages.map((lang) => (
+                  <option key={lang} value={lang}>
+                    {lang.charAt(0).toUpperCase() + lang.slice(1)}
+                  </option>
+                ))}
+              </select>
               </div>
 
               {/* Test Cases Section with enhanced UI */}

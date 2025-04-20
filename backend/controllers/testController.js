@@ -230,6 +230,27 @@ export const createTest = async (req, res) => {
   }
 };
 
+export const getSupportedLanguages = async (req, res) => {
+  try {
+    const token = req.cookies.token;
+    if (!token) return res.status(401).json({ message: "Unauthorized" });
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    const response = await fetch(`${process.env.GRADIA_PYTHON_BACKEND_URL}/api/code-eval/get-languages`);
+    const data = await response.json();
+
+    if (!Array.isArray(data)) {
+      return res.status(500).json({ message: 'Invalid response from Judge0 API' });
+    }
+
+    return res.status(200).json(data);
+  } catch (err) {
+    console.error('Error fetching supported languages:', err);
+    return res.status(500).json({ message: 'Something went wrong' });
+  }
+};
+
 export const getTests = async (req, res) => {
   try {
     const tests = await Test.find({ createdBy: req.user.id }).populate("classId", "className");

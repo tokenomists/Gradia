@@ -1,11 +1,12 @@
 import express from "express";
-import { createTest, getTests, getTestById, submitTest, getHeatmapData } from "../controllers/testController.js";
+import { createTest, getTests, getTestById, submitTest, getHeatmapData, getSupportedLanguages } from "../controllers/testController.js";
 import { getStudentSubmissions, getStudentTests } from "../controllers/studentAuthController.js";
 import { getTeacherTests } from "../controllers/teacherAuthController.js";
 
 const router = express.Router();
 
 router.get("/heatmap", getHeatmapData); // Static route for heatmap data
+router.get("/get-languages", getSupportedLanguages);
 router.post("/create-test", createTest);
 router.get("/tests", getTests);
 router.get("/student-tests", getStudentTests);
