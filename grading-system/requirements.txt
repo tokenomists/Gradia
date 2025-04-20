@@ -2,6 +2,7 @@ Flask
 tools
 pymupdf
 numpy
+faiss-cpu
 python-dotenv
 sentence-transformers
 google-genai

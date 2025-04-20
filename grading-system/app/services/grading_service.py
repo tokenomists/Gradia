@@ -1,6 +1,7 @@
 import os
 import fitz
 import json
+import faiss
 import numpy as np
 from google import genai
 from sentence_transformers import SentenceTransformer
@@ -13,14 +14,18 @@ def embed_text(text):
     return model.encode(text, convert_to_numpy=True)
 
 def create_vector_db(text_chunks):
-    embeddings = np.array([embed_text(chunk) for chunk in text_chunks])
-    return embeddings, text_chunks
+    embeddings = np.array([embed_text(chunk) for chunk in text_chunks]).astype("float32")
+    dim = embeddings.shape[1]
+    index = faiss.IndexFlatIP(dim)
+    faiss.normalize_L2(embeddings)
+    index.add(embeddings)
+    return index, text_chunks
 
-def retrieve_relevant_text(query, embeddings, text_chunks, k=3):
-    query_embedding = embed_text(query)
-    similarities = np.dot(embeddings, query_embedding)
-    top_k_indices = np.argsort(similarities)[-k:][::-1]
-    return [text_chunks[i] for i in top_k_indices]
+def retrieve_relevant_text(query, index, text_chunks, k=5):
+    query_embedding = embed_text(query).astype("float32")
+    faiss.normalize_L2(query_embedding.reshape(1, -1))
+    distances, indices = index.search(query_embedding.reshape(1, -1), k)
+    return [text_chunks[i] for i in indices[0]]
 
 def extract_text_from_pdf(path):
     text = ''
@@ -45,8 +50,8 @@ def grade_answer(question, student_answer, max_mark, bucket_name, rubrics=None):
         text_chunks = [pdf_text[i:i + 500] for i in range(0, len(pdf_text), 500)]
         all_text_chunks.extend(text_chunks)
 
-    embeddings, stored_chunks = create_vector_db(all_text_chunks)
-    retrieved_text = retrieve_relevant_text(question, embeddings, stored_chunks)
+    index, stored_chunks = create_vector_db(all_text_chunks)
+    retrieved_text = retrieve_relevant_text(question, index, stored_chunks)
 
     prompt = f"""
     You are an AI grader. Evaluate the student's answer STRICTLY based on correctness, completeness and understanding of concepts.
