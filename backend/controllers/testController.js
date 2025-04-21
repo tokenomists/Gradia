@@ -34,7 +34,7 @@ export const gradeSubmission = async (submissionId) => {
           rubric: question.rubric ?? null,
           bucket_name: classId,
         };
-
+        
         const response = await axios.post(
           `${process.env.GRADIA_PYTHON_BACKEND_URL}/api/grading/grade-answer`,
           gradingPayload,

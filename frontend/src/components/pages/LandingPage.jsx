@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowRight,
@@ -13,6 +13,8 @@ import {
   Users,
   Sun,
   Moon,
+  X,
+  Loader2
 } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -30,8 +32,109 @@ export default function LandingPage() {
   });
   const router = useRouter();
 
+  const [isChatOpen, setIsChatOpen] = useState(false);
+  const [chatMessages, setChatMessages] = useState([
+    { id: 1, text: "Hello! How can I help you with Gradia?", isUser: false }
+  ]);
+  const [chatInputValue, setChatInputValue] = useState('');
+  const [isChatLoading, setIsChatLoading] = useState(false);
+  const messagesEndRef = useRef(null);
+
   const toggleDarkMode = () => {
     setDarkMode((prev) => !prev);
+  };
+
+  const toggleChat = () => {
+    setIsChatOpen(!isChatOpen);
+  };
+
+  const handleChatInputChange = (e) => {
+    setChatInputValue(e.target.value);
+  };
+
+  const scrollToChatBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  useEffect(() => {
+    if (isChatOpen) {
+      scrollToChatBottom();
+    }
+  }, [chatMessages, isChatOpen]);
+
+  const sendMessage = async (e) => {
+    e.preventDefault();
+    const trimmedMessage = chatInputValue.trim();
+    if (!trimmedMessage) return;
+  
+    const userMessage = { 
+      id: chatMessages.length + 1, 
+      text: trimmedMessage, 
+      isUser: true 
+    };
+  
+    setChatMessages(prev => [...prev, userMessage]);
+    setChatInputValue('');
+    setIsChatLoading(true);
+  
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/chat/support`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: trimmedMessage,
+          chatHistory: [...chatMessages, userMessage]
+        }),
+      });
+  
+      const data = await response.json();
+  
+      if (!response.ok) throw new Error(data.error || 'Unknown error');
+  
+      const chatBotResponse = {
+        id: chatMessages.length + 2,
+        text: data.message,
+        isUser: false
+      };
+  
+      setChatMessages(prev => [...prev, chatBotResponse]);
+  
+    } catch (error) {
+      console.error('Error sending message:', error);
+      setChatMessages(prev => [
+        ...prev,
+        {
+          id: chatMessages.length + 2,
+          text: 'Sorry, something went wrong. Please try again later.',
+          isUser: false
+        }
+      ]);
+    } finally {
+      setIsChatLoading(false);
+    }
+  };
+  
+  const ThinkingDots = () => {
+    return (
+      <span className="inline-flex items-center italic">
+        Thinking
+        <motion.span
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5, repeat: Infinity, repeatType: "reverse" }}
+        >.</motion.span>
+        <motion.span
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5, delay: 0.2, repeat: Infinity, repeatType: "reverse" }}
+        >.</motion.span>
+        <motion.span
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5, delay: 0.4, repeat: Infinity, repeatType: "reverse" }}
+        >.</motion.span>
+      </span>
+    );
   };
 
   // Animation variants
@@ -948,19 +1051,120 @@ export default function LandingPage() {
         
         {/* Floating Chat Button */}
         <motion.div
-          initial={{ opacity: 0, scale: 0, y: 20 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          transition={{ delay: 2, duration: 0.5 }}
-          className="fixed bottom-6 right-6 z-50"
+        initial={{ opacity: 0, scale: 0, y: 20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        transition={{ delay: 0.5, duration: 0.5 }}
+        className="fixed bottom-6 right-6 z-50"
+      >
+        <motion.button
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+          onClick={toggleChat}
+          className="w-14 h-14 rounded-full bg-[#d56c4e] text-white shadow-lg flex items-center justify-center"
         >
-          <motion.button
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            className="w-16 h-16 rounded-full bg-[#d56c4e] text-white shadow-lg flex items-center justify-center"
+          <MessageSquare size={28} />
+        </motion.button>
+      </motion.div>
+
+      {/* Chat Window */}
+      <AnimatePresence mode="wait">
+        {isChatOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 30 }}
+            transition={{ duration: 0.2, ease: "easeOut" }}
+            className={`fixed bottom-24 right-6 w-80 sm:w-96 h-96 rounded-lg shadow-xl overflow-hidden flex flex-col z-40 ${
+              darkMode ? 'bg-[#2d2c2a]' : 'bg-white'
+            }`}
           >
-            <MessageSquare size={28} />
-          </motion.button>
-        </motion.div>
+            {/* Header */}
+            <div className={'px-4 py-3 text-white flex justify-between items-center bg-[#d56c4e]'}>
+              <div className="flex items-center">
+                <h3 className="font-semibold text-lg">Gradia Support</h3>
+              </div>
+              <button 
+                onClick={toggleChat} 
+                className="text-white hover:text-gray-200 transition-colors"
+                aria-label="Close chat"
+              >
+                <X size={20} />
+              </button>
+            </div>
+            
+            {/* Messages Container */}
+            <div className={`flex-1 p-4 overflow-y-auto ${
+              darkMode ? 'bg-[#2d2c2a]' : 'bg-[#edead7]'
+            }`}>
+              {chatMessages.map((message) => (
+                <div 
+                  key={message.id} 
+                  className={`mb-4 flex ${message.isUser ? 'justify-end' : 'justify-start'}`}
+                >
+                  <div 
+                    className={`max-w-3/4 rounded-lg px-4 py-2 ${
+                      message.isUser 
+                        ? 'bg-[#d56c4e] text-white rounded-br-none' 
+                        : darkMode 
+                          ? 'bg-[#403f3c] text-gray-200 rounded-bl-none' 
+                          : 'bg-[#e9decb] text-gray-800 rounded-bl-none'
+                    }`}
+                  >
+                    {message.text}
+                  </div>
+                </div>
+              ))}
+              {isChatLoading && (
+                <div className="flex justify-start mb-4">
+                  <div className={`rounded-lg rounded-bl-none px-4 py-2 flex items-center ${
+                    darkMode 
+                      ? 'bg-[#41403d] text-gray-200' 
+                      : 'bg-[#e9decb] text-gray-800'
+                  }`}>
+                    <ThinkingDots />
+                  </div>
+                </div>
+              )}
+              <div ref={messagesEndRef} />
+            </div>
+            
+            {/* Input Area */}
+            <form onSubmit={sendMessage} className={`border-t p-3 flex ${
+              darkMode ? 'bg-[#2d2c2a]' : 'border-gray-200 bg-[#e8e4cd]'
+            }`}>
+              <input
+                type="text"
+                value={chatInputValue}
+                onChange={handleChatInputChange}
+                placeholder="Send a query..."
+                className={`flex-1 border rounded-l-lg px-3 py-2 focus:outline-none ${
+                  darkMode 
+                    ? 'bg-[#41403d] border-gray-700 text-gray-200 placeholder-gray-500' 
+                    : 'bg-white border-gray-300 text-gray-800'
+                }`}
+              />
+              <button
+                type="submit"
+                disabled={!chatInputValue.trim() || isChatLoading}
+                className={`text-white px-4 rounded-r-lg flex items-center justify-center transition-all ${
+                  !chatInputValue.trim() || isChatLoading 
+                    ? 'opacity-50 cursor-not-allowed' 
+                    : 'hover:bg-[#c25e42]'
+                } ${
+                  darkMode ? 'bg-[#d56c4e]' : 'bg-[#d56c4e]'
+                }`}
+                aria-label="Send message"
+              >
+                {isChatLoading ? (
+                  <Loader2 size={18} className="animate-spin" />
+                ) : (
+                  <ArrowRight size={18} />
+                )}
+              </button>
+            </form>
+          </motion.div>
+        )}
+      </AnimatePresence>
       </div>
     </ErrorProvider>
   );
