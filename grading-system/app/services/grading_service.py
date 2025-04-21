@@ -139,6 +139,7 @@ def grade_code(question, student_code, max_mark):
     - Award full marks only for logically correct, optimized and readable code.
     - Deduct marks if: wrong approach, unoptimized, missed edge cases, hardcoding, poor structure, etc.
     - Do not reward working code if the logic is brute-force when better options exist.
+    - If the code is mostly correct but contains only silly mistakes (e.g., typos, off-by-one errors, very minor syntax slips), assume the student knows the correct logic and award partial mark.
 
     --- QUESTION ---
     {question}
