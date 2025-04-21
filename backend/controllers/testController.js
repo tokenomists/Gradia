@@ -34,9 +34,9 @@ export const gradeSubmission = async (submissionId) => {
           rubric: question.rubric ?? null,
           bucket_name: classId,
         };
-
+        
         const response = await axios.post(
-          `${process.env.GRADIA_PYTHON_BACKEND_URL}/grade`,
+          `${process.env.GRADIA_PYTHON_BACKEND_URL}/api/grading/grade-answer`,
           gradingPayload,
           {
             headers: {
@@ -69,8 +69,8 @@ export const gradeSubmission = async (submissionId) => {
           test_cases,
         };
 
-        const response = await axios.post(
-          `${process.env.GRADIA_PYTHON_BACKEND_URL}/submit-code`,
+        const testCaseResponse = await axios.post(
+          `${process.env.GRADIA_PYTHON_BACKEND_URL}/api/code-eval/submit`,
           codingPayload,
           {
             headers: {
@@ -79,11 +79,38 @@ export const gradeSubmission = async (submissionId) => {
           }
         );
 
-        const { passed_test_cases, total_test_cases } = response.data;
+        const { passed_test_cases, total_test_cases } = testCaseResponse.data;
 
         const perTestMark = question.maxMarks / total_test_cases;
-        score = Math.round(perTestMark * passed_test_cases);
-        feedback = `${passed_test_cases}/${total_test_cases} test cases passed.`;
+        const testCaseScore = Math.round(perTestMark * passed_test_cases);
+
+        const codeGradingPayload = {
+          question: question.questionText,
+          student_code: source_code,
+          max_mark: question.maxMarks / 2,
+        };
+    
+        const codeGradingResponse = await axios.post(
+          `${process.env.GRADIA_PYTHON_BACKEND_URL}/api/grading/grade-code`,
+          codeGradingPayload,
+          {
+            headers: {
+              "x-api-key": process.env.GRADIA_API_KEY,
+            },
+          }
+        );
+    
+        const { grade: codeScore, feedback: codeFeedback } = codeGradingResponse.data;
+    
+        if (passed_test_cases === total_test_cases) {
+          score = testCaseScore;
+        } else {
+          const halfScore = question.maxMarks / 2;
+          const scaledTestCaseScore = (testCaseScore / question.maxMarks) * halfScore;
+          score = Math.round(scaledTestCaseScore + codeScore);
+        }
+    
+        feedback = `${passed_test_cases}/${total_test_cases} test cases passed. Code Feedback: ${codeFeedback}`;
       } catch (err) {
         console.error(`Grading failed for coding question ${ans.questionId}:`, err.message);
       }
@@ -101,7 +128,7 @@ export const gradeSubmission = async (submissionId) => {
         });
 
         const ocrResponse = await axios.post(
-          `${process.env.GRADIA_PYTHON_BACKEND_URL}/handwritten-ocr`,
+          `${process.env.GRADIA_PYTHON_BACKEND_URL}/api/ocr/extract-text`,
           formData,
           {
             headers: {
@@ -122,7 +149,7 @@ export const gradeSubmission = async (submissionId) => {
         };
 
         const gradingResponse = await axios.post(
-          `${process.env.GRADIA_PYTHON_BACKEND_URL}/grade`,
+          `${process.env.GRADIA_PYTHON_BACKEND_URL}/api/grading/grade-answer`,
           gradingPayload,
           {
             headers: {
@@ -165,9 +192,7 @@ export const createTest = async (req, res) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const teacherId = decoded.id;
 
-    const {
-      title, description, startTime, endTime, duration, classAssignment, questions, isDraft, createdBy, rubric, files
-    } = req.body;
+    const { title, description, startTime, endTime, duration, classAssignment, questions, isDraft, createdBy, rubric } = req.body;
     if (!title || !startTime || !endTime || !duration || !classAssignment || !questions.length) {
       return res.status(400).json({ message: "Missing required fields" });
     }
@@ -182,7 +207,6 @@ export const createTest = async (req, res) => {
       createdBy,
       questions,
       rubric,
-      files,
       isDraft: isDraft ?? true,
     });
 
@@ -200,6 +224,31 @@ export const createTest = async (req, res) => {
   } catch (error) {
     console.error("Error publishing test:", error);
     res.status(500).json({ message: "Failed to publish test", error: error.message });
+  }
+};
+
+export const getSupportedLanguages = async (req, res) => {
+  try {
+    const token = req.cookies.token;
+    if (!token) return res.status(401).json({ message: "Unauthorized" });
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    const response = await fetch(`${process.env.GRADIA_PYTHON_BACKEND_URL}/api/code-eval/get-languages`, {
+      headers: {
+        "x-api-key": process.env.GRADIA_API_KEY,
+      },
+    });
+    const data = await response.json();
+
+    if (!Array.isArray(data)) {
+      return res.status(500).json({ message: 'Invalid response from Judge0 API' });
+    }
+
+    return res.status(200).json(data);
+  } catch (err) {
+    console.error('Error fetching supported languages:', err);
+    return res.status(500).json({ message: 'Something went wrong' });
   }
 };
 

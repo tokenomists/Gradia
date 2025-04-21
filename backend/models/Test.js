@@ -12,7 +12,7 @@ const QuestionSchema = new mongoose.Schema({
   questionText: { type: String, required: true },
   maxMarks: { type: Number, required: true },
   type: { type: String, enum: ["coding", "typed", "handwritten"], required: true },
-  codingLanguage: { type: String, enum: ["python", "javascript"] },
+  codingLanguage: { type: String, required: function () {return this.type === "coding";}},
   testCases: { type: [TestCaseSchema], default: [] }
 });
 
@@ -26,15 +26,6 @@ const TestSchema = new mongoose.Schema({
   createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "Teacher", required: true },
   questions: [QuestionSchema],
   maxMarks: { type: Number, required: true, default: 0 },
-  files: {
-    type: [
-      {
-        name: { type: String, required: true },
-        url: { type: String, required: true }
-      }
-    ],
-    default: [] // Defaults to an empty array if no files are uploaded
-  },
   isDraft: { type: Boolean, default: true }, // Test is a draft until published
 }, { timestamps: true });
 

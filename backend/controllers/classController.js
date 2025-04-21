@@ -65,7 +65,7 @@ export const createClass = async (req, res) => {
 
     try {
       const gcsResponse = await axios.post(
-        `${gradia_python_backend_url}/create-gcs-bucket`,
+        `${gradia_python_backend_url}/api/gcs/create-bucket`,
         { bucket_name: newClass._id.toString() },
         { headers: { "x-api-key": gradia_api_key } }
       );
@@ -241,7 +241,7 @@ export const uploadFilesToGCS = async (files, bucketName) => {
     formData.append("bucket_name", bucketName);
 
     try {
-      const response = await axios.post(`${process.env.GRADIA_PYTHON_BACKEND_URL}/upload-gcs-file`, formData, {
+      const response = await axios.post(`${process.env.GRADIA_PYTHON_BACKEND_URL}/api/gcs/upload-file`, formData, {
         headers: {
           "x-api-key": process.env.GRADIA_API_KEY,
           ...formData.getHeaders(),
@@ -297,7 +297,7 @@ export const getClassMaterials = async (req, res) => {
     }
 
     const response = await axios.post(
-      `${process.env.GRADIA_PYTHON_BACKEND_URL}/list-gcs-files`,
+      `${process.env.GRADIA_PYTHON_BACKEND_URL}/api/gcs/list-files`,
       { bucket_name: classId },
       {
         headers: {
@@ -353,7 +353,7 @@ export const deleteClassMaterial = async (req, res) => {
     }
     
     const response = await axios.delete(
-      `${process.env.GRADIA_PYTHON_BACKEND_URL}/delete-gcs-file`,
+      `${process.env.GRADIA_PYTHON_BACKEND_URL}/api/gcs/delete-file`,
       {
         headers: {
           'x-api-key': process.env.GRADIA_API_KEY,
