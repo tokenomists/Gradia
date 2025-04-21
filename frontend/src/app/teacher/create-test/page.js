@@ -27,6 +27,7 @@ export default function CreateTest() {
   const [userData, setUserData] = useState({isLoggedIn: false, role: ''});
   const [activeTab, setActiveTab] = useState('details');
   const [classes, setClasses] = useState([]);
+  const [classFiles, setClassFiles] = useState([]);
   const [supportedLanguages, setSupportedLanguages] = useState([]);
   const [isPublishModalOpen, setIsPublishModalOpen] = useState(false);
   const router = useRouter();
@@ -300,6 +301,26 @@ const updateTestCase = (questionIndex, testCaseIndex, field, value) => {
     });
   };
 
+  const handleClassChange = async (e) => {
+    const classId = e.target.value;
+    if (!classId) {
+      return;
+    }
+    try {
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/classes/get-class-materials`,
+        { classId },
+        { withCredentials: true }
+      );
+      if (response.data.success) {
+        setClassFiles(response.data.files.pdf_files);
+      }
+    } catch (err) {
+      console.error(err);
+      setMaterialError('An error occurred while checking class materials.');
+    }
+  };
+
   // Form submission
   const handleSubmit = async (e, isDraft = false) => {
     e.preventDefault();
@@ -497,7 +518,10 @@ const updateTestCase = (questionIndex, testCaseIndex, field, value) => {
                       <select
                         name="classAssignment"
                         value={testData.classAssignment}
-                        onChange={handleTestDetailsChange}
+                        onChange={(e) => {
+                          handleTestDetailsChange(e);
+                          handleClassChange(e);
+                        }}
                         required
                         className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#d97056] bg-gray-50"
                       >
@@ -955,8 +979,9 @@ const updateTestCase = (questionIndex, testCaseIndex, field, value) => {
                           {!testData.title && <li>Add a test title</li>}
                           {!testData.startTime && <li>Set a start time</li>}
                           {!testData.endTime && <li>Set an end time</li>}
-                          {!testData.classAssignment && <li>Assign to a class</li>}
                           {testData.questions.length === 0 && <li>Add at least one question</li>}
+                          {!testData.classAssignment && <li>Assign to a class</li>}
+                          {classFiles.length === 0 && <li>Add PDF materials for grading to the assigned class</li>}
                         </ul>
                       </div>
                     </div>
@@ -1010,14 +1035,16 @@ const updateTestCase = (questionIndex, testCaseIndex, field, value) => {
                         !testData.startTime || 
                         !testData.endTime || 
                         !testData.classAssignment || 
-                        testData.questions.length === 0
+                        testData.questions.length === 0 ||
+                        classFiles.length === 0
                       }
                       className={`px-4 py-2 rounded-md transition ${
                         !testData.title || 
                         !testData.startTime || 
                         !testData.endTime || 
                         !testData.classAssignment || 
-                        testData.questions.length === 0
+                        testData.questions.length === 0 ||
+                        classFiles.length === 0
                           ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                           : "bg-[#d97056] text-white hover:bg-[#c5634c]"
                       }`}
@@ -1031,19 +1058,6 @@ const updateTestCase = (questionIndex, testCaseIndex, field, value) => {
           </form>
         </div>
       </main>
-
-      {/* Footer */}
-      <footer className="bg-[#f5eee0] py-6 mt-8">
-        <div className="container mx-auto px-4 text-center">
-          <p className="text-gray-600">© {new Date().getFullYear()} Gradia. All rights reserved.</p>
-          <div className="mt-4 flex justify-center space-x-4">
-            <Link href="/about" className="text-gray-600 hover:text-[#d97056]">About</Link>
-            <Link href="/help" className="text-gray-600 hover:text-[#d97056]">Help Center</Link>
-            <Link href="/privacy" className="text-gray-600 hover:text-[#d97056]">Privacy Policy</Link>
-            <Link href="/terms" className="text-gray-600 hover:text-[#d97056]">Terms of Service</Link>
-          </div>
-        </div>
-      </footer>
 
       {/* Confirmation Modal */}
       <TestPublishConfirmationModal
