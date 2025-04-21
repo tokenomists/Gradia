@@ -344,21 +344,30 @@ const updateTestCase = (questionIndex, testCaseIndex, field, value) => {
   // Confirmation modal submission handler
   const handleConfirmPublish = async () => {
     try {
-      const updatedTestData = { ...testData, isDraft: false, classesAssignment: testData.classAssignment, createdBy: userData._id };
+      // console.log('Publishing test:', { ...testData, isDraft: false });
+      const updatedTestData = { ...testData, isDraft: false,
+        classesAssignment: testData.classAssignment, 
+        createdBy: userData._id,
+        startTime: new Date(testData.startTime).toISOString(),
+        endTime: new Date(testData.endTime).toISOString(),
+      };
       console.log("Publishing test: ", updatedTestData);
       await new Promise(resolve => setTimeout(resolve, 1000));
       
       const response = await publishTest(updatedTestData);
       if(response) {
+        // Close modal and show success message
         setIsPublishModalOpen(false);
         localStorage.setItem("notification", JSON.stringify({ type: "success", message: "Successfully created test!" }));
 
+        // Redirect to dashboard on success
         router.push('/');
       } else {
         showError("Failed to publish test. Please try again later.");
       }
     } catch (error) {
       console.error('Error publishing test:', error);
+      // alert('Failed to publish test. Please try again.');
       showError("Failed to publish test. Please try again.");
     }
   };
