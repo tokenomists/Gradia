@@ -237,7 +237,11 @@ export const getSupportedLanguages = async (req, res) => {
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    const response = await fetch(`${process.env.GRADIA_PYTHON_BACKEND_URL}/api/code-eval/get-languages`);
+    const response = await fetch(`${process.env.GRADIA_PYTHON_BACKEND_URL}/api/code-eval/get-languages`, {
+      headers: {
+        "x-api-key": process.env.GRADIA_API_KEY,
+      },
+    });
     const data = await response.json();
 
     if (!Array.isArray(data)) {
