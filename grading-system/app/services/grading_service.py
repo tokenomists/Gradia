@@ -68,7 +68,7 @@ def grade_answer(question, student_answer, max_mark, bucket_name, rubrics=None):
     3. Full marks ONLY for complete and accurate understanding.
     4. Minor grammar/spelling mistakes should not reduce marks.
     5. Award marks primarily for a clear and accurate demonstration of conceptual understanding, as a very STRICT HUMAN GRADER would. Deduct marks decisively for conceptual errors or incomplete answers, even if partially correct.
-    6. Scale the level of detail with marks: High-mark questions require IN-DEPTH and LONG answers; low-mark questions can be concise.
+    6. Scale the level of detail with marks: High-mark questions require IN-DEPTH, LONG and DETAILED answers; low-mark questions can be concise.
 
     --- QUESTION ---
     {question}
@@ -135,11 +135,11 @@ def grade_code(question, student_code, max_mark):
     Assume test cases already gave partial marks — this is only for evaluating CODE STRUCTURE, LOGIC and APPROACH.
 
     --- INSTRUCTIONS ---
-    - MAX MARK: {max_mark}
-    - Award full marks only for logically correct, optimized and readable code.
-    - Deduct marks if: wrong approach, unoptimized, missed edge cases, hardcoding, poor structure, etc.
-    - Do not reward working code if the logic is brute-force when better options exist.
-    - If the code is mostly correct but contains only silly mistakes (e.g., typos, off-by-one errors, very minor syntax slips), assume the student knows the correct logic and award partial mark.
+    1. MAX MARK: {max_mark}
+    2. Award full marks only for logically correct, optimized and readable code.
+    3. Deduct marks if: wrong approach, unoptimized, missed edge cases, hardcoding, poor structure, etc.
+    4. Do not reward working code if the logic is brute-force when better options exist.
+    5. If the code is mostly correct but contains only silly mistakes (e.g., typos or very minor syntax slips), assume the student knows the correct logic and award partial mark.
 
     --- QUESTION ---
     {question}
