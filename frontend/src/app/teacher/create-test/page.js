@@ -878,33 +878,17 @@ const updateTestCase = (questionIndex, testCaseIndex, field, value) => {
             {/* Review & Finalize Tab */}
             {activeTab === 'review' && (
               <div className="space-y-8">
+
                 {/* Basic Details */}
                 <section className="bg-white p-6 rounded-2xl shadow border border-gray-200">
                   <h3 className="text-lg font-semibold text-[#d97056] mb-4">Basic Details</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm text-gray-700">
-                    <div>
-                      <p className="text-gray-500">Title</p>
-                      <p className="font-medium">{testData.title || "Not set"}</p>
-                    </div>
-                    <div>
-                      <p className="text-gray-500">Start Time</p>
-                      <p className="font-medium">{testData.startTime ? new Date(testData.startTime).toLocaleString() : "Not set"}</p>
-                    </div>
-                    <div>
-                      <p className="text-gray-500">End Time</p>
-                      <p className="font-medium">{testData.endTime ? new Date(testData.endTime).toLocaleString() : "Not set"}</p>
-                    </div>
-                    <div>
-                      <p className="text-gray-500">Duration</p>
-                      <p className="font-medium">{testData.isTimeLimited ? `${testData.duration} minutes` : "No time limit"}</p>
-                    </div>
-                    <div>
-                      <p className="text-gray-500">Class</p>
-                      <p className="font-medium">{testData.classAssignment ? (classes.find(c => c._id.toString() === testData.classAssignment.toString())?.name || "Unknown class") : "Not assigned"}</p>
-                    </div>
-                    <div className="md:col-span-2">
-                      <p className="text-gray-500">Description</p><p>{testData.description || "No description provided"}</p>
-                    </div>
+                    <div><p className="text-gray-500">Title</p><p className="font-medium">{testData.title || "Not set"}</p></div>
+                    <div><p className="text-gray-500">Start Time</p><p className="font-medium">{testData.startTime ? new Date(testData.startTime).toLocaleString() : "Not set"}</p></div>
+                    <div><p className="text-gray-500">End Time</p><p className="font-medium">{testData.endTime ? new Date(testData.endTime).toLocaleString() : "Not set"}</p></div>
+                    <div><p className="text-gray-500">Duration</p><p className="font-medium">{testData.isTimeLimited ? `${testData.duration} minutes` : "No time limit"}</p></div>
+                    <div><p className="text-gray-500">Class</p><p className="font-medium">{testData.classAssignment ? (classes.find(c => c._id.toString() === testData.classAssignment.toString())?.name || "Unknown class") : "Not assigned"}</p></div>
+                    <div className="md:col-span-2"><p className="text-gray-500">Description</p><p>{testData.description || "No description provided"}</p></div>
                   </div>
                 </section>
 
@@ -917,24 +901,34 @@ const updateTestCase = (questionIndex, testCaseIndex, field, value) => {
                     <div className="space-y-5">
                       <p>Total Questions: <span className="font-semibold">{testData.questions.length}</span></p>
                       {testData.questions.map((q, i) => (
-                        <div key={i} className="p-4 bg-gray-50 rounded-lg border border-gray-200">
-                          <div className="flex justify-between items-start">
-                            <h4 className="font-medium text-gray-800">Q{i + 1}: {q.questionText.substring(0, 50)}{q.questionText.length > 50 ? '...' : ''}</h4>
-                            <span className="text-gray-600 text-sm">{q.maxMarks} marks</span>
+                        <div key={i} className="p-4 bg-gray-40 rounded-xl border border-gray-200">
+                          <div className="flex justify-between items-center mb-2">
+                            <span className="text-[#d97056] text-l font-semibold">
+                              Question {i + 1}
+                            </span>
+                            <span className="text-gray-700 font-medium text-l whitespace-nowrap">
+                              {q.maxMarks} marks
+                            </span>
                           </div>
 
-                          {q.type === 'coding' && q.testCases?.length > 0 && (
-                            <div className="mt-3 pl-4 border-l-2 border-gray-200">
-                              <p className="text-sm font-medium text-[#d97056]">Test Cases:</p>
-                              <p className="text-sm text-gray-600">
+                          <p className="text-gray-900 font-medium mb-3 break-words">
+                            {q.questionText}
+                          </p>
+
+                          <div className="flex items-center gap-2 flex-wrap mb-[5px]">
+                            <span className="bg-blue-100 text-blue-700 text-xs font-semibold px-2.5 py-0.5 rounded">
+                              {q.type.charAt(0).toUpperCase() + q.type.slice(1)}
+                            </span>
+                            {q.type === 'coding' && q.testCases?.length > 0 && (
+                              <span className="bg-purple-100 text-purple-700 text-xs font-medium px-2.5 py-0.5 rounded">
                                 {q.testCases.length} test case{q.testCases.length > 1 ? 's' : ''} ({q.testCases.filter(tc => tc.isHidden).length} hidden)
-                              </p>
-                            </div>
-                          )}
+                              </span>
+                            )}
+                          </div>
 
                           {q.enableRubrics && q.rubric?.criteria?.length > 0 ? (
-                            <div className="mt-3 pl-4 border-l-2 border-gray-200">
-                              <p className="text-sm font-medium text-[#d97056]">Rubric Criteria:</p>
+                            <div className="pl-3 mt-2">
+                              <p className="text-sm font-medium text-[#d97056]">Rubric:</p>
                               <ul className="list-disc pl-5 text-sm text-gray-700 mt-1">
                                 {q.rubric.criteria.map((c, idx) => (
                                   <li key={idx}>{c.name || `Criterion ${idx + 1}`} ({c.weight}%)</li>
@@ -942,7 +936,7 @@ const updateTestCase = (questionIndex, testCaseIndex, field, value) => {
                               </ul>
                             </div>
                           ) : (
-                            <p className="text-sm text-gray-400 mt-2">No custom rubric</p>
+                            <p className="text-sm text-gray-400 mt-2 italic">No rubric criteria</p>
                           )}
                         </div>
                       ))}
@@ -952,15 +946,20 @@ const updateTestCase = (questionIndex, testCaseIndex, field, value) => {
 
                 {/* Validation Warnings */}
                 {(!testData.title || !testData.startTime || !testData.endTime || !testData.classAssignment || testData.questions.length === 0) && (
-                  <div className="bg-yellow-50 border-l-4 border-yellow-400 p-5 rounded-xl shadow-sm">
-                    <p className="text-sm text-yellow-700 font-medium mb-2">⚠️ Please complete the following before publishing:</p>
-                    <ul className="list-disc list-inside text-sm text-yellow-700 space-y-1">
-                      {!testData.title && <li>Add a test title</li>}
-                      {!testData.startTime && <li>Set a start time</li>}
-                      {!testData.endTime && <li>Set an end time</li>}
-                      {!testData.classAssignment && <li>Assign to a class</li>}
-                      {testData.questions.length === 0 && <li>Add at least one question</li>}
-                    </ul>
+                  <div className="bg-yellow-100/70 border border-yellow-300 p-5 rounded-xl shadow-sm">
+                    <div className="flex items-start gap-3">
+                      <span className="text-yellow-500 text-xl">⚠️</span>
+                      <div>
+                        <p className="text-sm font-semibold text-yellow-800 mb-1">Your test is incomplete! Complete the following:</p>
+                        <ul className="list-disc list-inside text-sm text-yellow-700 space-y-1">
+                          {!testData.title && <li>Add a test title</li>}
+                          {!testData.startTime && <li>Set a start time</li>}
+                          {!testData.endTime && <li>Set an end time</li>}
+                          {!testData.classAssignment && <li>Assign to a class</li>}
+                          {testData.questions.length === 0 && <li>Add at least one question</li>}
+                        </ul>
+                      </div>
+                    </div>
                   </div>
                 )}
               </div>
