@@ -26,15 +26,6 @@ const TestSchema = new mongoose.Schema({
   createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "Teacher", required: true },
   questions: [QuestionSchema],
   maxMarks: { type: Number, required: true, default: 0 },
-  files: {
-    type: [
-      {
-        name: { type: String, required: true },
-        url: { type: String, required: true }
-      }
-    ],
-    default: [] // Defaults to an empty array if no files are uploaded
-  },
   isDraft: { type: Boolean, default: true }, // Test is a draft until published
 }, { timestamps: true });
 

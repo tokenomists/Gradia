@@ -11,7 +11,6 @@ import { useError } from '@/contexts/ErrorContext.js';
 import { publishTest } from '@/utils/test.js';
 import { getClassesForTeacher } from '@/utils/class.js';
 
-
 export default function CreateTest() {
   const [testData, setTestData] = useState({
     title: '',
@@ -23,7 +22,6 @@ export default function CreateTest() {
     passingScore: 70,
     isTimeLimited: true,
     questions: [],
-    files: []
   });
 
   const [userData, setUserData] = useState({isLoggedIn: false, role: ''});
@@ -78,21 +76,6 @@ export default function CreateTest() {
 
     fetchSupportedLanguages();
   }, []);
-
-  // Calculate duration when start and end times change
-  // useEffect(() => {
-  //   if (testData.startTime && testData.endTime) {
-  //     const start = new Date(testData.startTime);
-  //     const end = new Date(testData.endTime);
-  //     if (end > start) {
-  //       const durationInMinutes = Math.round((end - start) / (1000 * 60));
-  //       setTestData(prev => ({
-  //         ...prev,
-  //         duration: durationInMinutes
-  //       }));
-  //     }
-  //   }
-  // }, [testData.startTime, testData.endTime]);
 
   // Handle test details changes
   const handleTestDetailsChange = (e) => {
@@ -255,37 +238,6 @@ const updateTestCase = (questionIndex, testCaseIndex, field, value) => {
     });
   };
 
-  // Handle file uploads for handwritten tests
-  const handleQuestionImageUpload = (questionIndex, e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const updatedQuestions = [...testData.questions];
-      updatedQuestions[questionIndex].imageUrl = URL.createObjectURL(file);
-      setTestData({
-        ...testData,
-        questions: updatedQuestions
-      });
-    }
-  };
-
-  // Handle general file uploads
-  const handleFileUpload = (e) => {
-    const files = Array.from(e.target.files);
-    setTestData({
-      ...testData,
-      files: [...testData.files, ...files]
-    });
-  };
-
-  // Remove a file
-  const removeFile = (index) => {
-    const updatedFiles = testData.files.filter((_, i) => i !== index);
-    setTestData({
-      ...testData,
-      files: updatedFiles
-    });
-  };
-
   // Add a rubric criterion
   const addRubricCriterion = () => {
     const newCriterion = {
@@ -371,25 +323,21 @@ const updateTestCase = (questionIndex, testCaseIndex, field, value) => {
   // Confirmation modal submission handler
   const handleConfirmPublish = async () => {
     try {
-      // console.log('Publishing test:', { ...testData, isDraft: false });
       const updatedTestData = { ...testData, isDraft: false, classesAssignment: testData.classAssignment, createdBy: userData._id };
       console.log("Publishing test: ", updatedTestData);
       await new Promise(resolve => setTimeout(resolve, 1000));
       
       const response = await publishTest(updatedTestData);
       if(response) {
-        // Close modal and show success message
         setIsPublishModalOpen(false);
         localStorage.setItem("notification", JSON.stringify({ type: "success", message: "Successfully created test!" }));
 
-        // Redirect to dashboard on success
         router.push('/');
       } else {
         showError("Failed to publish test. Please try again later.");
       }
     } catch (error) {
       console.error('Error publishing test:', error);
-      // alert('Failed to publish test. Please try again.');
       showError("Failed to publish test. Please try again.");
     }
   };
@@ -416,28 +364,28 @@ const updateTestCase = (questionIndex, testCaseIndex, field, value) => {
 
       {/* Main Content */}
       <main className="container mx-auto py-8 px-4">
-      <div className="mb-6 flex flex-col space-y-2">
-  <h1 className="text-3xl font-bold flex items-center">
-    Create New Test
-    <span className="ml-2 text-sm font-normal text-gray-500">
-      {activeTab === 'details' && '(Step 1/3)'}
-      {activeTab === 'questions' && '(Step 2/3)'}
-      {activeTab === 'review' && '(Step 3/3)'}
-    </span>
-  </h1>
-  
-  <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
-    <div 
-      className="bg-[#d97056] h-2 rounded-full transition-all duration-300"
-      style={{ 
-        width: 
-          activeTab === 'details' ? '33%' : 
-          activeTab === 'questions' ? '66%' : 
-          '100%' 
-      }}
-    ></div>
-  </div>
-</div>
+        <div className="mb-6 flex flex-col space-y-2">
+          <h1 className="text-3xl font-bold flex items-center">
+            Create New Test
+            <span className="ml-2 text-sm font-normal text-gray-500">
+              {activeTab === 'details' && '(Step 1/3)'}
+              {activeTab === 'questions' && '(Step 2/3)'}
+              {activeTab === 'review' && '(Step 3/3)'}
+            </span>
+          </h1>
+          
+          <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
+            <div 
+              className="bg-[#d97056] h-2 rounded-full transition-all duration-300"
+              style={{ 
+                width: 
+                  activeTab === 'details' ? '33%' : 
+                  activeTab === 'questions' ? '66%' : 
+                  '100%' 
+              }}
+            ></div>
+          </div>
+        </div>
 
         <div className="bg-[#f5eee0] rounded-xl p-6 shadow-md">
           {/* Tabs */}
@@ -458,112 +406,126 @@ const updateTestCase = (questionIndex, testCaseIndex, field, value) => {
               className={`px-4 py-2 ${activeTab === 'review' ? 'border-b-2 border-[#d97056] font-bold' : ''}`}
               onClick={() => setActiveTab('review')}
             >
-              Review & Finalize
+              Review & Publish
             </button>
           </div>
 
           <form onSubmit={(e) => handleSubmit(e, false)}>
             {/* Step 1: Test Details Tab */}
             {activeTab === 'details' && (
-              <div className="space-y-4">
-                <div>
-                  <label className="block mb-1 font-medium">Test Title <span className="text-red-500">*</span></label>
-                  <input
-                    type="text"
-                    name="title"
-                    value={testData.title}
-                    onChange={handleTestDetailsChange}
-                    className="w-full p-2 border border-gray-300 rounded-md"
-                    placeholder="e.g., Midterm Examination"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="block mb-1 font-medium">Description</label>
-                  <textarea
-                    name="description"
-                    value={testData.description}
-                    onChange={handleTestDetailsChange}
-                    className="w-full p-2 border border-gray-300 rounded-md"
-                    placeholder="Provide test instructions and details"
-                    rows="4"
-                  />
-                </div>
-
-                <div className="flex flex-col md:flex-row md:space-x-4 space-y-4 md:space-y-0">
-                  <div className="w-full md:w-1/2">
-                    <label className="block mb-1 font-medium">Start Time <span className="text-red-500">*</span></label>
+              <div className="space-y-6 bg-white/90 p-6 rounded-xl shadow-md border border-gray-100">
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Test Title <span className="text-red-500">*</span>
+                    </label>
                     <input
-                      type="datetime-local"
-                      name="startTime"
-                      value={testData.startTime}
+                      type="text"
+                      name="title"
+                      value={testData.title}
                       onChange={handleTestDetailsChange}
-                      className="w-full p-2 border border-gray-300 rounded-md"
+                      placeholder="e.g., Midterm Examination"
                       required
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#d97056] bg-gray-50"
                     />
                   </div>
-                  <div className="w-full md:w-1/2">
-                    <label className="block mb-1 font-medium">End Time <span className="text-red-500">*</span></label>
-                    <input
-                      type="datetime-local"
-                      name="endTime"
-                      value={testData.endTime}
-                      onChange={handleTestDetailsChange}
-                      className="w-full p-2 border border-gray-300 rounded-md"
-                      required
-                    />
-                    <p className="text-sm text-gray-500 mt-1">Latest time students can submit the test</p>
-                  </div>
-                </div>
 
-                <div className="flex flex-col md:flex-row md:space-x-4 space-y-4 md:space-y-0">
-                <div className="w-full md:w-1/2">
-                  <label className="block mb-1 font-medium">Duration (minutes) <span className="text-red-500">*</span></label>
-                  <input
-                    type="number"
-                    name="duration"
-                    value={testData.duration}
-                    onChange={handleTestDetailsChange}
-                    className="w-full p-2 border border-gray-300 rounded-md"
-                    min="1"
-                    required
-                  />
-                  <p className="text-sm text-gray-500 mt-1">Time allowed for each student to complete the test</p>
-                </div>
-                  
-                  <div className="w-full md:w-1/2">
-                    <label className="block mb-1 font-medium">Class Assigned <span className="text-red-500">*</span></label>
-                    <select
-                      name="classAssignment"
-                      value={testData.classAssignment}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                    <textarea
+                      name="description"
+                      value={testData.description}
                       onChange={handleTestDetailsChange}
-                      className="w-full p-2 border border-gray-300 rounded-md"
-                      required
-                    >
-                      <option value="">Select a class</option>
-                      {classes.map(cls => (
-                        <option key={cls._id} value={cls._id}>{cls.name}</option>
-                      ))}
-                    </select>
+                      placeholder="Provide test instructions and details"
+                      rows="4"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#d97056] bg-gray-50 resize-none"
+                    />
                   </div>
-                </div>
-                
-                <div className="flex items-center mt-4">
-                  <label className="inline-flex items-center">
+
+                  <div className="grid md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Start Time <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="datetime-local"
+                        name="startTime"
+                        value={testData.startTime}
+                        onChange={handleTestDetailsChange}
+                        required
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#d97056] bg-gray-50"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        End Time <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="datetime-local"
+                        name="endTime"
+                        value={testData.endTime}
+                        onChange={handleTestDetailsChange}
+                        required
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#d97056] bg-gray-50"
+                      />
+                      <p className="text-xs text-gray-500 mt-1">Latest time students can submit the test</p>
+                    </div>
+                  </div>
+
+                  <div className="grid md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Duration (minutes) <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="number"
+                        name="duration"
+                        value={testData.duration}
+                        onChange={handleTestDetailsChange}
+                        min="1"
+                        required
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#d97056] bg-gray-50"
+                      />
+                      <p className="text-xs text-gray-500 mt-1">Time allowed for each student to complete the test</p>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Class Assigned <span className="text-red-500">*</span>
+                      </label>
+                      <select
+                        name="classAssignment"
+                        value={testData.classAssignment}
+                        onChange={handleTestDetailsChange}
+                        required
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#d97056] bg-gray-50"
+                      >
+                        <option value="">Select a class</option>
+                        {classes.map(cls => (
+                          <option key={cls._id} value={cls._id}>{cls.name}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-3 mt-4">
                     <input
                       type="checkbox"
                       name="isTimeLimited"
                       checked={testData.isTimeLimited}
                       onChange={handleTestDetailsChange}
-                      className="mr-2"
+                      className="mt-1 h-4 w-4 text-blue-600 focus:ring-[#d97056] border-gray-300 rounded"
                     />
-                    <span>Enable time limit</span>
-                  </label>
-                  <p className="text-sm text-gray-500 ml-4">When enabled, test will automatically submit after the duration time</p>
+                    <label className="text-sm text-gray-700">
+                      Enable time limit
+                      <p className="text-xs text-gray-500 mt-1">When enabled, the test will auto-submit after the set duration</p>
+                    </label>
+                  </div>
                 </div>
               </div>
             )}
+
 
             {/* Step 2: Questions Tab */}
             {activeTab === 'questions' && (
@@ -675,7 +637,7 @@ const updateTestCase = (questionIndex, testCaseIndex, field, value) => {
                               <button
                                 type="button"
                                 onClick={() => addTestCase(questionIndex)}
-                                className="px-3 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700 transition duration-200 flex items-center shadow-sm"
+                                className="px-3 py-2 bg-[#d97056] text-white rounded-md hover:bg-[#c5634c] transition duration-200 flex items-center shadow-sm"
                               >
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -778,7 +740,7 @@ const updateTestCase = (questionIndex, testCaseIndex, field, value) => {
                                         <button
                                           type="button"
                                           onClick={() => addTestCase(questionIndex)}
-                                          className="px-3 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700 transition duration-200 flex items-center shadow-sm"
+                                          className="px-3 py-2 bg-[#d97056] text-white rounded-md hover:bg-[#c5634c] transition duration-200 flex items-center shadow-sm"
                                         >
                                           <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -915,163 +877,90 @@ const updateTestCase = (questionIndex, testCaseIndex, field, value) => {
 
             {/* Review & Finalize Tab */}
             {activeTab === 'review' && (
-              <div className="space-y-6">
-                <h2 className="text-xl font-bold">Test Summary</h2>
-                
-                <div className="bg-white p-4 rounded-lg shadow-sm">
-                  <h3 className="font-medium mb-2 text-[#d97056]">Basic Details</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-8">
+                {/* Basic Details */}
+                <section className="bg-white p-6 rounded-2xl shadow border border-gray-200">
+                  <h3 className="text-lg font-semibold text-[#d97056] mb-4">Basic Details</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm text-gray-700">
                     <div>
-                      <p className="text-sm text-gray-500">Title:</p>
-                      <p className="font-medium">{testData.title || "Not specified"}</p>
+                      <p className="text-gray-500">Title</p>
+                      <p className="font-medium">{testData.title || "Not set"}</p>
                     </div>
                     <div>
-                      <p className="text-sm text-gray-500">Start Time:</p>
-                      <p className="font-medium">{testData.startTime ? new Date(testData.startTime).toLocaleString() : "Not specified"}</p>
+                      <p className="text-gray-500">Start Time</p>
+                      <p className="font-medium">{testData.startTime ? new Date(testData.startTime).toLocaleString() : "Not set"}</p>
                     </div>
                     <div>
-                      <p className="text-sm text-gray-500">End Time (Deadline):</p>
-                      <p className="font-medium">{testData.endTime ? new Date(testData.endTime).toLocaleString() : "Not specified"}</p>
+                      <p className="text-gray-500">End Time</p>
+                      <p className="font-medium">{testData.endTime ? new Date(testData.endTime).toLocaleString() : "Not set"}</p>
                     </div>
                     <div>
-                      <p className="text-sm text-gray-500">Duration:</p>
+                      <p className="text-gray-500">Duration</p>
                       <p className="font-medium">{testData.isTimeLimited ? `${testData.duration} minutes` : "No time limit"}</p>
                     </div>
                     <div>
-                      <p className="text-sm text-gray-500">Class:</p>
-                      <p className="font-medium">
-                        {testData.classAssignment ? 
-                          classes.find(c => c._id.toString() === testData.classAssignment.toString())?.name || "Unknown class" 
-                          : "Not assigned"}
-                      </p>
+                      <p className="text-gray-500">Class</p>
+                      <p className="font-medium">{testData.classAssignment ? (classes.find(c => c._id.toString() === testData.classAssignment.toString())?.name || "Unknown class") : "Not assigned"}</p>
                     </div>
                     <div className="md:col-span-2">
-                      <p className="text-sm text-gray-500">Description:</p>
-                      <p>{testData.description || "No description provided"}</p>
+                      <p className="text-gray-500">Description</p><p>{testData.description || "No description provided"}</p>
                     </div>
                   </div>
-                </div>
-                
-                <div className="bg-white p-4 rounded-lg border-l-4 border-yellow-400">
-                  <h3 className="font-medium mb-2">Important Notes</h3>
-                  <ul className="list-disc pl-5 space-y-1 text-sm">
-                    <li>Once published, you can make limited edits to the test</li>
-                    <li>Students will be able to see this test once published</li>
-                    <li>Make sure all required fields are filled before publishing</li>
-                    <li>Test cannot be deleted after students have started taking it</li>
-                  </ul>
-                </div>
-                
-                <div className="bg-white p-4 rounded-lg shadow-sm">
-      <h3 className="font-medium mb-2 text-[#d97056]">Questions & Rubrics Summary</h3>
-      {testData.questions.length === 0 ? (
-        <p className="text-gray-500 italic">No questions added yet</p>
-      ) : (
-        <div className="space-y-4">
-          <p className="mb-2">Total Questions: <span className="font-medium">{testData.questions.length}</span></p>
-          
-          {testData.questions.map((q, i) => (
-            <div key={i} className="p-3 border border-gray-200 rounded-md">
-              <div className="flex justify-between">
-                <h4 className="font-medium">Q{i+1}: {q.questionText.substring(0, 40)}{q.questionText.length > 40 ? '...' : ''}</h4>
-                <span className="text-gray-600">{q.maxMarks} marks</span>
-              </div>
-              
-              {q.type === 'coding' && q.testCases && q.testCases.length > 0 && (
-                <div className="mt-2 pl-4 border-l-2 border-gray-200">
-                  <p className="text-sm font-medium text-[#d97056]">Test Cases:</p>
-                  <p className="text-sm text-gray-600">
-                    {q.testCases.length} test case{q.testCases.length > 1 ? 's' : ''} 
-                    ({q.testCases.filter(tc => tc.isHidden).length} hidden)
-                  </p>
-                </div>
-              )}
+                </section>
 
-              {q.enableRubrics && q.rubric && q.rubric.criteria && q.rubric.criteria.length > 0 ? (
-                <div className="mt-2 pl-4 border-l-2 border-gray-200">
-                  <p className="text-sm font-medium text-[#d97056]">Rubric Criteria:</p>
-                  <ul className="list-disc pl-5 text-sm space-y-1 mt-1">
-                    {q.rubric.criteria.map((c, idx) => (
-                      <li key={idx}>
-                        {c.name || `Criterion ${idx+1}`} ({c.weight}%)
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ) : (
-                <p className="text-sm text-gray-500 mt-1">No custom rubric</p>
-              )}
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-
-                
-                <div className="bg-white p-4 rounded-lg shadow-sm">
-                  <h3 className="font-medium mb-2 text-[#d97056]">Attached Files</h3>
-                  {testData.files.length === 0 ? (
-                    <p className="text-gray-500 italic">No files attached</p>
+                {/* Questions & Rubrics Summary */}
+                <section className="bg-white p-6 rounded-2xl shadow border border-gray-200">
+                  <h3 className="text-lg font-semibold text-[#d97056] mb-4">Questions Summary</h3>
+                  {testData.questions.length === 0 ? (
+                    <p className="text-gray-500 italic">No questions added yet</p>
                   ) : (
-                    <ul className="list-disc pl-5">
-                      {testData.files.map((file, index) => (
-                        <li key={index}>{file.name}</li>
+                    <div className="space-y-5">
+                      <p>Total Questions: <span className="font-semibold">{testData.questions.length}</span></p>
+                      {testData.questions.map((q, i) => (
+                        <div key={i} className="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                          <div className="flex justify-between items-start">
+                            <h4 className="font-medium text-gray-800">Q{i + 1}: {q.questionText.substring(0, 50)}{q.questionText.length > 50 ? '...' : ''}</h4>
+                            <span className="text-gray-600 text-sm">{q.maxMarks} marks</span>
+                          </div>
+
+                          {q.type === 'coding' && q.testCases?.length > 0 && (
+                            <div className="mt-3 pl-4 border-l-2 border-gray-200">
+                              <p className="text-sm font-medium text-[#d97056]">Test Cases:</p>
+                              <p className="text-sm text-gray-600">
+                                {q.testCases.length} test case{q.testCases.length > 1 ? 's' : ''} ({q.testCases.filter(tc => tc.isHidden).length} hidden)
+                              </p>
+                            </div>
+                          )}
+
+                          {q.enableRubrics && q.rubric?.criteria?.length > 0 ? (
+                            <div className="mt-3 pl-4 border-l-2 border-gray-200">
+                              <p className="text-sm font-medium text-[#d97056]">Rubric Criteria:</p>
+                              <ul className="list-disc pl-5 text-sm text-gray-700 mt-1">
+                                {q.rubric.criteria.map((c, idx) => (
+                                  <li key={idx}>{c.name || `Criterion ${idx + 1}`} ({c.weight}%)</li>
+                                ))}
+                              </ul>
+                            </div>
+                          ) : (
+                            <p className="text-sm text-gray-400 mt-2">No custom rubric</p>
+                          )}
+                        </div>
                       ))}
-                    </ul>
-                  )}
-                </div>
-                
-                
-                {/* File upload area */}
-                <div className="bg-white p-4 rounded-lg shadow-sm">
-                  <h3 className="font-medium mb-2 text-[#d97056]">Attach Files (Optional)</h3>
-                  <p className="text-sm text-gray-500 mb-2">Upload any supplementary files for students</p>
-                  
-                  <input
-                    type="file"
-                    onChange={handleFileUpload}
-                    className="w-full p-2 border border-gray-300 rounded-md"
-                    multiple
-                  />
-                  
-                  {testData.files.length > 0 && (
-                    <div className="mt-4">
-                      <h4 className="font-medium text-sm mb-2">Attached Files:</h4>
-                      <ul className="space-y-2">
-                        {testData.files.map((file, index) => (
-                          <li key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded">
-                            <span className="truncate">{file.name}</span>
-                            <button
-                              type="button"
-                              onClick={() => removeFile(index)}
-                              className="text-red-500 hover:text-red-700"
-                            >
-                              Remove
-                            </button>
-                          </li>
-                        ))}
-                      </ul>
                     </div>
                   )}
-                </div>
-                
-                {/* Validation warnings */}
+                </section>
+
+                {/* Validation Warnings */}
                 {(!testData.title || !testData.startTime || !testData.endTime || !testData.classAssignment || testData.questions.length === 0) && (
-                  <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4">
-                    <div className="flex">
-                      <div className="ml-3">
-                        <p className="text-sm text-yellow-700">
-                          <strong>Please complete the following before publishing:</strong>
-                        </p>
-                        <ul className="mt-1 text-sm text-yellow-700 list-disc list-inside">
-                          {!testData.title && <li>Add a test title</li>}
-                          {!testData.startTime && <li>Set a start time</li>}
-                          {!testData.endTime && <li>Set an end time</li>}
-                          {!testData.classAssignment && <li>Assign to a class</li>}
-                          {testData.questions.length === 0 && <li>Add at least one question</li>}
-                        </ul>
-                      </div>
-                    </div>
+                  <div className="bg-yellow-50 border-l-4 border-yellow-400 p-5 rounded-xl shadow-sm">
+                    <p className="text-sm text-yellow-700 font-medium mb-2">⚠️ Please complete the following before publishing:</p>
+                    <ul className="list-disc list-inside text-sm text-yellow-700 space-y-1">
+                      {!testData.title && <li>Add a test title</li>}
+                      {!testData.startTime && <li>Set a start time</li>}
+                      {!testData.endTime && <li>Set an end time</li>}
+                      {!testData.classAssignment && <li>Assign to a class</li>}
+                      {testData.questions.length === 0 && <li>Add at least one question</li>}
+                    </ul>
                   </div>
                 )}
               </div>
@@ -1131,7 +1020,7 @@ const updateTestCase = (questionIndex, testCaseIndex, field, value) => {
                         !testData.classAssignment || 
                         testData.questions.length === 0
                           ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                          : "bg-green-600 text-white hover:bg-green-700"
+                          : "bg-[#d97056] text-white hover:bg-[#c5634c]"
                       }`}
                     >
                       Publish Test

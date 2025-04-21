@@ -192,9 +192,7 @@ export const createTest = async (req, res) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const teacherId = decoded.id;
 
-    const {
-      title, description, startTime, endTime, duration, classAssignment, questions, isDraft, createdBy, rubric, files
-    } = req.body;
+    const { title, description, startTime, endTime, duration, classAssignment, questions, isDraft, createdBy, rubric } = req.body;
     if (!title || !startTime || !endTime || !duration || !classAssignment || !questions.length) {
       return res.status(400).json({ message: "Missing required fields" });
     }
@@ -209,7 +207,6 @@ export const createTest = async (req, res) => {
       createdBy,
       questions,
       rubric,
-      files,
       isDraft: isDraft ?? true,
     });
 
