@@ -358,7 +358,14 @@ export default function StudentDashboard() {
                         className="bg-[#e1c3ad] rounded-xl p-4 shadow-md min-w-[240px] w-[240px] flex-shrink-0"
                       >
                         <h4 className="font-semibold text-base text-gray-900">{test.title}</h4>
-                        <p className="text-gray-800 text-sm">{test.description}</p>
+                        <p className="text-gray-800 text-sm line-clamp-2"
+                          style={{
+                            display: '-webkit-box',
+                            WebkitBoxOrient: 'vertical',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                          }}
+                        >{test.description}</p>
                         
                         <div className="flex justify-between items-center mt-4">
                           <div className="flex items-center">
