@@ -3,7 +3,6 @@
 ### 1. Repository Setup
 ```bash
 git clone https://github.com/tokenomists/Gradia.git
-
 cd Gradia
 ```
 
@@ -31,10 +30,15 @@ Create a virtual environment:
 ```bash
 python -m venv .venv
 ```
-Activate the virtual environment (Windows):
-```bash
-.\.venv\Scripts\activate
-```
+Activate the virtual environment:
+- For Windows:
+  ```bash
+  .\.venv\Scripts\activate
+  ```
+- For Linux:
+  ```bash
+  source .venv/bin/activate
+  ```
 
 Install the required Python dependencies:
 ```bash
@@ -50,7 +54,7 @@ Before setting the environment variables, create a Google Cloud project and set 
 - Google OAuth
 - Other necessary APIs
 
-Then, create a service account with the required permissions in IAM and download the `service account credentials` as a JSON file. Store the full path of this credentials file in the `GOOGLE_APPLICATION_CREDENTIALS` variable in the `grading-system` .env file as mentioned below.
+Then, create a service account with the required permissions in IAM and download the `service account credentials` as a JSON file. Store the full path of this credentials file in the `GOOGLE_APPLICATION_CREDENTIALS` variable in the `grading-system` `.env` file as mentioned below.
 
 ## 6. Set Up Environment Variables
 - In the `frontend` directory, create a `.env` file with the following:
@@ -95,8 +99,14 @@ npm run dev
 ```
 
 Go to the `grading-system` directory, after activating the virtual environment, run:
-```bash
-python app.py
-```
+- For Windows:
+    ```bash
+    python run.py
+    ```
+- For Linux or Docker (Recommended: use Gunicorn for production):
+    ```bash
+    gunicorn -b 0.0.0.0:YOUR_PYTHON_BACKEND_PORT run:app
+    ```
+    > ⚠️ **Note**: Gunicorn is not supported on Windows unless you use something like WSL.
 
 This will start all components of the platform on their respective servers. 
