@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useReducer, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CheckCircle } from 'lucide-react';
+import { ArrowBigDown, CheckCircle } from 'lucide-react';
 import { cn } from "@/lib/utils";
 import { 
   Clock, 
@@ -50,6 +50,7 @@ const initialState = {
   testDetails: null,
   isLoading: true
 };
+const xs = '@media (min-width: 480px)';
   
   function testReducer(state, action) {
     switch (action.type) {
@@ -152,18 +153,14 @@ const initialState = {
       <motion.div 
         className={`bg-white/70 backdrop-blur-sm rounded-lg ${
           isRunningOut ? 'border-2 border-red-500' : 'border border-[#f4c2a1]'
-        } px-4 py-2 shadow-md`}
+        } px-2 py-1 md:px-4 md:py-2 shadow-md`}
         animate={isRunningOut ? {
           scale: [1, 1.02, 1],
-          transition: {
-            duration: 1.5,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }
+          transition: { duration: 1.5, repeat: Infinity, ease: "easeInOut" }
         } : {}}
       >
-        <div className="flex items-center gap-2">
-          <Clock size={20} className={isRunningOut ? "text-red-500" : "text-[#d56c4e]"} />
+        <div className="flex items-center gap-1 md:gap-2">
+          <Clock size={16} className={`md:w-5 md:h-5 ${isRunningOut ? "text-red-500" : "text-[#d56c4e]"}`} />
           <div className="flex items-center">
             {[
               { value: formatTime(hours), separator: ":" },
@@ -173,7 +170,7 @@ const initialState = {
               <div key={idx} className="flex items-center">
                 <div className={`${
                   isRunningOut ? "bg-red-500" : "bg-[#d56c4e]"
-                } text-white px-2.5 py-1.5 rounded text-xl font-mono font-medium`}>
+                } text-white px-1.5 py-1 md:px-2.5 md:py-1.5 rounded text-sm md:text-xl font-mono font-medium`}>
                   {unit.value}
                 </div>
                 {unit.separator && (
@@ -397,36 +394,30 @@ const TestPage = () => {
                 })}
                 dispatch={dispatch}
                 currentQuestionId={currentQuestion.id}
+                className="min-h-[200px] md:min-h-[300px]"
               />
               
               {/* Test Cases Section */}
               {currentQuestion.testCases && currentQuestion.testCases.length > 0 && (
-                <div className="mt-6 border-2 border-[#e2c3ae] rounded-lg p-4">
-                  <h3 className="text-xl font-bold text-[#d56c4e] mb-4">Test Cases</h3>
-                  <div className="space-y-3">
-                    {currentQuestion.testCases.filter(tc => !tc.isHidden).map((testCase, index) => (
-                      <div key={index} className="bg-gray-50 p-3 rounded-md">
-                        <div className="flex justify-between">
-                          <div className="space-y-2 w-1/2">
-                            <p className="font-medium text-gray-700">Input:</p>
-                            <pre className="bg-gray-100 p-2 rounded overflow-x-auto text-sm">{testCase.input}</pre>
-                          </div>
-                          <div className="space-y-2 w-1/2 ml-4">
-                            <p className="font-medium text-gray-700">Expected Output:</p>
-                            <pre className="bg-gray-100 p-2 rounded overflow-x-auto text-sm">{testCase.output}</pre>
-                          </div>
+                <div className="mt-4 md:mt-6 border-2 border-[#e2c3ae] rounded-lg p-3 md:p-4">
+                <h3 className="text-lg md:text-xl font-bold text-[#d56c4e] mb-2 md:mb-4">Test Cases</h3>
+                <div className="space-y-2 md:space-y-3">
+                  {currentQuestion.testCases.filter(tc => !tc.isHidden).map((testCase, index) => (
+                    <div key={index} className="bg-gray-50 p-2 md:p-3 rounded-md">
+                      <div className="flex flex-col md:flex-row justify-between">
+                        <div className="space-y-1 md:space-y-2 w-full md:w-1/2 mb-2 md:mb-0">
+                          <p className="font-medium text-gray-700 text-sm md:text-base">Input:</p>
+                          <pre className="bg-gray-100 p-1 md:p-2 rounded overflow-x-auto text-xs md:text-sm">{testCase.input}</pre>
+                        </div>
+                        <div className="space-y-1 md:space-y-2 w-full md:w-1/2 md:ml-4">
+                          <p className="font-medium text-gray-700 text-sm md:text-base">Expected Output:</p>
+                          <pre className="bg-gray-100 p-1 md:p-2 rounded overflow-x-auto text-xs md:text-sm">{testCase.output}</pre>
                         </div>
                       </div>
-                    ))}
-                    {currentQuestion.testCases.some(tc => tc.isHidden) && (
-                      <div className="bg-yellow-50 p-3 rounded-md border-l-4 border-yellow-400">
-                        <p className="text-yellow-700">
-                          <span className="font-medium">Note:</span> There are hidden test cases that will be evaluated when you submit.
-                        </p>
-                      </div>
-                    )}
-                  </div>
+                    </div>
+                  ))}
                 </div>
+              </div>
               )}
             </div>
           );
@@ -562,9 +553,45 @@ const TestPage = () => {
   }
 
   return (
-    <div className="relative flex h-screen bg-[#fcf9ea] overflow-hidden">
+    <div className="relative flex flex-col md:flex-row h-screen bg-[#fcf9ea] overflow-hidden">
+      {/* Mobile Navigation - Fixed at bottom (visible only on small screens) */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-[#edead7] border-t border-[#e2c3ae] z-50 px-2 py-3">
+        <div className="flex justify-between items-center">
+          {/* Current question indicator */}
+          <div className="px-3 py-1 bg-[#d56c4e] text-white rounded-lg text-sm">
+            Q {currentQuestionIndex + 1}/{questions.length}
+          </div>
+          
+          {/* Quick navigation buttons */}
+          <div className="flex space-x-1 overflow-x-auto py-1 flex-grow mx-2">
+            {questions.map((q, index) => (
+              <button
+                key={q.id}
+                onClick={() => dispatch({ type: 'NAVIGATE_QUESTION', payload: index })}
+                className={cn(
+                  "min-w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium transition-all",
+                  q.status === 'not-visited' && "bg-gray-200 text-gray-500",
+                  q.status === 'visited' && "bg-yellow-200 text-yellow-800",
+                  q.status === 'attempted' && "bg-green-200 text-green-800",
+                  q.reviewMarked && "bg-orange-200 text-orange-800",
+                  currentQuestionIndex === index && "ring-2 ring-[#d56c4e]"
+                )}
+              >
+                {q.qNo}
+              </button>
+            ))}
+          </div>
+          
+          {/* Status summary */}
+          <div className="flex items-center space-x-1">
+            <div className="w-2 h-2 rounded-full bg-green-500"></div>
+            <span className="text-xs font-medium">{questions.filter(q => q.status === 'attempted').length}</span>
+          </div>
+        </div>
+      </div>
+
       {/* Sidebar */}
-      <div className="w-1/5 bg-[#edead7] p-6 space-y-6 shadow-lg relative z-40">
+      <div className="hidden md:block md:w-1/5 bg-[#edead7] p-6 space-y-6 shadow-lg relative z-40 overflow-y-auto">
         {/* Question Summary */}
         <QuestionSummary questions={questions} />
       
@@ -576,7 +603,7 @@ const TestPage = () => {
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
               className={cn(
-                "p-3 rounded-lg text-center font-bold transition-all relative overflow-hidden group",
+                "p-2 md:p-3 rounded-lg text-center font-bold transition-all relative overflow-hidden group text-sm md:text-base",
                 q.status === 'not-visited' && "bg-gray-200 text-gray-500",
                 q.status === 'visited' && "bg-yellow-200 text-yellow-800",
                 q.status === 'attempted' && "bg-green-200 text-green-800",
@@ -591,7 +618,7 @@ const TestPage = () => {
               {q.qNo}
               {q.reviewMarked && (
                 <BookmarkIcon 
-                  className="absolute top-1 right-1 w-4 h-4 text-[#d56c4e] group-hover:scale-125 transition-transform" 
+                  className="absolute top-0.5 right-0.5 md:top-1 md:right-1 w-3 h-3 md:w-4 md:h-4 text-[#d56c4e]" 
                 />
               )}
               <motion.div 
@@ -603,62 +630,70 @@ const TestPage = () => {
         </div>
       </div>
 
-      {/* Main Content Area - Enhanced */}
-      <div className="w-4/5 flex flex-col">
-        <div className="flex justify-between items-center px-8 py-4 bg-[#fbf8e9] backdrop-blur-sm border-b border-[#e2c3ae]">
-          <h1 className="text-2xl font-bold text-[#d56c4e]">
+      {/* Main Content Area */}
+      <div className="w-full md:w-4/5 flex flex-col flex-grow overflow-hidden">
+        <div className="flex flex-col md:flex-row justify-between items-center px-4 md:px-8 py-3 md:py-4 bg-[#fbf8e9] backdrop-blur-sm border-b border-[#e2c3ae]">
+          <h1 className="text-xl md:text-2xl font-bold text-[#d56c4e] mb-2 md:mb-0">
             {state.testDetails?.title || 'Test'}
           </h1>
           <TestTimer seconds={timer} />
         </div>
+        <div className="md:hidden m-2">
+          <div className="flex justify-between text-xl text-gray-600 mb-1">
+            <span className='font-bold text-xl text-[#d56c4e]'>Progress</span>
+            <span className='text-xl font-bold'>{calculateTestCompletion({questions})}%</span>
+          </div>
+          <div className="w-full h-1.5 bg-gray-200 rounded-full">
+            <div 
+              className="h-1.5 bg-[#d56c4e] rounded-full" 
+              style={{ width: `${calculateTestCompletion({questions})}%` }}
+            ></div>
+          </div>
+        </div>
         <div className="flex-grow p-8 overflow-y-auto">
           <AnimatePresence mode="wait">
-            <motion.div
-              key={currentQuestion.id}
-              initial={{ opacity: 0, x: 50 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -50 }}
-              transition={{ 
-                duration: 0.3,
-                type: "tween"
-              }}
-              className="bg-white rounded-2xl shadow-2xl p-8 border-4 border-[#e2c3ae]/50 relative overflow-hidden"
-            >
+          <motion.div
+            key={currentQuestion.id}
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.3, type: "tween" }}
+            className="bg-white rounded-lg md:rounded-2xl shadow-xl md:shadow-2xl p-4 md:p-8 border-2 md:border-4 border-[#e2c3ae]/50 relative overflow-hidden"
+          >
               {/* Decorative Background */}
               <div className="absolute -top-10 -right-10 w-32 h-32 bg-[#d56c4e]/10 rounded-full"></div>
               <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-[#e2c3ae]/10 rounded-full"></div>
 
               {/* Question Header */}
-              <div className="flex justify-between items-start mb-6 relative z-10">
-                <div>
-                  <h2 className="text-3xl font-bold text-[#d56c4e] flex items-center">
-                    {currentQuestion.type === 'typed' && <FileText className="mr-4 text-[#d56c4e] w-8 h-8" />}
-                    {currentQuestion.type === 'coding' && <Code className="mr-4 text-[#d56c4e] w-8 h-8" />}
-                    Question {currentQuestion.qNo}
-                  </h2>
-                  <p className="text-gray-600 mt-3 text-lg">{currentQuestion.text}</p>
+              <div className="flex flex-col md:flex-row justify-between items-start mb-4 md:mb-6 relative z-10">
+                <div className="w-full">
+                  <div className='flex flex-row justify-between items-start mb-0'>
+                    <h2 className="text-xl md:text-3xl font-bold text-[#d56c4e] flex items-center mb-2 md:mb-0">
+                      {currentQuestion.type === 'typed' && <FileText className="mr-2 md:mr-4 text-[#d56c4e] w-6 h-6 md:w-8 md:h-8" />}
+                      {currentQuestion.type === 'coding' && <Code className="mr-2 md:mr-4 text-[#d56c4e] w-6 h-6 md:w-8 md:h-8" />}
+                      Question {currentQuestion.qNo}
+                    </h2>
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.9 }}
+                      onClick={() => dispatch({ type: 'TOGGLE_REVIEW', payload: currentQuestion.id })}
+                      className="flex items-center px-3 py-2 md:px-5 md:py-3 bg-[#e2c3ae] text-black rounded-md md:rounded-xl hover:bg-[#e2c3ae]/80 text-sm md:text-base transition-all"
+                    >
+                      {currentQuestion.reviewMarked ? (
+                        <>
+                          <BookmarkCheckIcon className="w-4 h-4 md:w-6 md:h-6 mr-1 md:mr-2" />
+                          <span className="xs:inline">Unmark</span>
+                        </>
+                      ) : (
+                        <>
+                          <BookmarkIcon className="w-4 h-4 md:w-6 md:h-6 mr-1 md:mr-2" />
+                          <span className="xs:inline">Mark for Review</span>
+                        </>
+                      )}
+                    </motion.button>
+                  </div>
+                  <p className="text-gray-600 mt-2 md:mt-3 text-base md:text-lg">{currentQuestion.text}</p>
                 </div>
-                <motion.button
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
-                  onClick={() => dispatch({ 
-                    type: 'TOGGLE_REVIEW', 
-                    payload: currentQuestion.id 
-                  })}
-                  className="flex items-center space-x-2 px-5 py-3 bg-[#e2c3ae] text-black rounded-xl hover:bg-[#e2c3ae]/80 transition-all"
-                >
-                  {currentQuestion.reviewMarked ? (
-                    <>
-                      <BookmarkCheckIcon className="w-6 h-6 mr-2" />
-                      Unmark
-                    </>
-                  ) : (
-                    <>
-                      <BookmarkIcon className="w-6 h-6 mr-2" />
-                      Mark for Review
-                    </>
-                  )}
-                </motion.button>
               </div>
 
               {/* Question Component */}
@@ -670,29 +705,28 @@ const TestPage = () => {
         </div>
       
       {/* Navigation Buttons - Enhanced with Submit Button */}
-      <div className="bg-[#edead7] p-6 flex justify-between items-center shadow-inner">
+      <div className="bg-[#edead7] p-5 flex justify-between items-center shadow-inner">
         <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
           disabled={currentQuestionIndex === 0}
-          onClick={() => dispatch({ 
-            type: 'NAVIGATE_QUESTION', 
-            payload: currentQuestionIndex - 1 
-          })}
-          className="px-8 py-4 bg-[#e2c3ae] text-black rounded-xl disabled:opacity-50 flex items-center hover:bg-[#e2c3ae]/80 transition-all"
+          onClick={() => dispatch({ type: 'NAVIGATE_QUESTION', payload: currentQuestionIndex - 1 })}
+          className="px-3 py-2 md:px-8 md:py-4 bg-[#e2c3ae] text-black rounded-md md:rounded-xl disabled:opacity-50 flex items-center hover:bg-[#e2c3ae]/80 text-sm md:text-base transition-all"
         >
-          <ChevronLeft className="mr-2 w-6 h-6" /> Previous
+          <ChevronLeft className="mr-1 md:mr-2 w-4 h-4 md:w-6 md:h-6" /> 
+          <span className="xs:inline">Previous</span>
         </motion.button>
 
         {/* Submission Modal */}
         <AlertDialog>
           <AlertDialogTrigger asChild>
             <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="px-8 py-4 bg-[#d56c4e] text-white rounded-xl flex items-center hover:bg-[#d56c4e]/80 transition-all"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="px-3 py-2 md:px-8 md:py-4 bg-[#d56c4e] text-white rounded-md md:rounded-xl flex items-center hover:bg-[#d56c4e]/80 text-sm md:text-base transition-all"
             >
-              <Send className="mr-2 w-6 h-6" /> Submit Test
+              <Send className="mr-1 md:mr-2 w-4 h-4 md:w-6 md:h-6" /> 
+              <span className="xs:inline">Submit Test</span>
             </motion.button>
           </AlertDialogTrigger>
           <AlertDialogContent>
@@ -730,17 +764,75 @@ const TestPage = () => {
         </AlertDialog>
 
         <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
           disabled={currentQuestionIndex === questions.length - 1}
-          onClick={() => dispatch({ 
-            type: 'NAVIGATE_QUESTION', 
-            payload: currentQuestionIndex + 1 
-          })}
-          className="px-8 py-4 bg-[#d56c4e] text-white rounded-xl disabled:opacity-50 flex items-center hover:bg-[#d56c4e]/80 transition-all"
+          onClick={() => dispatch({ type: 'NAVIGATE_QUESTION', payload: currentQuestionIndex + 1 })}
+          className="px-3 py-2 md:px-8 md:py-4 bg-[#d56c4e] text-white rounded-md md:rounded-xl disabled:opacity-50 flex items-center hover:bg-[#d56c4e]/80 text-sm md:text-base transition-all"
         >
-          Next <ChevronRight className="ml-2 w-6 h-6" />
+          <span className="xs:inline">Next</span> 
+          <ChevronRight className="ml-1 md:ml-2 w-4 h-4 md:w-6 md:h-6" />
         </motion.button>
+      </div>
+      {/* Mobile bottom action buttons - floats above the nav bar */}
+      <div className="md:hidden fixed bottom-16 left-0 right-0 flex justify-between items-center px-3 py-2 bg-[#fbf8e9] border-t border-[#e2c3ae] z-40">
+        <button
+          disabled={currentQuestionIndex === 0}
+          onClick={() => dispatch({ type: 'NAVIGATE_QUESTION', payload: currentQuestionIndex - 1 })}
+          className="p-2 bg-[#e2c3ae] text-black rounded-md disabled:opacity-50 flex items-center"
+        >
+          <ChevronLeft size={18} />
+        </button>
+        
+        <div className="flex space-x-2">          
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <button className="p-2 bg-[#d56c4e] text-white rounded-md flex items-center">
+                <Send size={18} />
+              </button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Submit Test?</AlertDialogTitle>
+              <AlertDialogDescription>
+                <div className="space-y-4">
+                  <p>Are you sure you want to submit the test?</p>
+                  <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4">
+                    <p className="text-yellow-700">
+                      Test Completion: {calculateTestCompletion({questions})}%
+                      {calculateTestCompletion({questions}) < 100 && (
+                        <span className="block mt-2 text-sm">
+                          You have not attempted all questions. Are you sure you want to submit?
+                        </span>
+                      )}
+                    </p>
+                  </div>
+                  <div className="flex items-center space-x-2 bg-blue-50 border-l-4 border-blue-400 p-4">
+                    <Clock className="w-6 h-6 text-blue-500" />
+                    <p className="text-blue-700">
+                      Remaining Time: {Math.floor(timer / 3600)}h {Math.floor((timer % 3600) / 60)}m
+                    </p>
+                  </div>
+                </div>
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={handleTestSubmit}>
+                Confirm Submit
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+          </AlertDialog>
+        </div>
+        
+        <button
+          disabled={currentQuestionIndex === questions.length - 1}
+          onClick={() => dispatch({ type: 'NAVIGATE_QUESTION', payload: currentQuestionIndex + 1 })}
+          className="p-2 bg-[#d56c4e] text-white rounded-md disabled:opacity-50 flex items-center"
+        >
+          <ChevronRight size={18} />
+        </button>
       </div>
     </div>
 
