@@ -105,7 +105,7 @@ Go to the `grading-system` directory, after activating the virtual environment, 
     ```
 - For Linux or Docker (Recommended: use Gunicorn for production):
     ```bash
-    gunicorn -b 0.0.0.0:8080 run:app
+    gunicorn -b 0.0.0.0:YOUR_PYTHON_BACKEND_PORT run:app
     ```
     > ⚠️ **Note**: Gunicorn is not supported on Windows unless you use something like WSL.
 
