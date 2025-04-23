@@ -6,6 +6,7 @@ import connectDb from './config/db.js';
 import authRoutes from "./routes/authRoutes.js";
 import classRoutes from './routes/classRoutes.js';
 import testRoutes from './routes/testRoutes.js';
+import testSessionRoutes from './routes/testSessionRoutes.js';
 import chatRoutes from './routes/chatRoutes.js';
 import passport from "passport";
 import session from "express-session";
@@ -61,6 +62,7 @@ app.use("/api/auth", authRoutes);
 app.use('/api/chat', chatRoutes);
 app.use("/api/classes", authMiddleware, classRoutes);
 app.use("/api/tests", authMiddleware, testRoutes);
+app.use("/api/test-session", authMiddleware, testSessionRoutes);
 
 const PORT = process.env.PORT || 8000;
 

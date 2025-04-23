@@ -30,6 +30,8 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useRouter, useParams } from 'next/navigation';
 import { getTestById, submitTest } from '@/utils/test';
+import instance from '@/utils/axios';
+import { debounce } from 'lodash.debounce';
 
 const initialState = {
   questions: [{
@@ -41,7 +43,8 @@ const initialState = {
     images: [],
     testCases: [],
     reviewMarked: false,
-    maxMarks: 0
+    maxMarks: 0,
+    sessionId: null,
   }],
   currentQuestionIndex: 0,
   timer: 100,
@@ -61,6 +64,13 @@ const xs = '@media (min-width: 480px)';
           timer: action.payload.timer,
           testDetails: action.payload.testDetails,
           testId: action.payload.testId
+        };
+      case 'SET_SESSION':
+        return {
+          ...state,
+          sessionId: action.payload._id,
+          questions: action.payload.questions,
+          currentQuestionIndex: action.payload.currentQuestionIndex
         };
       case 'SET_ANSWER':
         return {
@@ -263,20 +273,18 @@ const TestPage = () => {
   const router = useRouter();
 
   useEffect(() => {
+    if (!testId) return;
     const fetchTestData = async () => {
       try {
-        // dispatch({ type: 'SET_LOADING', payload: true });
+        dispatch({ type: 'SET_LOADING', payload: true });
         
         const testData = await getTestById(testId);
         if (!testData) {
           throw new Error('Test data not found');
         }
         // console.log(testData);
-        const now = new Date();
-        const endTime = new Date(testData.endTime);
-        const remainingTime = testData.duration * 60;
         
-        const transformedQuestions = testData.questions.map((q, index) => ({
+        const skeleton = testData.questions.map((q, i) => ({
           id: q._id,
           type: q.type,
           text: q.questionText,
@@ -285,14 +293,37 @@ const TestPage = () => {
           images: [],
           testCases: q.testCases || [],
           reviewMarked: false,
-          maxMarks: q.maxMarks
+          maxMarks: q.maxMarks,
+          qNo: i + 1
         }));
         
-        transformedQuestions[0].status = 'visited';
-        transformedQuestions.forEach((q, index) => {
-          q.qNo = index + 1;
+        skeleton[0].status = 'visited';
+
+        const res = await instance.post('/api/test-session/start', {
+          testId: testId
         });
-        console.log(transformedQuestions);
+        console.log(res);
+        const resData = res.data;
+        if (!resData.success) {
+          const err = await res.error;
+          alert(err);
+          return router.push('/');
+        }
+        const session = await resData.session;
+
+        const transformedQuestions = skeleton.map((q, idx) => {
+          const ans = session.answers[idx] || {};
+          return {
+            ...q,
+            answer: ans.answerText ?? ans.codeAnswer ?? '',
+            images: ans.fileUrl ? [ans.fileUrl] : []
+          };
+        });
+
+        const durationSecs = testData.duration * 60;
+        const elapsedSecs = Math.floor((Date.now() - new Date(session.startedAt)) / 1000);
+        const remainingTime = Math.max(0, durationSecs - elapsedSecs);
+
         dispatch({
           type: 'INIT_TEST',
           payload: {
@@ -303,6 +334,14 @@ const TestPage = () => {
             isLoading: false
           }
         });
+        dispatch({
+          type: 'SET_SESSION',
+          payload: {
+            sessionId: session._id,
+            currentQuestionIndex: session.currentQuestionIndex,
+            questions: transformedQuestions
+          }
+        })
       } catch (error) {
         console.error('Error fetching test:', error);
         alert(`Failed to load test: ${error.message}`);
@@ -311,6 +350,7 @@ const TestPage = () => {
     };
   
     fetchTestData();
+    dispatch({ type: 'SET_LOADING', payload: false });
   }, [testId, router]);
   
 
@@ -318,7 +358,7 @@ const TestPage = () => {
     const timerId = setInterval(() => {
       dispatch({ type: 'DECREMENT_TIMER' });
 
-      if (timer <= 0) {
+      if (state.timer <= 0) {
         clearInterval(timerId);
         handleTestSubmit();
       }
@@ -326,7 +366,7 @@ const TestPage = () => {
     }, 1000);
 
     return () => clearInterval(timerId);
-  }, [timer]);
+  }, [state.timer]);
 
   // Image Upload Handler
   const handleImageUpload = (e) => {
@@ -513,17 +553,17 @@ const TestPage = () => {
     }
   };
 
-  // if (state.isLoading) {
-  //   return (
-  //     <div className="flex items-center justify-center h-screen bg-[#fcf9ea]">
-  //       <motion.div
-  //         animate={{ rotate: 360 }}
-  //         transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
-  //         className="w-16 h-16 border-4 border-[#d56c4e] border-t-transparent rounded-full"
-  //       />
-  //     </div>
-  //   );
-  // }
+  if (state.isLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-[#fcf9ea]">
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+          className="w-16 h-16 border-4 border-[#d56c4e] border-t-transparent rounded-full"
+        />
+      </div>
+    );
+  }
 
   // If test is submitted, show submission confirmation
   if (submitted) {

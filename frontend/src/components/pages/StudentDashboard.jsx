@@ -263,7 +263,7 @@ export default function StudentDashboard() {
         <motion.a
           whileHover={{ scale: 1.05 }}
           className="cursor-pointer font-sans font-medium"
-          href="/"
+          href="/practice"
         >
           Practice
         </motion.a>

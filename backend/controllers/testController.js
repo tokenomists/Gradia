@@ -220,7 +220,7 @@ export const createTest = async (req, res) => {
       { new: true }
     );
 
-    res.status(201).json({ message: "Test created successfully!", test: newTest });
+    res.status(201).json({ success: true, message: "Test created successfully!", test: newTest });
   } catch (error) {
     console.error("Error publishing test:", error);
     res.status(500).json({ message: "Failed to publish test", error: error.message });
