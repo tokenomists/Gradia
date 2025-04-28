@@ -10,6 +10,7 @@ const TestSessionSchema = new mongoose.Schema({
   currentQuestionIndex: { type: Number, default: 0 },
   answers:       { type: Array,  default: [] },
   isSubmitted:   { type: Boolean, default: false },
+  isStarted:     { type: Boolean, default: true },
   deviceFingerprint: { type: String }
 }, { timestamps: true });
 

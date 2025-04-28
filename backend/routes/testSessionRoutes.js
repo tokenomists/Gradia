@@ -43,6 +43,7 @@ router.patch('/:sessionId', async (req, res) => {
     session.answers = answers;
     session.currentQuestionIndex = currentQuestionIndex;
     session.lastSavedAt = Date.now();
+    session.isStarted = true;
     await session.save();
     res.json({ ok: true });
 });

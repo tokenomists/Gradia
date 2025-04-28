@@ -31,6 +31,7 @@ import {
 import { useRouter, useParams } from 'next/navigation';
 import { getTestById, submitTest } from '@/utils/test';
 import instance from '@/utils/axios';
+import TestInstructionsPage from '@/components/student/TestInstructionsPage';
 
 const initialState = {
   questions: [{
@@ -151,7 +152,7 @@ const xs = '@media (min-width: 480px)';
     const secs = seconds % 60;
     
     const formatTime = (time) => time.toString().padStart(2, '0');
-    const isRunningOut = seconds <= 60;
+    const isRunningOut = seconds <= 120;
     
     return (
       <motion.div 
@@ -260,6 +261,10 @@ const TestPage = () => {
   const [state, dispatch] = useReducer(testReducer, initialState);
   const { questions, currentQuestionIndex, timer, submitted } = state;
   const [saveTimer, setSaveTimer] = useState(5);
+  const [showInstructions, setShowInstructions] = useState(true);
+  const [testStarted, setTestStarted] = useState(() => {
+    return localStorage.getItem('testStarted') === 'true'
+  })
   const currentQuestion = useMemo(() => {
     return questions[currentQuestionIndex] ?? null;
   }, [questions, currentQuestionIndex]);
@@ -305,7 +310,10 @@ const TestPage = () => {
           return router.push('/');
         }
         const session = await resData.session;
-
+        if(session.isStarted) {
+          setShowInstructions(false);
+          setTestStarted(true);
+        }
         const transformedQuestions = skeleton.map((q, idx) => {
           const ans = session.answers[idx] || {};
           return {
@@ -328,22 +336,22 @@ const TestPage = () => {
             testDetails: testData,
             testId: testId,
             sessionId: session._id,
-            currentQuestionIndex: session.currentQuestionIndex || 0
+            currentQuestionIndex: session.currentQuestionIndex || 0,
+            isStarted: session.isStarted || false
           }
         });
-        
       } catch (error) {
         console.error('Error fetching test:', error);
         alert(`Failed to load test: ${error.message}`);
         router.push('/');
       }
     };
-  
+
     fetchTestData();
     // console.log("State after setting the session: ", state);
     dispatch({ type: 'SET_LOADING', payload: false });
     setSaveTimer(5);
-  }, [testId, router]);
+  }, [testId, router, testStarted]);
   
 
   useEffect(() => {
@@ -360,8 +368,15 @@ const TestPage = () => {
     return () => clearInterval(timerId);
   }, [state.timer]);
 
+  const handleStartTest = async () => {
+    setShowInstructions(false);
+    setTestStarted(true);
+    await instance.patch(`/api/test-session/${state.sessionId}`, {
+      isStarted: true
+    });
+  };  
+
   useEffect(() => {
-    // Only set up the interval if sessionId exists
     if (!state.sessionId) return;
     
     const saveInterval = setInterval(async () => {
@@ -423,25 +438,38 @@ const TestPage = () => {
         </div>
       );
     }
+
+    const marksDisplay = (
+      <div className="mb-4">
+        <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-[#d56c4e]/10 text-[#d56c4e]">
+          Max Marks: {currentQuestion.maxMarks}
+        </span>
+      </div>
+    );
+
     switch(currentQuestion.type) {
       case 'typed':
         return (
-          <textarea
-            value={currentQuestion.answer || ''}
-            onChange={(e) => dispatch({
-              type: 'SET_ANSWER',
-              payload: {
-                id: currentQuestion.id,
-                answer: e.target.value
-              }
-            })}
-            className="w-full p-4 border-2 border-[#e2c3ae] rounded-lg h-48 shadow-inner focus:ring-2 focus:ring-[#d56c4e] transition-all"
-            placeholder="Type your answer here"
-          />
+          <>
+            {marksDisplay}
+            <textarea
+              value={currentQuestion.answer || ''}
+              onChange={(e) => dispatch({
+                type: 'SET_ANSWER',
+                payload: {
+                  id: currentQuestion.id,
+                  answer: e.target.value
+                }
+              })}
+              className="w-full p-4 border-2 border-[#e2c3ae] rounded-lg h-48 shadow-inner focus:ring-2 focus:ring-[#d56c4e] transition-all"
+              placeholder="Type your answer here"
+            />
+          </>
         );
         case 'coding':
           return (
             <div className="space-y-4">
+              {marksDisplay}
               <div className="bg-blue-50 border-l-4 border-blue-400 p-3 rounded-r-md mb-4">
                 <p className="text-sm text-blue-700">
                   Note: Your function must be named <code className="bg-blue-100 px-1 rounded">solution</code> and should return the answer
@@ -488,6 +516,7 @@ const TestPage = () => {
       case 'handwritten':
         return (
           <div className="space-y-4">
+            {marksDisplay}
             <div className="bg-blue-50 border-l-4 border-blue-400 p-3 rounded-r-md mb-4">
               <p className="text-sm text-blue-700">
                 Note: Please upload only one image. If multiple images are uploaded, only the first one will be considered for grading.
@@ -562,7 +591,7 @@ const TestPage = () => {
         });
   
       console.log('Submission payload:', { answers }); // Debug log
-      
+      await instance.post(`/api/test-session/${state.sessionId}/submit`);
       await submitTest(state.testId, { answers });
       dispatch({ type: 'SUBMIT_TEST' });
       // router.push(`/test/${state.testId}/submitted`);
@@ -616,13 +645,23 @@ const TestPage = () => {
     );
   }
 
-  if (!currentQuestion) {
+  // If test is not started, show instructions page
+  if (showInstructions) {
     return (
-      <div className="p-8 text-center">
-        <p>Loading question…</p>
-      </div>
+      <TestInstructionsPage 
+        testDetails={state.testDetails} 
+        onStartTest={handleStartTest}
+      />
     );
   }
+
+  // if (!currentQuestion) {
+  //   return (
+  //     <div className="p-8 text-center">
+  //       <p>Loading question…</p>
+  //     </div>
+  //   );
+  // }
 
   return (
     <div className="relative flex flex-col md:flex-row h-screen bg-[#fcf9ea] overflow-hidden">
