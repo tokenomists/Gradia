@@ -18,15 +18,19 @@ router.post('/start', async (req, res) => {
     await session.save();
   }
 
+  console.log("Session: ", session);
+  if(!session) return res.status(500).json({ success: false, message: 'Failed to create test session'});
   res.status(200).json({ success: true, message: "Test Session successfully created", session: session });
 });
 
 // ── 2) Fetch existing ───────────────────────────────────────────────────────
 router.get('/', async (req, res) => {
-  const { studentId, testId } = req.query;
+  const studentId = req.user.id;
+  if(!studentId) return res.status(401).json({ message: 'Unauthorized, please login and try again.'});
+  const { testId } = req.body;
   const session = await TestSession.findOne({ studentId, testId, isSubmitted: false });
-  if (!session) return res.status(404).json({ message: 'No active session' });
-  res.json(session);
+  if (!session) return res.status(404).json({ success: false, message: 'No active session' });
+  res.json({success: true, data: session});
 });
 
 // ── 3) Patch progress ──────────────────────────────────────────────────────
@@ -45,7 +49,6 @@ router.patch('/:sessionId', async (req, res) => {
 
 // ── 4) Submit final ────────────────────────────────────────────────────────
 router.post('/:sessionId/submit', async (req, res) => {
-  // you can reuse your existing submitTest controller here
   await TestSession.findByIdAndUpdate(req.params.sessionId, { isSubmitted: true });
   res.json({ ok: true });
 });

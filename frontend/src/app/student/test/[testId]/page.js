@@ -31,7 +31,6 @@ import {
 import { useRouter, useParams } from 'next/navigation';
 import { getTestById, submitTest } from '@/utils/test';
 import instance from '@/utils/axios';
-import { debounce } from 'lodash.debounce';
 
 const initialState = {
   questions: [{
@@ -44,14 +43,14 @@ const initialState = {
     testCases: [],
     reviewMarked: false,
     maxMarks: 0,
-    sessionId: null,
   }],
   currentQuestionIndex: 0,
   timer: 100,
   submitted: false,
   testId: null,
   testDetails: null,
-  isLoading: true
+  isLoading: true,
+  sessionId: null
 };
 const xs = '@media (min-width: 480px)';
   
@@ -63,14 +62,9 @@ const xs = '@media (min-width: 480px)';
           questions: action.payload.questions,
           timer: action.payload.timer,
           testDetails: action.payload.testDetails,
-          testId: action.payload.testId
-        };
-      case 'SET_SESSION':
-        return {
-          ...state,
-          sessionId: action.payload._id,
-          questions: action.payload.questions,
-          currentQuestionIndex: action.payload.currentQuestionIndex
+          testId: action.payload.testId,
+          sessionId: action.payload.sessionId,
+          currentQuestionIndex: action.payload.currentQuestionIndex,
         };
       case 'SET_ANSWER':
         return {
@@ -265,11 +259,12 @@ const MAX_FILE_SIZE = 2 * 1024 * 1024;
 const TestPage = () => {
   const [state, dispatch] = useReducer(testReducer, initialState);
   const { questions, currentQuestionIndex, timer, submitted } = state;
+  const [saveTimer, setSaveTimer] = useState(5);
   const currentQuestion = useMemo(() => {
-    return questions[currentQuestionIndex];
+    return questions[currentQuestionIndex] ?? null;
   }, [questions, currentQuestionIndex]);
   const params = useParams();
-  const { testId } = params; 
+  const { testId } = params;
   const router = useRouter();
 
   useEffect(() => {
@@ -324,24 +319,19 @@ const TestPage = () => {
         const elapsedSecs = Math.floor((Date.now() - new Date(session.startedAt)) / 1000);
         const remainingTime = Math.max(0, durationSecs - elapsedSecs);
 
+        // console.log("Session data: ", session);
         dispatch({
           type: 'INIT_TEST',
           payload: {
-            questions: transformedQuestions,
+            questions: session.answers.length > 0 ? session.answers : transformedQuestions,
             timer: remainingTime,
             testDetails: testData,
-            testId,
-            isLoading: false
+            testId: testId,
+            sessionId: session._id,
+            currentQuestionIndex: session.currentQuestionIndex || 0
           }
         });
-        dispatch({
-          type: 'SET_SESSION',
-          payload: {
-            sessionId: session._id,
-            currentQuestionIndex: session.currentQuestionIndex,
-            questions: transformedQuestions
-          }
-        })
+        
       } catch (error) {
         console.error('Error fetching test:', error);
         alert(`Failed to load test: ${error.message}`);
@@ -350,7 +340,9 @@ const TestPage = () => {
     };
   
     fetchTestData();
+    // console.log("State after setting the session: ", state);
     dispatch({ type: 'SET_LOADING', payload: false });
+    setSaveTimer(5);
   }, [testId, router]);
   
 
@@ -367,6 +359,31 @@ const TestPage = () => {
 
     return () => clearInterval(timerId);
   }, [state.timer]);
+
+  useEffect(() => {
+    // Only set up the interval if sessionId exists
+    if (!state.sessionId) return;
+    
+    const saveInterval = setInterval(async () => {
+      if (saveTimer <= 0) {
+        try {
+          await instance.patch(`/api/test-session/${state.sessionId}`, {
+            answers: state.questions,
+            currentQuestionIndex: currentQuestionIndex,
+            lastSavedAt: new Date()
+          });
+          console.log("Progress saved successfully!");
+        } catch (error) {
+          console.error("Failed to save progress:", error);
+        }
+        setSaveTimer(5);
+      } else {
+        setSaveTimer(prev => prev - 1);
+      }
+    }, 1000);
+    
+    return () => clearInterval(saveInterval);
+  }, [saveTimer, state.sessionId, state.questions, currentQuestionIndex]);
 
   // Image Upload Handler
   const handleImageUpload = (e) => {
@@ -399,6 +416,13 @@ const TestPage = () => {
 
   // Render Question Components
   const renderQuestionComponent = () => {
+    if (!currentQuestion) {
+      return (
+        <div className="p-8 text-center">
+          <p>Loading question…</p>
+        </div>
+      );
+    }
     switch(currentQuestion.type) {
       case 'typed':
         return (
@@ -589,6 +613,14 @@ const TestPage = () => {
         </button>
       </motion.div>
     </div>
+    );
+  }
+
+  if (!currentQuestion) {
+    return (
+      <div className="p-8 text-center">
+        <p>Loading question…</p>
+      </div>
     );
   }
 
