@@ -12,8 +12,7 @@ router.post('/start', async (req, res) => {
   let session = await TestSession.findOne({ studentId, testId, isSubmitted: false });
 
   if (!session) {
-    const startedAt = Date.now();
-    session = await TestSession({ studentId, testId, startedAt, isSubmitted: false });
+    session = await TestSession({ studentId, testId, isSubmitted: false });
 
     await session.save();
   }
@@ -46,6 +45,18 @@ router.patch('/:sessionId', async (req, res) => {
     session.isStarted = true;
     await session.save();
     res.json({ ok: true });
+});
+
+router.patch('/:sessionId/start', async (req, res) => {
+  const { sessionId } = req.params;
+  const session = await TestSession.findById(sessionId);
+  if (!session) return res.sendStatus(404);
+  else {
+    session.startedAt = Date.now();
+    session.isStarted = true;
+    await session.save();
+  }
+  res.json({ success: true });
 });
 
 // ── 4) Submit final ────────────────────────────────────────────────────────

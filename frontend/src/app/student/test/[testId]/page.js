@@ -262,9 +262,7 @@ const TestPage = () => {
   const { questions, currentQuestionIndex, timer, submitted } = state;
   const [saveTimer, setSaveTimer] = useState(5);
   const [showInstructions, setShowInstructions] = useState(true);
-  const [testStarted, setTestStarted] = useState(() => {
-    return localStorage.getItem('testStarted') === 'true'
-  })
+  const [testStarted, setTestStarted] = useState(false);
   const currentQuestion = useMemo(() => {
     return questions[currentQuestionIndex] ?? null;
   }, [questions, currentQuestionIndex]);
@@ -302,7 +300,7 @@ const TestPage = () => {
         const res = await instance.post('/api/test-session/start', {
           testId: testId
         });
-        console.log(res);
+        // console.log(res);
         const resData = res.data;
         if (!resData.success) {
           const err = await res.error;
@@ -371,9 +369,7 @@ const TestPage = () => {
   const handleStartTest = async () => {
     setShowInstructions(false);
     setTestStarted(true);
-    await instance.patch(`/api/test-session/${state.sessionId}`, {
-      isStarted: true
-    });
+    await instance.patch(`/api/test-session/${state.sessionId}/start`);
   };  
 
   useEffect(() => {
