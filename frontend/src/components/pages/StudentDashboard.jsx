@@ -30,6 +30,7 @@ import {
   Filler
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
+import instance from '@/utils/axios.js';
 
 ChartJS.register(
   CategoryScale,
@@ -96,13 +97,34 @@ export default function StudentDashboard() {
 
   useEffect(() => {
     const fetchTests = async () => {
-      const testData = await getTestsForStudent();
-      // console.log(testData);
-      setTestData(testData);
+      try {
+        const tests = await getTestsForStudent();
+        const enriched = { upcomingTests: [], previousTests: tests.previousTests };
+        enriched.upcomingTests = await Promise.all(
+          tests.upcomingTests.map(async (test) => {
+            try {
+              const res = await instance.get('/api/test-session/' + test._id);
+              console.log("Session Data:", res.data);
+              return { ...test, isStarted: res.data.data.isStarted };
+            } catch (err) {
+              if (err.response?.status === 404) {
+                return { ...test, isStarted: false };
+              }
+              console.error('Error fetching session for', test._id, err);
+              return { ...test, isStarted: false };
+            }
+          })
+        );
+        console.log("Enriched Tests:", enriched);
+        setTestData(enriched);
+      } catch (err) {
+        console.error('Error fetching tests:', err);
+      }
     };
-
+  
     fetchTests();
   }, [user]);
+  
 
   useEffect(() => {
     const fetchSubmissions = async () => {
@@ -195,6 +217,11 @@ export default function StudentDashboard() {
     router.push('/student/test/past-tests');
   };
 
+  const handleResumeTest = (testId) => {
+    localStorage.setItem('Resume Test: ', 'true');
+    router.push('/student/test/' + testId);
+  };
+
   const displayedPreviousTests = testData.previousTests
   .map((test) => {
     const totalScore = test.maxMarks;
@@ -263,7 +290,7 @@ export default function StudentDashboard() {
         <motion.a
           whileHover={{ scale: 1.05 }}
           className="cursor-pointer font-sans font-medium"
-          href="/"
+          href="/practice"
         >
           Practice
         </motion.a>
@@ -358,7 +385,14 @@ export default function StudentDashboard() {
                         className="bg-[#e1c3ad] rounded-xl p-4 shadow-md min-w-[240px] w-[240px] flex-shrink-0"
                       >
                         <h4 className="font-semibold text-base text-gray-900">{test.title}</h4>
-                        <p className="text-gray-800 text-sm">{test.description}</p>
+                        <p className="text-gray-800 text-sm line-clamp-2"
+                          style={{
+                            display: '-webkit-box',
+                            WebkitBoxOrient: 'vertical',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                          }}
+                        >{test.description}</p>
                         
                         <div className="flex justify-between items-center mt-4">
                           <div className="flex items-center">
@@ -367,12 +401,12 @@ export default function StudentDashboard() {
                           </div>
                           {test.status === 'ready' ? (
                             <motion.button
-                              onClick={() => router.push(`/student/test/${test._id}`)} 
+                              onClick={() => (test.isStarted ? handleResumeTest(test._id) : router.push(`/student/test/${test._id}`))} 
                               whileHover={{ scale: 1.05 }}
                               whileTap={{ scale: 0.95 }}
                               className="bg-[#e07a5f] text-white px-4 py-1 rounded-full text-sm font-medium shadow-sm hover:shadow-md transition-all duration-300"
                             >
-                              Start
+                              {test.isStarted ? "Resume" : "Start"}
                             </motion.button>
                           ) : (
                             <span className="bg-[#d8d7dc] text-gray-500 px-4 py-1 rounded-full text-sm font-medium border border-gray-200">

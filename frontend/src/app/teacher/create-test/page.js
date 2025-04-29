@@ -344,21 +344,39 @@ const updateTestCase = (questionIndex, testCaseIndex, field, value) => {
   // Confirmation modal submission handler
   const handleConfirmPublish = async () => {
     try {
-      const updatedTestData = { ...testData, isDraft: false, classesAssignment: testData.classAssignment, createdBy: userData._id };
+      // console.log('Publishing test:', { ...testData, isDraft: false });
+      const updatedTestData = { ...testData, isDraft: false,
+        classesAssignment: testData.classAssignment, 
+        createdBy: userData._id,
+        startTime: new Date(testData.startTime).toISOString(),
+        endTime: new Date(testData.endTime).toISOString(),
+      };
+      updatedTestData.questions = updatedTestData.questions.map((question) => {
+        return {
+          ...question,
+          ...(question.type === 'coding' && {
+            codingLanguage: question.codingLanguage || 'Any Language',
+          }),
+        };
+      });
+      
       console.log("Publishing test: ", updatedTestData);
       await new Promise(resolve => setTimeout(resolve, 1000));
       
       const response = await publishTest(updatedTestData);
       if(response) {
+        // Close modal and show success message
         setIsPublishModalOpen(false);
         localStorage.setItem("notification", JSON.stringify({ type: "success", message: "Successfully created test!" }));
 
+        // Redirect to dashboard on success
         router.push('/');
       } else {
         showError("Failed to publish test. Please try again later.");
       }
     } catch (error) {
       console.error('Error publishing test:', error);
+      // alert('Failed to publish test. Please try again.');
       showError("Failed to publish test. Please try again.");
     }
   };
@@ -637,7 +655,7 @@ const updateTestCase = (questionIndex, testCaseIndex, field, value) => {
                           
                           <div className="mb-4">
                           <select
-                            value={question.codingLanguage || 'python3'}
+                            value={question.codingLanguage}
                             onChange={(e) => handleQuestionChange(questionIndex, 'codingLanguage', e.target.value)}
                             className="w-full p-3 border border-orange-300 rounded-md bg-white shadow-sm transition duration-200 focus:ring-2 focus:ring-orange-300 focus:border-orange-500"
                           >
