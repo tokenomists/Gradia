@@ -351,6 +351,15 @@ const updateTestCase = (questionIndex, testCaseIndex, field, value) => {
         startTime: new Date(testData.startTime).toISOString(),
         endTime: new Date(testData.endTime).toISOString(),
       };
+      updatedTestData.questions = updatedTestData.questions.map((question) => {
+        return {
+          ...question,
+          ...(question.type === 'coding' && {
+            codingLanguage: question.codingLanguage || 'Any Language',
+          }),
+        };
+      });
+      
       console.log("Publishing test: ", updatedTestData);
       await new Promise(resolve => setTimeout(resolve, 1000));
       

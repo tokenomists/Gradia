@@ -27,11 +27,11 @@ const TestInstructionsPage = ({ testDetails, onStartTest }) => {
             </div>
             <div className="bg-[#edead7] p-4 rounded-lg">
               <p className="font-semibold">Maximum Marks</p>
-              <p className="text-lg">{testDetails?.totalMarks || '100'}</p>
+              <p className="text-lg">{testDetails?.maxMarks || '100'}</p>
             </div>
             <div className="bg-[#edead7] p-4 rounded-lg">
               <p className="font-semibold">Passing Marks</p>
-              <p className="text-lg">{testDetails?.passingMarks || '40'}</p>
+              <p className="text-lg">{testDetails?.passingMarks || Math.floor(testDetails?.maxMarks * 0.4) || '40'}</p>
             </div>
           </div>
         </div>
