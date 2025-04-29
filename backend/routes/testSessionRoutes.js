@@ -4,7 +4,7 @@ import fingerprint from '@fingerprintjs/fingerprintjs';
 
 const router = express.Router();
 
-// ── 1) Start or resume ─────────────────────────────────────────────────────
+// ── 1) Start or resume test ─────────────────────────────────────────────────────
 router.post('/start', async (req, res) => {
   const studentId   = req.user.id;
   if(!studentId) return res.status(401).json({ message: 'Unauthorized, please login and try again.'});
@@ -22,17 +22,17 @@ router.post('/start', async (req, res) => {
   res.status(200).json({ success: true, message: "Test Session successfully created", session: session });
 });
 
-// ── 2) Fetch existing ───────────────────────────────────────────────────────
-router.get('/', async (req, res) => {
+// ── 2) Fetch existing session ───────────────────────────────────────────────────────
+router.get('/:testId', async (req, res) => {
   const studentId = req.user.id;
   if(!studentId) return res.status(401).json({ message: 'Unauthorized, please login and try again.'});
-  const { testId } = req.body;
+  const { testId } = req.params;
   const session = await TestSession.findOne({ studentId, testId, isSubmitted: false });
   if (!session) return res.status(404).json({ success: false, message: 'No active session' });
   res.json({success: true, data: session});
 });
 
-// ── 3) Patch progress ──────────────────────────────────────────────────────
+// ── 3) Patch progress to the session ──────────────────────────────────────────────────────
 router.patch('/:sessionId', async (req, res) => {
     const { sessionId } = req.params;
     const { answers, currentQuestionIndex } = req.body;

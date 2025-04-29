@@ -32,6 +32,8 @@ import { useRouter, useParams } from 'next/navigation';
 import { getTestById, submitTest } from '@/utils/test';
 import instance from '@/utils/axios';
 import TestInstructionsPage from '@/components/student/TestInstructionsPage';
+import TestResumePage from '@/components/student/TestResumePage';
+import { set } from 'lodash';
 
 const initialState = {
   questions: [{
@@ -262,6 +264,7 @@ const TestPage = () => {
   const { questions, currentQuestionIndex, timer, submitted } = state;
   const [saveTimer, setSaveTimer] = useState(5);
   const [showInstructions, setShowInstructions] = useState(true);
+  const [showResumePage, setShowResumePage] = useState(false);
   const [testStarted, setTestStarted] = useState(false);
   const currentQuestion = useMemo(() => {
     return questions[currentQuestionIndex] ?? null;
@@ -310,7 +313,12 @@ const TestPage = () => {
         const session = await resData.session;
         if(session.isStarted) {
           setShowInstructions(false);
-          setTestStarted(true);
+          const isResumed = localStorage.getItem('Resume Test: ');
+          if(isResumed) {
+            setShowResumePage(isResumed === 'true');
+          } else {
+            setTestStarted(true);
+          }
         }
         const transformedQuestions = skeleton.map((q, idx) => {
           const ans = session.answers[idx] || {};
@@ -331,7 +339,7 @@ const TestPage = () => {
           payload: {
             questions: session.answers.length > 0 ? session.answers : transformedQuestions,
             timer: remainingTime,
-            testDetails: testData,
+            testDetails: { ...testData, startedAt: session.startedAt },
             testId: testId,
             sessionId: session._id,
             currentQuestionIndex: session.currentQuestionIndex || 0,
@@ -370,7 +378,17 @@ const TestPage = () => {
     setShowInstructions(false);
     setTestStarted(true);
     await instance.patch(`/api/test-session/${state.sessionId}/start`);
-  };  
+  }; 
+
+  const handleResumeTest = () => {
+    setShowResumePage(false);
+    // If test wasn't already started, start it now
+    if (!testStarted) {
+      setTestStarted(true);
+    }
+    // Reset the localStorage flag
+    localStorage.setItem('Resume Test: ', 'false');
+  };
 
   useEffect(() => {
     if (!state.sessionId) return;
@@ -647,6 +665,15 @@ const TestPage = () => {
       <TestInstructionsPage 
         testDetails={state.testDetails} 
         onStartTest={handleStartTest}
+      />
+    );
+  }
+
+  if (showResumePage) {
+    return (
+      <TestResumePage 
+        testDetails={state.testDetails}
+        onResumeTest={handleResumeTest}
       />
     );
   }
