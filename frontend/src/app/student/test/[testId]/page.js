@@ -677,7 +677,30 @@ const TestPage = () => {
           We&apos;ve received your answers and they&apos;re now being graded. Great job!
         </p>
         <button 
-          onClick={() => router.push('/')}
+          onClick={async () => {
+            try {
+              if (
+                document.fullscreenElement ||
+                document.webkitFullscreenElement ||
+                document.mozFullScreenElement ||
+                document.msFullscreenElement
+              ) {
+                if (document.exitFullscreen) {
+                  await document.exitFullscreen();
+                } else if (document.webkitExitFullscreen) {
+                  await document.webkitExitFullscreen();
+                } else if (document.mozCancelFullScreen) {
+                  await document.mozCancelFullScreen();
+                } else if (document.msExitFullscreen) {
+                  await document.msExitFullscreen();
+                }
+              }
+            } catch (err) {
+              console.error('Error exiting fullscreen:', err);
+            }
+
+            router.push('/');
+          }}
           className="px-8 py-3 bg-[#d56c4e] text-white rounded-lg hover:bg-[#d56c4e]/90 transition-colors"
         >
           Return to Dashboard

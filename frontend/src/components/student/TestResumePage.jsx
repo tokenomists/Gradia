@@ -19,7 +19,6 @@ const TestResumePage = ({ testDetails, onResumeTest }) => {
 
   return (
     <div className="flex flex-col min-h-screen bg-[#fcf9ea]">
-      {/* Header Bar */}
       <div className="flex justify-between items-center px-5 py-5 bg-[#fcf9ea] border-b border-[#e2c3ae]">
         <h1 className="text-xl font-bold text-[#d56c4e]">
           {testDetails.title}
@@ -29,7 +28,6 @@ const TestResumePage = ({ testDetails, onResumeTest }) => {
       <div className="flex-1 px-4 py-8">
         <div className="max-w-2xl mx-auto">
           <div className="bg-white rounded-xl shadow-lg border-2 border-[#e2c3ae] overflow-hidden">
-            {/* Main Content Section */}
             <div className="p-7">
               <div className="flex items-center space-x-4 mb-7">
                 <div className="w-12 h-12 rounded-full bg-[#d56c4e]/10 flex items-center justify-center flex-shrink-0">
@@ -43,7 +41,6 @@ const TestResumePage = ({ testDetails, onResumeTest }) => {
                 </div>
               </div>
 
-              {/* Test Details Section - Horizontal Layout */}
               <div className="flex gap-5 mb-7">
                 <div className="flex-1 bg-[#fcf9ea]/50 p-4 rounded-lg border border-[#e2c3ae]">
                   <div className="flex items-center space-x-3">
@@ -70,11 +67,20 @@ const TestResumePage = ({ testDetails, onResumeTest }) => {
                 </div>
               </div>
 
-              {/* Resume Button */}
               <motion.button
                 whileHover={{ scale: 1.005 }}
                 whileTap={{ scale: 0.98 }}
-                onClick={onResumeTest}
+                onClick={() => {
+                  onResumeTest();
+                  const elem = document.documentElement;
+                  if (elem.requestFullscreen) {
+                    elem.requestFullscreen();
+                  } else if (elem.webkitRequestFullscreen) {
+                    elem.webkitRequestFullscreen();
+                  } else if (elem.msRequestFullscreen) {
+                    elem.msRequestFullscreen();
+                  }
+                }}
                 className="w-full py-3.5 bg-[#d56c4e] text-white font-bold rounded-lg flex items-center justify-center hover:bg-[#d56c4e]/90 transition-all shadow-md group"
               >
                 <span>Continue Your Test</span>

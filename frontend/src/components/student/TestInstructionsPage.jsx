@@ -209,7 +209,17 @@ const TestInstructionsPage = ({ testDetails, onStartTest }) => {
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     disabled={!readInstructions}
-                    onClick={onStartTest}
+                    onClick={() => {
+                      onStartTest();
+                      const elem = document.documentElement;
+                      if (elem.requestFullscreen) {
+                        elem.requestFullscreen();
+                      } else if (elem.webkitRequestFullscreen) {
+                        elem.webkitRequestFullscreen();
+                      } else if (elem.msRequestFullscreen) {
+                        elem.msRequestFullscreen();
+                      }
+                    }}
                     className="px-6 py-2 bg-[#d56c4e] text-white rounded-md text-base disabled:opacity-50 hover:bg-[#d56c4e]/90 transition-colors flex items-center gap-2 disabled:cursor-not-allowed"
                   >
                     <Check className="w-5 h-5" />
