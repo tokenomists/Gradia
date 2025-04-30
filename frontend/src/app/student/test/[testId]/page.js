@@ -890,7 +890,7 @@ const TestPage = () => {
           <AlertDialogContent>
             <AlertDialogHeader>
               <AlertDialogTitle>Submit Test?</AlertDialogTitle>
-              <AlertDialogDescription>
+              <AlertDialogDescription asChild>
                 <div className="space-y-4">
                   <p>Are you sure you want to submit the test?</p>
                   <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4">
@@ -952,7 +952,7 @@ const TestPage = () => {
             <AlertDialogContent>
             <AlertDialogHeader>
               <AlertDialogTitle>Submit Test?</AlertDialogTitle>
-              <AlertDialogDescription>
+              <AlertDialogDescription asChild>
                 <div className="space-y-4">
                   <p>Are you sure you want to submit the test?</p>
                   <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4">
