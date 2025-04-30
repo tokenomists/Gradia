@@ -327,7 +327,7 @@ const updateTestCase = (questionIndex, testCaseIndex, field, value) => {
     if (isDraft) {
       try {
         // Draft saving logic
-        console.log('Saving test as draft:', { ...testData, isDraft });
+        // console.log('Saving test as draft:', { ...testData, isDraft });
         await new Promise(resolve => setTimeout(resolve, 1000));
         alert('Test saved as draft!');
       } catch (error) {
@@ -359,7 +359,7 @@ const updateTestCase = (questionIndex, testCaseIndex, field, value) => {
         };
       });
       
-      console.log("Publishing test: ", updatedTestData);
+      // console.log("Publishing test: ", updatedTestData);
       await new Promise(resolve => setTimeout(resolve, 1000));
       
       const response = await publishTest(updatedTestData);

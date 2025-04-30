@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect, useReducer, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowBigDown, CheckCircle } from 'lucide-react';
 import { cn } from "@/lib/utils";
 import { 
   Clock, 
@@ -14,7 +13,8 @@ import {
   ChevronRight, 
   BookmarkIcon, 
   BookmarkCheckIcon,
-  Send
+  Send,
+  CheckCircle
 } from 'lucide-react';
 import CodeEditor from '@/components/student/CodeEditor';
 import { 
@@ -33,7 +33,6 @@ import { getTestById, submitTest } from '@/utils/test';
 import instance from '@/utils/axios';
 import TestInstructionsPage from '@/components/student/TestInstructionsPage';
 import TestResumePage from '@/components/student/TestResumePage';
-import { set } from 'lodash';
 
 const initialState = {
   questions: [{
@@ -263,7 +262,7 @@ const TestPage = () => {
   const [state, dispatch] = useReducer(testReducer, initialState);
   const { questions, currentQuestionIndex, timer, submitted } = state;
   const [saveTimer, setSaveTimer] = useState(5);
-  const [showInstructions, setShowInstructions] = useState(true);
+  const [showInstructions, setShowInstructions] = useState(null);
   const [showResumePage, setShowResumePage] = useState(false);
   const [testStarted, setTestStarted] = useState(false);
   const currentQuestion = useMemo(() => {
@@ -311,15 +310,19 @@ const TestPage = () => {
           return router.push('/');
         }
         const session = await resData.session;
-        if(session.isStarted) {
-          setShowInstructions(false);
+        if (session.isStarted) {
           const isResumed = localStorage.getItem('Resume Test: ');
-          if(isResumed) {
-            setShowResumePage(isResumed === 'true');
+          if (isResumed === 'true') {
+            setShowResumePage(true);
+            setShowInstructions(false);
           } else {
             setTestStarted(true);
+            setShowInstructions(false);
           }
+        } else {
+          setShowInstructions(true);
         }
+        
         const transformedQuestions = skeleton.map((q, idx) => {
           const ans = session.answers[idx] || {};
           return {
@@ -604,7 +607,7 @@ const TestPage = () => {
           return answer;
         });
   
-      console.log('Submission payload:', { answers }); // Debug log
+      // console.log('Submission payload:', { answers }); // Debug log
       await instance.post(`/api/test-session/${state.sessionId}/submit`);
       await submitTest(state.testId, { answers });
       dispatch({ type: 'SUBMIT_TEST' });
@@ -622,17 +625,42 @@ const TestPage = () => {
 
   if (state.isLoading) {
     return (
-      <div className="flex items-center justify-center h-screen bg-[#fcf9ea]">
-        <motion.div
-          animate={{ rotate: 360 }}
-          transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
-          className="w-16 h-16 border-4 border-[#d56c4e] border-t-transparent rounded-full"
-        />
+      <div className="min-h-screen flex items-center justify-center bg-[#fcf9ea]">
+        <div className="relative">
+          <div className="w-14 h-14 rounded-full border-4 border-[#f8e2d8] border-t-[#dd7a5f] animate-spin"></div>
+        </div>
       </div>
     );
   }
 
-  // If test is submitted, show submission confirmation
+  if (showInstructions === null) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#fcf9ea]">
+        <div className="relative">
+          <div className="w-14 h-14 rounded-full border-4 border-[#f8e2d8] border-t-[#dd7a5f] animate-spin"></div>
+        </div>
+      </div>
+    );
+  }
+
+  if (showInstructions) {
+    return (
+      <TestInstructionsPage 
+        testDetails={state.testDetails} 
+        onStartTest={handleStartTest}
+      />
+    );
+  }
+
+  if (showResumePage) {
+    return (
+      <TestResumePage 
+        testDetails={state.testDetails}
+        onResumeTest={handleResumeTest}
+      />
+    );
+  }
+
   if (submitted) {
     return (
       <div className="flex items-center justify-center h-screen bg-[#fcf9ea]">
@@ -658,33 +686,6 @@ const TestPage = () => {
     </div>
     );
   }
-
-  // If test is not started, show instructions page
-  if (showInstructions) {
-    return (
-      <TestInstructionsPage 
-        testDetails={state.testDetails} 
-        onStartTest={handleStartTest}
-      />
-    );
-  }
-
-  if (showResumePage) {
-    return (
-      <TestResumePage 
-        testDetails={state.testDetails}
-        onResumeTest={handleResumeTest}
-      />
-    );
-  }
-
-  // if (!currentQuestion) {
-  //   return (
-  //     <div className="p-8 text-center">
-  //       <p>Loading question…</p>
-  //     </div>
-  //   );
-  // }
 
   return (
     <div className="relative flex flex-col md:flex-row h-screen bg-[#fcf9ea] overflow-hidden">

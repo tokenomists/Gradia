@@ -17,7 +17,7 @@ router.post('/start', async (req, res) => {
     await session.save();
   }
 
-  console.log("Session: ", session);
+  // console.log("Session: ", session);
   if(!session) return res.status(500).json({ success: false, message: 'Failed to create test session'});
   res.status(200).json({ success: true, message: "Test Session successfully created", session: session });
 });

@@ -1,7 +1,7 @@
 import React from 'react';
 
 const StudentPerformanceHeatmap = ({ data }) => {
-  console.log(data);
+  // console.log(data);
   // Function to determine cell color based on score
   const getCellColor = (score) => {
     if (score === null || score === undefined) return "bg-gray-200"; // NA cells

@@ -104,7 +104,7 @@ export default function StudentDashboard() {
           tests.upcomingTests.map(async (test) => {
             try {
               const res = await instance.get('/api/test-session/' + test._id);
-              console.log("Session Data:", res.data);
+              // console.log("Session Data:", res.data);
               return { ...test, isStarted: res.data.data.isStarted };
             } catch (err) {
               if (err.response?.status === 404) {
@@ -115,7 +115,7 @@ export default function StudentDashboard() {
             }
           })
         );
-        console.log("Enriched Tests:", enriched);
+        // console.log("Enriched Tests:", enriched);
         setTestData(enriched);
       } catch (err) {
         console.error('Error fetching tests:', err);
