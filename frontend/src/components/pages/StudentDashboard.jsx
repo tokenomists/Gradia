@@ -218,7 +218,7 @@ export default function StudentDashboard() {
   };
 
   const handleResumeTest = (testId) => {
-    localStorage.setItem('Resume Test: ', 'true');
+    localStorage.setItem('Resume Test', 'true');
     router.push('/student/test/' + testId);
   };
 

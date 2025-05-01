@@ -262,6 +262,15 @@ const CodeEditor = ({
   useEffect(() => {
     if (allowedLanguage && LANGUAGE_CONFIG[allowedLanguage]) {
       setLanguage(allowedLanguage);
+      dispatch({
+        type: 'SET_LANGUAGE',
+        payload: { id: currentQuestionId, language: allowedLanguage }
+      });
+    } else {
+      dispatch({
+        type: 'SET_LANGUAGE',
+        payload: { id: currentQuestionId, language: defaultLanguage }
+      });
     }
   }, [allowedLanguage]);
 
@@ -315,6 +324,10 @@ const CodeEditor = ({
 
   const handleLanguageChange = (newLanguage) => {
     setLanguage(newLanguage);
+    dispatch({
+      type: 'SET_LANGUAGE',
+      payload: { id: currentQuestionId, language: newLanguage }
+    });
   };
 
   return (

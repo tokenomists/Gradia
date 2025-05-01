@@ -27,15 +27,9 @@ print(result)
         'template': '''
 {user_code}
 
-const input = require('readline').createInterface({
-    input: process.stdin,
-    output: process.stdout
-});
-
-input.question('', (value) => {
-    console.log(solution(parseInt(value)));
-    input.close();
-});
+const fs = require('fs');
+const input = fs.readFileSync('/dev/stdin', 'utf8').trim();
+console.log(solution(parseInt(input, 10)));
 '''
     }
 }
