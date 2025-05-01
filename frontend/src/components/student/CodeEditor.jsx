@@ -2,12 +2,6 @@ import React, { useRef, useEffect, useState } from 'react';
 import { basicSetup, EditorView } from 'codemirror';
 import { python } from '@codemirror/lang-python';
 import { javascript } from '@codemirror/lang-javascript';
-import { java } from '@codemirror/lang-java';
-import { cpp } from '@codemirror/lang-cpp';
-import { rust } from '@codemirror/lang-rust';
-import { sql } from '@codemirror/lang-sql';
-import { html } from '@codemirror/lang-html';
-import { css } from '@codemirror/lang-css';
 import { linter, lintGutter } from '@codemirror/lint';
 import { keymap } from '@codemirror/view';
 import { defaultKeymap, indentWithTab } from '@codemirror/commands';
@@ -95,64 +89,6 @@ const LANGUAGE_ERROR_CHECKS = {
       return errors;
     }
   ],
-  'java': [
-    (content) => {
-      const errors = [];
-      
-      const lines = content.split('\n');
-      lines.forEach((line, lineIndex) => {
-        const trimmedLine = line.trim();
-        if (
-          trimmedLine.length > 0 && 
-          !trimmedLine.endsWith(';') && 
-          !trimmedLine.endsWith('{') && 
-          !trimmedLine.endsWith('}') &&
-          !trimmedLine.startsWith('//') &&
-          !trimmedLine.startsWith('*') &&
-          !trimmedLine.startsWith('import') &&
-          !trimmedLine.startsWith('package')
-        ) {
-          const index = content.split('\n').slice(0, lineIndex).join('\n').length + line.indexOf(trimmedLine);
-          errors.push({
-            from: index,
-            to: index + trimmedLine.length,
-            severity: 'error',
-            message: 'Missing semicolon'
-          });
-        }
-      });
-
-      return errors;
-    }
-  ],
-  'cpp': [
-    (content) => {
-      const errors = [];
-      
-      const lines = content.split('\n');
-      lines.forEach((line, lineIndex) => {
-        const trimmedLine = line.trim();
-        if (
-          trimmedLine.length > 0 && 
-          !trimmedLine.endsWith(';') && 
-          !trimmedLine.endsWith('{') && 
-          !trimmedLine.endsWith('}') &&
-          !trimmedLine.startsWith('//') &&
-          !trimmedLine.startsWith('#include')
-        ) {
-          const index = content.split('\n').slice(0, lineIndex).join('\n').length + line.indexOf(trimmedLine);
-          errors.push({
-            from: index,
-            to: index + trimmedLine.length,
-            severity: 'error',
-            message: 'Missing semicolon'
-          });
-        }
-      });
-
-      return errors;
-    }
-  ],
   'default': [() => []]
 };
 
@@ -164,30 +100,6 @@ const LANGUAGE_CONFIG = {
   'javascript': {
     language: javascript(),
     linter: createSimpleLinter(LANGUAGE_ERROR_CHECKS['javascript'])
-  },
-  'java': {
-    language: java(),
-    linter: createSimpleLinter(LANGUAGE_ERROR_CHECKS['java'])
-  },
-  'cpp': {
-    language: cpp(),
-    linter: createSimpleLinter(LANGUAGE_ERROR_CHECKS['cpp'])
-  },
-  'rust': {
-    language: rust(),
-    linter: createSimpleLinter(LANGUAGE_ERROR_CHECKS['default'])
-  },
-  'sql': {
-    language: sql(),
-    linter: createSimpleLinter(LANGUAGE_ERROR_CHECKS['default'])
-  },
-  'html': {
-    language: html(),
-    linter: createSimpleLinter(LANGUAGE_ERROR_CHECKS['default'])
-  },
-  'css': {
-    language: css(),
-    linter: createSimpleLinter(LANGUAGE_ERROR_CHECKS['default'])
   }
 };
 
