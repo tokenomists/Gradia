@@ -7,7 +7,6 @@ import Class from "../models/Class.js";
 import Teacher from "../models/Teacher.js";
 import Student from "../models/Student.js";
 
-// Helper function to extract user info from JWT token
 const getUserFromToken = (token) => {
   if (!token) return null;
   try {
@@ -288,7 +287,7 @@ export const getClassMaterials = async (req, res) => {
     const token = req.cookies.token;
     const decoded = getUserFromToken(token);
 
-    if (!decoded || decoded.role !== 'teacher') {
+    if (!decoded || (decoded.role !== 'teacher' && decoded.role !== 'student')) {
       return res.status(401).json({ success: false, message: 'Unauthorized' });
     }
 
@@ -380,5 +379,41 @@ export const deleteClassMaterial = async (req, res) => {
       message: 'Error deleting file',
       error: error.message,
     });
+  }
+};
+
+export const downloadClassMaterial = async (req, res) => {
+  try {
+    const { classId, fileName } = req.body;
+
+    const token = req.cookies.token;
+    const decoded = getUserFromToken(token);
+
+    if (!decoded || (decoded.role !== 'teacher' && decoded.role !== 'student')) {
+      return res.status(401).json({ success: false, message: 'Unauthorized' });
+    }
+
+    if (!classId || !fileName) {
+      return res.status(400).json({ success: false, message: 'Missing classId or fileName' });
+    }
+
+    const response = await axios.post(
+      `${process.env.GRADIA_PYTHON_BACKEND_URL}/api/gcs/download-file`,
+      { bucket_name: classId, file_name: fileName },
+      {
+        responseType: 'stream',
+        headers: { 'x-api-key': process.env.GRADIA_API_KEY },
+      }
+    );
+
+    res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+    res.setHeader('Content-Type', response.headers['content-type'] || 'application/pdf');
+
+    response.data.pipe(res);
+  } catch (error) {
+    console.error('Error downloading class material:', error.message);
+    const status = error.response?.status || 500;
+    const message = error.response?.data?.error || 'Failed to download class material';
+    return res.status(status).json({ success: false, message });
   }
 };

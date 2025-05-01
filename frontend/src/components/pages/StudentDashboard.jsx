@@ -453,32 +453,28 @@ export default function StudentDashboard() {
               {user.classes != undefined && user.classes.length > 0 ? (
                 user.classes.map((classItem) => {
                   const nextTest = getUpcomingTestForClass(classItem._id);
-                  return (
-                    <motion.div 
-                      key={classItem._id}
-                      variants={itemVariants}
-                      whileHover={{ 
-                        y: -5, 
-                        boxShadow: "0px 10px 20px rgba(0, 0, 0, 0.1)",
-                        transition: { type: "spring", stiffness: 300, damping: 15 }
-                      }}
-                      className="bg-[#ebd5c1] rounded-xl p-4 shadow-sm border-l-4 border-[#d56c4e] transition-all duration-300 hover:shadow-md"
-                    >
-                      <h4 className="font-semibold text-gray-800">{classItem.name}</h4>
-                      <div className="flex items-center mt-3 text-xs text-gray-500">
-                        <Calendar size={14} className="mr-1" />
-                        <span>
-                          Next: {nextTest ? nextTest.title : "No Upcoming Tests!"}
-                        </span>
-                      </div>
-                    {/* <button 
-                      className="mt-3 flex items-center text-[#d56c4e] font-medium text-sm"
-                    >
-                      View class
-                      <ChevronRight size={14} className="ml-1" />
-                    </button> */}
-                    </motion.div>
-                  );
+                    return (
+                      <Link href={`/student/class/${classItem._id}`} key={classItem._id}>
+                        <motion.div 
+                          key={classItem._id}
+                          variants={itemVariants}
+                          whileHover={{ 
+                            y: -5, 
+                            boxShadow: "0px 10px 20px rgba(0, 0, 0, 0.1)",
+                            transition: { type: "spring", stiffness: 300, damping: 15 }
+                          }}
+                          className="bg-[#ebd5c1] rounded-xl p-4 shadow-sm border-l-4 border-[#d56c4e] transition-all duration-300 hover:shadow-md"
+                        >
+                          <h4 className="font-semibold text-gray-800">{classItem.name}</h4>
+                          <div className="flex items-center mt-3 text-xs text-gray-500">
+                            <Calendar size={14} className="mr-1" />
+                            <span>
+                              Next: {nextTest ? nextTest.title : "No Upcoming Tests!"}
+                            </span>
+                          </div>
+                        </motion.div>
+                      </Link>
+                    );
                 })
               ) : (
                 <motion.div

@@ -9,7 +9,8 @@ import {
   getClassDetails,
   getClassMaterials,
   deleteClassMaterial,
-  uploadClassMaterial
+  uploadClassMaterial,
+  downloadClassMaterial
 } from '../controllers/classController.js';
 
 const storage = multer.diskStorage({
@@ -43,5 +44,7 @@ router.post('/get-class-materials', getClassMaterials);
 router.post('/upload-class-material', upload.array('classFiles'), uploadClassMaterial);
 
 router.post('/delete-class-material', deleteClassMaterial);
+
+router.post('/download-class-material', downloadClassMaterial);
 
 export default router;
