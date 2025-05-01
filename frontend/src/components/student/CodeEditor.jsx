@@ -12,13 +12,11 @@ import { linter, lintGutter } from '@codemirror/lint';
 import { keymap } from '@codemirror/view';
 import { defaultKeymap, indentWithTab } from '@codemirror/commands';
 
-// Simplified linting approach
 const createSimpleLinter = (errorChecks) => {
   return linter((view) => {
     const diagnostics = [];
     const content = view.state.doc.toString();
     
-    // Run through error checks
     errorChecks.forEach(check => {
       const matches = check(content);
       if (matches) {
@@ -30,12 +28,10 @@ const createSimpleLinter = (errorChecks) => {
   });
 };
 
-// Language-specific error checks
 const LANGUAGE_ERROR_CHECKS = {
   'python': [
     (content) => {
       const errors = [];
-      // Simple syntax error checks
       const indentationMatches = content.match(/^(\s+)$/gm);
       if (indentationMatches) {
         indentationMatches.forEach((match, index) => {
@@ -48,7 +44,6 @@ const LANGUAGE_ERROR_CHECKS = {
         });
       }
 
-      // Check for unclosed parentheses/brackets
       const openParenCount = (content.match(/\(/g) || []).length;
       const closeParenCount = (content.match(/\)/g) || []).length;
       if (openParenCount !== closeParenCount) {
@@ -67,7 +62,6 @@ const LANGUAGE_ERROR_CHECKS = {
     (content) => {
       const errors = [];
       
-      // Check for undeclared variables (very basic)
       const variableDeclarations = content.match(/\b(let|const|var)\s+(\w+)/g) || [];
       const usedVariables = content.match(/\b\w+\b/g) || [];
       
@@ -87,7 +81,6 @@ const LANGUAGE_ERROR_CHECKS = {
         });
       });
 
-      // Check for mismatched brackets
       const openBracketCount = (content.match(/\{/g) || []).length;
       const closeBracketCount = (content.match(/\}/g) || []).length;
       if (openBracketCount !== closeBracketCount) {
@@ -106,7 +99,6 @@ const LANGUAGE_ERROR_CHECKS = {
     (content) => {
       const errors = [];
       
-      // Check for missing semicolons
       const lines = content.split('\n');
       lines.forEach((line, lineIndex) => {
         const trimmedLine = line.trim();
@@ -137,7 +129,6 @@ const LANGUAGE_ERROR_CHECKS = {
     (content) => {
       const errors = [];
       
-      // Check for missing semicolons
       const lines = content.split('\n');
       lines.forEach((line, lineIndex) => {
         const trimmedLine = line.trim();
@@ -166,7 +157,7 @@ const LANGUAGE_ERROR_CHECKS = {
 };
 
 const LANGUAGE_CONFIG = {
-  'python': {
+  'python3': {
     language: python(),
     linter: createSimpleLinter(LANGUAGE_ERROR_CHECKS['python'])
   },
@@ -200,22 +191,33 @@ const LANGUAGE_CONFIG = {
   }
 };
 
-const LanguageSelector = ({ currentLanguage, onLanguageChange }) => {
-  const languages = Object.keys(LANGUAGE_CONFIG);
+const LanguageSelector = ({ currentLanguage, onLanguageChange, allowedLanguage }) => {
+  const languages = (allowedLanguage && allowedLanguage !== 'Any Language')
+    ? [allowedLanguage]
+    : Object.keys(LANGUAGE_CONFIG);
+
+  const displayName = lang =>
+    lang.charAt(0).toUpperCase() + lang.slice(1);
 
   return (
     <div className="absolute bottom-2 right-2 z-10">
-      <select 
-        value={currentLanguage}
-        onChange={(e) => onLanguageChange(e.target.value)}
-        className="bg-white/80 text-xs text-gray-700 px-2 py-1 rounded-lg border border-[#e2c3ae] focus:ring-2 focus:ring-[#d56c4e] transition-all"
-      >
-        {languages.map(lang => (
-          <option key={lang} value={lang}>
-            {lang.charAt(0).toUpperCase() + lang.slice(1)}
-          </option>
-        ))}
-      </select>
+      {languages.length > 1 ? (
+        <select 
+          value={currentLanguage}
+          onChange={e => onLanguageChange(e.target.value)}
+          className="bg-white/80 text-xs text-gray-700 px-2 py-1 rounded-lg border border-[#e2c3ae] focus:ring-2 focus:ring-[#d56c4e] transition-all"
+        >
+          {languages.map(lang => (
+            <option key={lang} value={lang}>
+              {displayName(lang)}
+            </option>
+          ))}
+        </select>
+      ) : (
+        <span className="bg-white/80 text-xs text-gray-700 px-2 py-1 rounded-lg border border-[#e2c3ae]">
+          {displayName(currentLanguage)}
+        </span>
+      )}
     </div>
   );
 };
@@ -225,13 +227,13 @@ const CodeEditor = ({
   onChange, 
   dispatch, 
   currentQuestionId,
-  defaultLanguage = 'python'
+  defaultLanguage = 'python3',
+  allowedLanguage
 }) => {
   const [language, setLanguage] = useState(defaultLanguage);
   const editorRef = useRef(null);
   const viewRef = useRef(null);
 
-  // Custom theme to match the existing background
   const customTheme = EditorView.theme({
     '&': {
       backgroundColor: '#fcf9ea',
@@ -247,7 +249,6 @@ const CodeEditor = ({
     '&.cm-focused': {
       outline: '2px solid #d56c4e'
     },
-    // Styling for error markers
     '.cm-lint-error': {
       backgroundColor: 'rgba(255, 0, 0, 0.1)',
       borderBottom: '2px solid red'
@@ -259,30 +260,30 @@ const CodeEditor = ({
   }, { dark: false });
 
   useEffect(() => {
+    if (allowedLanguage && LANGUAGE_CONFIG[allowedLanguage]) {
+      setLanguage(allowedLanguage);
+    }
+  }, [allowedLanguage]);
+
+  useEffect(() => {
     if (!editorRef.current) return;
 
-    // Remove existing editor if any
     if (viewRef.current) {
       viewRef.current.destroy();
     }
 
-    // Get current language configuration
     const langConfig = LANGUAGE_CONFIG[language];
 
-    // Prepare extensions
     const extensions = [
       basicSetup,
       langConfig.language,
       customTheme,
-      // Add linting gutter if a linter is available
       lintGutter(),
       langConfig.linter,
-      // Custom keymap to handle tab for indentation
       keymap.of([
         ...defaultKeymap,
         indentWithTab
       ]),
-      // Update handler to sync with React state
       EditorView.updateListener.of((update) => {
         if (update.docChanged) {
           const newValue = update.state.doc.toString();
@@ -297,7 +298,6 @@ const CodeEditor = ({
       })
     ];
 
-    // Create new CodeMirror editor
     const view = new EditorView({
       doc: value || '',
       extensions,
@@ -306,7 +306,6 @@ const CodeEditor = ({
 
     viewRef.current = view;
 
-    // Cleanup function
     return () => {
       if (viewRef.current) {
         viewRef.current.destroy();
@@ -327,6 +326,7 @@ const CodeEditor = ({
       <LanguageSelector 
         currentLanguage={language}
         onLanguageChange={handleLanguageChange}
+        allowedLanguage={allowedLanguage} 
       />
     </div>
   );

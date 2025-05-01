@@ -288,6 +288,7 @@ const TestPage = () => {
           id: q._id,
           type: q.type,
           text: q.questionText,
+          codingLanguage: q.codingLanguage,
           status: 'not-visited',
           answer: '',
           images: [],
@@ -503,6 +504,7 @@ const TestPage = () => {
                 })}
                 dispatch={dispatch}
                 currentQuestionId={currentQuestion.id}
+                allowedLanguage={currentQuestion.codingLanguage}
                 className="min-h-[200px] md:min-h-[300px]"
               />
               
