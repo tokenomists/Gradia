@@ -22,11 +22,15 @@ router.post('/start', async (req, res) => {
 
 router.get('/:testId', async (req, res) => {
   const studentId = req.user.id;
-  if(!studentId) return res.status(401).json({ message: 'Unauthorized, please login and try again.'});
+  if(!studentId) {
+    return res.status(401).json({ message: 'Unauthorized, please login and try again.'});
+  }
   const { testId } = req.params;
   const session = await TestSession.findOne({ studentId, testId, isSubmitted: false });
-  if (!session) return res.status(404).json({ success: false, message: 'No active session' });
-  res.json({success: true, data: session});
+  res.json({
+    success: true, 
+    data: session ? { isStarted: true, session } : { isStarted: false, session: null }
+  });
 });
 
 router.patch('/:sessionId', async (req, res) => {
