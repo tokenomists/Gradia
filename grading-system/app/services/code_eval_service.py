@@ -35,7 +35,7 @@ except (ValueError, SyntaxError):
     else:
         data = raw
 
-if isinstance(data, list):
+if isinstance(data, (list, tuple)):
     if raw.startswith('[') and raw.endswith(']'):
         result = solution(data)
     else:
