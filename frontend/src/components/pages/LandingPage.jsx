@@ -195,12 +195,12 @@ export default function LandingPage() {
     {
       title: "Student Dashboard",
       description: "See how students navigate their personalized learning journey",
-      image: "/student-dashboard.jpg",
+      image: "/student-dashboard.png",
     },
     {
       title: "Teacher Analytics",
       description: "Explore comprehensive insights into classroom performance",
-      image: "/teacher-dashboard.jpg",
+      image: "/teacher-dashboard.png",
     },
     {
       title: "Test Creation",
@@ -361,7 +361,7 @@ export default function LandingPage() {
               <div className="relative backdrop-blur-sm bg-[#fcf9ea]/20 border border-[#e2c3ae]/50 rounded-2xl p-6 shadow-lg transform rotate-2 hover:rotate-0 transition-transform duration-500">
                 <div className="absolute -top-4 -left-4 w-12 h-12 rounded-full bg-[#d56c4e] flex items-center justify-center text-white font-bold text-xl">A+</div>
                 <Image
-                  src="/teacher-dashboard.jpg"
+                  src="/teacher-dashboard.png"
                   width={"800"}
                   height={"800"}
                   alt="Platform Dashboard"
@@ -768,7 +768,7 @@ export default function LandingPage() {
                       alt={demo.title}
                       width={500}
                       height={500}
-                      className="w-full h-64 object-cover"
+                      className="w-full h-64 object-cover object-top"
                     />
                   </motion.div>
                   
