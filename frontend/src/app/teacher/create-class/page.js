@@ -8,6 +8,7 @@ import instance from '@/utils/axios.js';
 import { UserDropdown } from '@/components/dashboard/UserDropdown';
 import { useError } from '@/contexts/ErrorContext';
 import { isAuthenticated } from '@/utils/auth';
+import { useSuccess } from '@/contexts/SuccessContext';
 
 export default function CreateClass() {
   const [className, setClassName] = useState('');
@@ -24,6 +25,7 @@ export default function CreateClass() {
   const pdfInputRef = useRef(null);
   const router = useRouter();
   const { showError } = useError();
+  const { showSuccess } = useSuccess();
   
   useEffect(() => {
     const checkAuth = async () => {
@@ -150,13 +152,16 @@ export default function CreateClass() {
       const response = await instance.post('/api/classes/create', formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
-        }
+        },
+        validateStatus: (status) => status === 201 || status === 207
       });
-      
-      if (response.data.success) {
+  
+      if (response.status === 201) {
+        showSuccess('Class creation successful.');
         router.push('/');
-      } else {
-        showError(response.data.message || 'Failed to create class');
+      } else if (response.status === 207) {
+        showError('Class creation successful. File upload failed');
+        router.push('/');
       }
     } catch (error) {
       console.error("Class creation error:", error);

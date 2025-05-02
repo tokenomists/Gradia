@@ -59,6 +59,7 @@ export const createClass = async (req, res) => {
     const gradia_python_backend_url = process.env.GRADIA_PYTHON_BACKEND_URL;
 
     if (!gradia_api_key) {
+      await Class.findByIdAndDelete(newClass._id);
       return res.status(500).json({ success: false, message: "API key not configured in environment" });
     }
 
@@ -70,26 +71,46 @@ export const createClass = async (req, res) => {
       );
 
       if (classFiles && classFiles.length > 0) {
-        await uploadFilesToGCS(classFiles, newClass._id.toString());
+        try {
+          await uploadFilesToGCS(classFiles, newClass._id.toString());
+        } catch (uploadError) {
+          console.error("File upload error:", uploadError.message);
+          return res.status(207).json({
+            success: true,
+            message: "Class creation and GCS bucket creation successful. File upload failed",
+            class: newClass,
+            fileUploadError: uploadError.message,
+          });
+        }
       }
 
-      res.status(201).json({
+      return res.status(201).json({
         success: true,
         message: "Class created and GCS bucket with Class Materials set up successfully",
         class: newClass,
         gcsResponse: gcsResponse.data,
       });
+
     } catch (gcsError) {
-      console.error("Error setting up GCS bucket:", gcsError.message);
-      return res.status(500).json({ success: false, message: "Failed to set up GCS bucket" });
-    }
-  } catch (error) {
-      console.error("Error creating class:", error);
-        res.status(500).json({
+      console.error("GCS bucket creation error:", gcsError.message);
+
+      await Class.findByIdAndDelete(newClass._id);
+      await Teacher.findByIdAndUpdate(teacher._id, { $pull: { classes: newClass._id } });
+
+      return res.status(500).json({
         success: false,
-        message: "Error creating class",
-        error: error.message,
+        message: "Failed to create Class. Error in GCS Bucket creation",
+        error: gcsError.message,
       });
+    }
+
+  } catch (error) {
+    console.error("Unexpected error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Unexpected Server error while creating class",
+      error: error.message,
+    });
   }
 };
 
