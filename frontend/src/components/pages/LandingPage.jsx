@@ -181,7 +181,7 @@ export default function LandingPage() {
     },
     {
       title: "Design assessments",
-      description: "Create tests, quizzes, and assignments with AI-powered tools",
+      description: "Build your own tests and our RAG based AI takes care of the grading.",
       icon: <Book className="w-12 h-12" />,
     },
     {
@@ -495,12 +495,12 @@ export default function LandingPage() {
                 <ul className="space-y-6">
                   {[
                     { 
-                      title: "AI-Powered Creation", 
-                      description: "Design tests and assignments in minutes with intelligent assistance tailored to your curriculum" 
+                      title: "Smart Test Creation", 
+                      description: "Craft tests and evaluations faster with tools that adapt to your curriculum" 
                     },
                     { 
                       title: "Insightful Analytics", 
-                      description: "Visualize individual and class performance with dynamic dashboards that reveal learning patterns" 
+                      description: "Visualize class performance with dynamic dashboards that reveal learning patterns" 
                     },
                     { 
                       title: "Gap Analysis", 
@@ -536,6 +536,7 @@ export default function LandingPage() {
                 </ul>
                 
                 <motion.button
+                  onClick={() => {router.push('/signup')}}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.98 }}
                   className="mt-8 px-6 py-2 bg-gradient-to-r from-[#d56c4e]/80 to-[#d56c4e] text-white rounded-full text-sm font-medium"
@@ -588,12 +589,12 @@ export default function LandingPage() {
                   description: "Watch your growth unfold through interactive timelines and achievement milestones" 
                 },
                 { 
-                  title: "Adaptive Resources", 
-                  description: "Access a curated library of learning materials that automatically adjust to your unique needs" 
+                  title: "Grading-Aligned Materials", 
+                  description: "Review exactly what your teacher uses to grade you — no extra fluff, just what matters" 
                 },
                 { 
-                  title: "Seamless Organization", 
-                  description: "Navigate your learning journey with intuitive scheduling and smart deadline management" 
+                  title: "Unified Test Hub", 
+                  description: "Save time and take tests more easily - everything in one seamless platform" 
                 }
               ].map((item, index) => (
                 <motion.li 
@@ -621,6 +622,7 @@ export default function LandingPage() {
             </ul>
             
             <motion.button
+              onClick={() => {router.push('/signup')}}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.98 }}
               className="mt-8 px-6 py-2 bg-gradient-to-r from-[#d56c4e]/80 to-[#d56c4e] text-white rounded-full text-sm font-medium"
