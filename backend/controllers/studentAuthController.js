@@ -148,12 +148,12 @@ export const getStudentTests = async (req, res) => {
     // Extract JWT token from cookies
     const token = req.cookies.token;
     if (!token) return res.status(401).json({ message: "Unauthorized" });
-    console.log(token);
+    // console.log(token);
 
     // Decode token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const studentId = decoded.id;
-    console.log(studentId);
+    // console.log(studentId);
 
     // Find student and their enrolled classes
     const student = await Student.findById(studentId).populate("classes");
