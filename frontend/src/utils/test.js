@@ -42,7 +42,7 @@ export const getSubmissionsForStudent = async () => {
         const data = response.data;
         return data;
     } catch(error) {
-        console.log("Error fetching submissions!");
+        console.error("Error fetching submissions!");
         return [];
     }
 }
@@ -72,7 +72,7 @@ export const getTestsForTeacher = async () => {
             return data;
         }
     } catch(error) {
-        console.log("Error fetching tests: ", error);
+        console.error("Error fetching tests: ", error);
     }
 }
 
@@ -86,7 +86,7 @@ export const publishTest = async (updatedTestData) => {
             return data;
         }
     } catch(error) {
-        console.log("Error publishing test: ", error);
+        console.error("Error publishing test: ", error);
     }
 }
 
