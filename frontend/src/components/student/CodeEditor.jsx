@@ -178,11 +178,6 @@ const CodeEditor = ({
         type: 'SET_LANGUAGE',
         payload: { id: currentQuestionId, language: allowedLanguage }
       });
-    } else {
-      dispatch({
-        type: 'SET_LANGUAGE',
-        payload: { id: currentQuestionId, language: defaultLanguage }
-      });
     }
   }, [allowedLanguage]);
 

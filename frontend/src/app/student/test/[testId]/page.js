@@ -301,7 +301,7 @@ const TestPage = () => {
           type: q.type,
           text: q.questionText,
           codingLanguage: q.codingLanguage,
-          selectedLanguage: q.codingLanguage,
+          selectedLanguage: "python3",
           status: 'not-visited',
           answer: '',
           images: [],
