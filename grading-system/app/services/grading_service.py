@@ -16,13 +16,23 @@ model = SentenceTransformer("all-MiniLM-L6-v2")
 def embed_text(text):
     return model.encode(text, convert_to_numpy=True)
 
-def create_vector_db(text_chunks):
-    embeddings = np.array([embed_text(chunk) for chunk in text_chunks]).astype("float32")
-    dim = embeddings.shape[1]
+def create_vector_db(text_chunks, batch_size=32):
+    dim = 384
     index = faiss.IndexFlatIP(dim)
-    faiss.normalize_L2(embeddings)
-    index.add(embeddings)
-    return index, text_chunks
+
+    def stream_embeddings(chunks, batch_size):
+        for i in range(0, len(chunks), batch_size):
+            batch = chunks[i:i + batch_size]
+            batch_embeddings = model.encode(batch, convert_to_numpy=True)
+            faiss.normalize_L2(batch_embeddings)
+            yield batch_embeddings, batch
+
+    all_text_chunks = []
+    for batch_embeddings, batch_texts in stream_embeddings(text_chunks, batch_size):
+        index.add(batch_embeddings)
+        all_text_chunks.extend(batch_texts)
+
+    return index, all_text_chunks
 
 def retrieve_relevant_text(query, index, text_chunks, k=5):
     query_embedding = embed_text(query).astype("float32")
