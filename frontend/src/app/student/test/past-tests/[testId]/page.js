@@ -152,7 +152,7 @@ export default function TestDetailPage() {
       codeAnswer: answer.codeAnswer || '',
       fileUrl: answer.fileUrl || '',
       feedback: answer.feedback || 'No feedback provided',
-      codingLanguage: question.codingLanguage || 'python3'
+      codingLanguage: answer.codingLanguage
     };
   });
 
