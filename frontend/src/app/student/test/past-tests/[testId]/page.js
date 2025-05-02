@@ -414,7 +414,7 @@ export default function TestDetailPage() {
                           </svg>
                         </div>
                       </div>
-                      <div>
+                      <div className="whitespace-pre-wrap">
                         {questionsWithAnswers[activeQuestion].feedback}
                       </div>
                     </div>

@@ -110,7 +110,7 @@ export const gradingSubmission = async (submissionId) => {
           score = Math.round(scaledTestCaseScore + codeScore);
         }
     
-        feedback = `${passed_test_cases}/${total_test_cases} test cases passed. Code Feedback: ${codeFeedback}`;
+        feedback = `${passed_test_cases}/${total_test_cases} test cases passed.\nCode Feedback: ${codeFeedback}`;
       } catch (err) {
         console.error(`Grading failed for coding question ${ans.questionId}:`, err.message);
       }

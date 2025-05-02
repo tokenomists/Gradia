@@ -16,9 +16,33 @@ LANGUAGE_CONFIGS = {
         'template': '''
 {user_code}
 
-# Input handling
-input_value = input().strip()
-result = solution(int(input_value))
+import ast, sys
+
+raw = sys.stdin.read().strip()
+
+try:
+    data = ast.literal_eval(raw)
+except (ValueError, SyntaxError):
+    if ',' in raw:
+        parts = [p.strip() for p in raw.split(',')]
+        parsed = []
+        for part in parts:
+            try:
+                parsed.append(ast.literal_eval(part))
+            except (ValueError, SyntaxError):
+                parsed.append(part)
+        data = parsed
+    else:
+        data = raw
+
+if isinstance(data, list):
+    if raw.startswith('[') and raw.endswith(']'):
+        result = solution(data)
+    else:
+        result = solution(*data)
+else:
+    result = solution(data)
+
 print(result)
 '''
     },
@@ -28,8 +52,38 @@ print(result)
 {user_code}
 
 const fs = require('fs');
-const input = fs.readFileSync('/dev/stdin', 'utf8').trim();
-console.log(solution(parseInt(input, 10)));
+const raw = fs.readFileSync('/dev/stdin', 'utf8').trim();
+
+let data;
+try {{
+  data = JSON.parse(raw);
+}} catch (e) {{
+  if (raw.includes(',')) {{
+    data = raw.split(',').map(s => {{
+      const t = s.trim();
+      try {{
+        return JSON.parse(t);
+      }} catch {{
+        return t;
+      }}
+    }});
+  }} else {{
+    data = raw;
+  }}
+}}
+
+let result;
+if (Array.isArray(data)) {{
+  if (raw.startsWith('[') && raw.endsWith(']')) {{
+    result = solution(data);
+  }} else {{
+    result = solution(...data);
+  }}
+}} else {{
+  result = solution(data);
+}}
+
+console.log(result);
 '''
     }
 }
