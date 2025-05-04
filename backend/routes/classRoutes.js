@@ -4,7 +4,6 @@ import multer from "multer";
 
 import { 
   createClass, 
-  getTeacherClasses,
   joinClass,
   getClassDetails,
   getClassMaterials,
@@ -31,20 +30,11 @@ const upload = multer({ storage: storage });
 const router = express.Router();
 
 router.post('/create', upload.array('classFiles'), createClass);
-
-// Get all classes for a teacher
-// router.get('/teacher/classes', getTeacherClasses);
-
 router.post('/join', joinClass);
-
 router.get('/:classId', getClassDetails);
-
 router.post('/get-class-materials', getClassMaterials);
-
 router.post('/upload-class-material', upload.array('classFiles'), uploadClassMaterial);
-
 router.post('/delete-class-material', deleteClassMaterial);
-
 router.post('/download-class-material', downloadClassMaterial);
 
 export default router;

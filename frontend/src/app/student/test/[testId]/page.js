@@ -558,7 +558,17 @@ const TestPage = () => {
               <input 
                 type="file" 
                 accept="image/*" 
-                onChange={handleImageUpload}
+                onChange={() => {
+                  handleImageUpload();
+                  const elem = document.documentElement;
+                  if (elem.requestFullscreen) {
+                    elem.requestFullscreen();
+                  } else if (elem.webkitRequestFullscreen) {
+                    elem.webkitRequestFullscreen();
+                  } else if (elem.msRequestFullscreen) {
+                    elem.msRequestFullscreen();
+                  }
+                }}
                 className="hidden" 
                 id="image-upload"
               />
