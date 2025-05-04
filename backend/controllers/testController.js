@@ -346,7 +346,7 @@ export const getHeatmapData = async (req, res) => {
 
     for (const classData of classes) {
       const classId = classData._id;
-      heatmapData[classId] = {};
+      heatmapData[classData.name] = {};
 
       const tests = await Test.find({ classAssignment: classId }, '_id title maxMarks createdAt', { sort: { createdAt: -1 } });
 
@@ -355,7 +355,7 @@ export const getHeatmapData = async (req, res) => {
         const submissions = await Submission.find({ test: testId, graded: true }, 'totalScore student');
 
         if (submissions.length === 0) {
-          heatmapData[classId][testId] = { 
+          heatmapData[classData.name][testId] = { 
             title: test.title,
             attendedStudents: 0,
             totalStudents: classData.students.length,
@@ -369,11 +369,11 @@ export const getHeatmapData = async (req, res) => {
         const numStudents = submissions.length;
         const averagePercentage = (totalScoreSum * 100) / (numStudents * test.maxMarks);
 
-        heatmapData[classId][testId] = { 
+        heatmapData[classData.name][testId] = { 
           title: test.title,
           attendedStudents: numStudents,
           totalStudents: classData.students.length,
-          percentage: averagePercentage.toFixed(2) + "%", 
+          percentage: Number(averagePercentage.toFixed(2)),
           createdAt: test.createdAt
         };
       }
