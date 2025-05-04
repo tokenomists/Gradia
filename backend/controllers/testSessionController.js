@@ -66,6 +66,6 @@ export const markTestSessionStarted = async (req, res) => {
 };
 
 export const submitTestSession = async (req, res) => {
-  await TestSession.findByIdAndUpdate(req.params.sessionId, { isSubmitted: true });
+  await TestSession.findByIdAndDelete(req.params.sessionId);
   res.json({ ok: true });
 };
