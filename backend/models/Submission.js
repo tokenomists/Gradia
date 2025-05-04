@@ -22,6 +22,7 @@ const SubmissionSchema = new mongoose.Schema({
       answerText: { type: String }, // Used for theoretical answers
       fileUrl: { type: String }, // Used for handwritten answers
       codeAnswer: { type: String }, // Used for coding answers
+      codingLanguage: { type: String }, // Used for coding answers
       score: { type: Number, default: 0 }, // Score for this specific question
       feedback: { type: String, default: "" }, // Feedback for this specific question
     }

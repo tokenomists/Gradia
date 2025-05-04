@@ -960,6 +960,11 @@ const updateTestCase = (questionIndex, testCaseIndex, field, value) => {
                             <span className="bg-blue-100 text-blue-700 text-xs font-semibold px-2.5 py-0.5 rounded">
                               {q.type.charAt(0).toUpperCase() + q.type.slice(1)}
                             </span>
+                            {q.type === 'coding' && (
+                              <span className="bg-orange-100 text-orange-700 text-xs font-medium px-2.5 py-0.5 rounded">
+                                {q.codingLanguage ? q.codingLanguage : "Any Langauge"}
+                              </span>
+                            )}
                             {q.type === 'coding' && q.testCases?.length > 0 && (
                               <span className="bg-purple-100 text-purple-700 text-xs font-medium px-2.5 py-0.5 rounded">
                                 {q.testCases.length} test case{q.testCases.length > 1 ? 's' : ''} ({q.testCases.filter(tc => tc.isHidden).length} hidden)
@@ -986,7 +991,7 @@ const updateTestCase = (questionIndex, testCaseIndex, field, value) => {
                 </section>
 
                 {/* Validation Warnings */}
-                {(!testData.title || !testData.startTime || !testData.endTime || !testData.classAssignment || testData.questions.length === 0 || classFiles.length === 0) && (
+                {(!testData.title || !testData.startTime || !testData.endTime || !testData.classAssignment || testData.questions.length === 0 || (testData.questions.some(q => q.type !== 'coding') && classFiles.length === 0)) && (
                   <div className="bg-yellow-100/70 border border-yellow-300 p-5 rounded-xl shadow-sm">
                     <div className="flex items-start gap-3">
                       <span className="text-yellow-500 text-xl">⚠️</span>
@@ -998,7 +1003,7 @@ const updateTestCase = (questionIndex, testCaseIndex, field, value) => {
                           {!testData.endTime && <li>Set an end time</li>}
                           {testData.questions.length === 0 && <li>Add at least one question</li>}
                           {!testData.classAssignment && <li>Assign to a class</li>}
-                          {classFiles.length === 0 && <li>Add PDF materials for grading to the assigned class</li>}
+                          {testData.questions.some(q => q.type !== 'coding') && classFiles.length === 0 && (<li>Add PDF materials for grading to the assigned class</li>)}
                         </ul>
                       </div>
                     </div>
@@ -1053,7 +1058,7 @@ const updateTestCase = (questionIndex, testCaseIndex, field, value) => {
                         !testData.endTime || 
                         !testData.classAssignment || 
                         testData.questions.length === 0 ||
-                        classFiles.length === 0
+                        (testData.questions.some(q => q.type !== 'coding') && classFiles.length === 0)
                       }
                       className={`px-4 py-2 rounded-md transition ${
                         !testData.title || 
@@ -1061,7 +1066,7 @@ const updateTestCase = (questionIndex, testCaseIndex, field, value) => {
                         !testData.endTime || 
                         !testData.classAssignment || 
                         testData.questions.length === 0 ||
-                        classFiles.length === 0
+                        (testData.questions.some(q => q.type !== 'coding') && classFiles.length === 0)
                           ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                           : "bg-[#d97056] text-white hover:bg-[#c5634c]"
                       }`}

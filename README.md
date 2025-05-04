@@ -1,7 +1,7 @@
 # Gradia
 Gradia is an AI powered grading tool designed to help teachers evaluate student answers quickly and fairly. It uses Retrieval Augmented Generation (RAG) to match answers with the uploaded course material and grade responses accordingly - no random AI hallucinations, just grounded grading. It also provides students with helpful feedback and citations, so they know what they did right, what went wrong, and how to improve next time.
 
-![image](https://github.com/user-attachments/assets/aa7f6652-aa15-4076-affa-5fe587627859)
+![image](https://github.com/user-attachments/assets/8c582995-3033-41c6-bb01-cb69a920423f)
 
 ## Problem We Aim to Solve
 Grading is tough, especially with large batches, and teachers are already overburdened. Most of the time, students don't get any feedback, and everything just ends up as a mark with no explanation. Most tools today either miss the context or don't explain how they arrived at a score. That’s why Gradia was built - to automate the process while ensuring it’s accurate, explainable, and grounded in the material teachers actually use.

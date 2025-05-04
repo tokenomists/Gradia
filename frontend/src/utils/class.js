@@ -9,6 +9,6 @@ export const getClassesForTeacher = async () => {
             return data;
         }
     } catch(error) {
-        console.log("Error fetching classes: ", error);
+        console.error("Error fetching classes: ", error);
     }
 };

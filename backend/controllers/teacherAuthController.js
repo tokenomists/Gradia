@@ -104,8 +104,6 @@ export const getTeacherProfile = async (req, res) => {
     return res.status(400).json({ success: false, message: "Teacher not found! Invalid email" });
   }
   
-  console.log(teacher);
-
   if(token) {
       return res.status(200).json({ email: email,  });
   }

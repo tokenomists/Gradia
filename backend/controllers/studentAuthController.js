@@ -224,7 +224,7 @@ export const getStudentSubmissions = async (req, res) => {
     const submissions = await Submission.find({ student: studentId });
     res.status(200).json( submissions );
   } catch(error) {
-    console.log("Error, failed to fetch submissions: ", error);
+    console.error("Error, failed to fetch submissions: ", error);
     res.status(500).json({ message: "Failed to fetch submissions!" });
   }
 };

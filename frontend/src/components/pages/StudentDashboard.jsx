@@ -107,11 +107,7 @@ export default function StudentDashboard() {
               // console.log("Session Data:", res.data);
               return { ...test, isStarted: res.data.data.isStarted };
             } catch (err) {
-              if (err.response?.status === 404) {
-                return { ...test, isStarted: false };
-              }
               console.error('Error fetching session for', test._id, err);
-              return { ...test, isStarted: false };
             }
           })
         );
@@ -218,7 +214,7 @@ export default function StudentDashboard() {
   };
 
   const handleResumeTest = (testId) => {
-    localStorage.setItem('Resume Test: ', 'true');
+    localStorage.setItem('Resume Test', 'true');
     router.push('/student/test/' + testId);
   };
 

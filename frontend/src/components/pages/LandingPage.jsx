@@ -181,7 +181,7 @@ export default function LandingPage() {
     },
     {
       title: "Design assessments",
-      description: "Create tests, quizzes, and assignments with AI-powered tools",
+      description: "Build your own tests and our RAG based AI takes care of the grading.",
       icon: <Book className="w-12 h-12" />,
     },
     {
@@ -195,12 +195,12 @@ export default function LandingPage() {
     {
       title: "Student Dashboard",
       description: "See how students navigate their personalized learning journey",
-      image: "/student-dashboard.jpg",
+      image: "/student-dashboard.png",
     },
     {
       title: "Teacher Analytics",
       description: "Explore comprehensive insights into classroom performance",
-      image: "/teacher-dashboard.jpg",
+      image: "/teacher-dashboard.png",
     },
     {
       title: "Test Creation",
@@ -361,7 +361,7 @@ export default function LandingPage() {
               <div className="relative backdrop-blur-sm bg-[#fcf9ea]/20 border border-[#e2c3ae]/50 rounded-2xl p-6 shadow-lg transform rotate-2 hover:rotate-0 transition-transform duration-500">
                 <div className="absolute -top-4 -left-4 w-12 h-12 rounded-full bg-[#d56c4e] flex items-center justify-center text-white font-bold text-xl">A+</div>
                 <Image
-                  src="/teacher-dashboard.jpg"
+                  src="/teacher-dashboard.png"
                   width={"800"}
                   height={"800"}
                   alt="Platform Dashboard"
@@ -495,12 +495,12 @@ export default function LandingPage() {
                 <ul className="space-y-6">
                   {[
                     { 
-                      title: "AI-Powered Creation", 
-                      description: "Design tests and assignments in minutes with intelligent assistance tailored to your curriculum" 
+                      title: "Smart Test Creation", 
+                      description: "Craft tests and evaluations faster with tools that adapt to your curriculum" 
                     },
                     { 
                       title: "Insightful Analytics", 
-                      description: "Visualize individual and class performance with dynamic dashboards that reveal learning patterns" 
+                      description: "Visualize class performance with dynamic dashboards that reveal learning patterns" 
                     },
                     { 
                       title: "Gap Analysis", 
@@ -536,6 +536,7 @@ export default function LandingPage() {
                 </ul>
                 
                 <motion.button
+                  onClick={() => {router.push('/signup')}}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.98 }}
                   className="mt-8 px-6 py-2 bg-gradient-to-r from-[#d56c4e]/80 to-[#d56c4e] text-white rounded-full text-sm font-medium"
@@ -544,103 +545,104 @@ export default function LandingPage() {
                 </motion.button>
               </motion.div>
 
-        {/* For Students */}
-        <motion.div
-          variants={fadeIn}
-          className={`group backdrop-blur-lg ${
-            darkMode
-              ? "bg-gradient-to-br from-[#63615c]/30 to-[#63615c]/10 hover:shadow-[0px_10px_40px_rgba(255,255,255,0.2)]"
-              : "bg-gradient-to-br from-[#fcf9ea]/30 to-[#fcf9ea]/10 hover:shadow-[0px_10px_40px_rgba(0,0,0,0.2)]"
-          } border border-[#e2c3ae]/50 rounded-3xl p-8 shadow-lg transition-all duration-500 relative overflow-hidden`}
-        >
-            {/* Background pattern */}
-            <div className="absolute -right-24 -bottom-24 w-64 h-64 rounded-full bg-[#d56c4e]/20 blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
-
-            {/* Main content */}          
-            <motion.div 
-              className="bg-gradient-to-br from-[#d56c4e]/30 to-[#d56c4e]/20 w-20 h-20 rounded-2xl flex items-center justify-center mb-8 group-hover:scale-110 transition-transform duration-300"
-              whileHover={{ rotate: [0, 5, -5, 5, 0] }}
-              transition={{ duration: 0.5 }}
-            >
-              <BookOpen className="w-10 h-10 text-[#d56c4e]" />
-            </motion.div>
-            
-            <h3 className="text-2xl md:text-3xl font-bold mb-6 flex items-center">
-              <span>For Learners</span>
-              <motion.div 
-                className="ml-3 w-6 h-6 rounded-full bg-[#d56c4e]/10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                initial={{ scale: 0 }}
-                whileInView={{ scale: 1 }}
-                transition={{ delay: 0.4, type: "spring" }}
+              {/* For Students */}
+              <motion.div
+                variants={fadeIn}
+                className={`group backdrop-blur-lg ${
+                  darkMode
+                    ? "bg-gradient-to-br from-[#63615c]/30 to-[#63615c]/10 hover:shadow-[0px_10px_40px_rgba(255,255,255,0.2)]"
+                    : "bg-gradient-to-br from-[#fcf9ea]/30 to-[#fcf9ea]/10 hover:shadow-[0px_10px_40px_rgba(0,0,0,0.2)]"
+                } border border-[#e2c3ae]/50 rounded-3xl p-8 shadow-lg transition-all duration-500 relative overflow-hidden`}
               >
-                <ArrowRight className="w-3 h-3 text-[#d56c4e]" />
-              </motion.div>
-            </h3>
-            
-            <ul className="space-y-6">
-              {[
-                { 
-                  title: "Tailored Guidance", 
-                  description: "Receive personalized feedback highlighting exactly where to focus and how to improve your understanding" 
-                },
-                { 
-                  title: "Progress Visualization", 
-                  description: "Watch your growth unfold through interactive timelines and achievement milestones" 
-                },
-                { 
-                  title: "Adaptive Resources", 
-                  description: "Access a curated library of learning materials that automatically adjust to your unique needs" 
-                },
-                { 
-                  title: "Seamless Organization", 
-                  description: "Navigate your learning journey with intuitive scheduling and smart deadline management" 
-                }
-              ].map((item, index) => (
-                <motion.li 
-                  key={index}
-                  initial={{ x: -10, opacity: 0 }}
-                  whileInView={{ x: 0, opacity: 1 }}
-                  transition={{ delay: 0.3 + (index * 0.1) }}
-                  whileHover={{ x: 5 }} 
-                  className="flex items-start group/item"
-                >
-                  <div className="mr-4 mt-1 flex-shrink-0">
+                  {/* Background pattern */}
+                  <div className="absolute -right-24 -bottom-24 w-64 h-64 rounded-full bg-[#d56c4e]/20 blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+
+                  {/* Main content */}          
+                  <motion.div 
+                    className="bg-gradient-to-br from-[#d56c4e]/30 to-[#d56c4e]/20 w-20 h-20 rounded-2xl flex items-center justify-center mb-8 group-hover:scale-110 transition-transform duration-300"
+                    whileHover={{ rotate: [0, 5, -5, 5, 0] }}
+                    transition={{ duration: 0.5 }}
+                  >
+                    <BookOpen className="w-10 h-10 text-[#d56c4e]" />
+                  </motion.div>
+                  
+                  <h3 className="text-2xl md:text-3xl font-bold mb-6 flex items-center">
+                    <span>For Learners</span>
                     <motion.div 
-                      className="w-6 h-6 rounded-full border border-[#d56c4e]/50 flex items-center justify-center group-hover/item:bg-[#d56c4e]/10 transition-colors duration-300"
-                      whileHover={{ scale: 1.2 }}
+                      className="ml-3 w-6 h-6 rounded-full bg-[#d56c4e]/10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                      initial={{ scale: 0 }}
+                      whileInView={{ scale: 1 }}
+                      transition={{ delay: 0.4, type: "spring" }}
                     >
-                      <CheckCircle className="w-4 h-4 text-[#d56c4e]" />
+                      <ArrowRight className="w-3 h-3 text-[#d56c4e]" />
                     </motion.div>
-                  </div>
-                  <div>
-                  <h4 className="font-semibold text-lg mb-1">{item.title}</h4>
-                  <p className="text-sm opacity-80 leading-relaxed">{item.description}</p>
-                  </div>
-                </motion.li>
-              ))}
-            </ul>
+                  </h3>
+                  
+                  <ul className="space-y-6">
+                    {[
+                      { 
+                        title: "Tailored Guidance", 
+                        description: "Receive personalized feedback highlighting exactly where to focus and how to improve your understanding" 
+                      },
+                      { 
+                        title: "Progress Visualization", 
+                        description: "Watch your growth unfold through interactive timelines and achievement milestones" 
+                      },
+                      { 
+                        title: "Grading-Aligned Materials", 
+                        description: "Review exactly what your teacher uses to grade you — no extra fluff, just what matters" 
+                      },
+                      { 
+                        title: "Unified Test Hub", 
+                        description: "Save time and take tests more easily - everything in one seamless platform" 
+                      }
+                    ].map((item, index) => (
+                      <motion.li 
+                        key={index}
+                        initial={{ x: -10, opacity: 0 }}
+                        whileInView={{ x: 0, opacity: 1 }}
+                        transition={{ delay: 0.3 + (index * 0.1) }}
+                        whileHover={{ x: 5 }} 
+                        className="flex items-start group/item"
+                      >
+                        <div className="mr-4 mt-1 flex-shrink-0">
+                          <motion.div 
+                            className="w-6 h-6 rounded-full border border-[#d56c4e]/50 flex items-center justify-center group-hover/item:bg-[#d56c4e]/10 transition-colors duration-300"
+                            whileHover={{ scale: 1.2 }}
+                          >
+                            <CheckCircle className="w-4 h-4 text-[#d56c4e]" />
+                          </motion.div>
+                        </div>
+                        <div>
+                        <h4 className="font-semibold text-lg mb-1">{item.title}</h4>
+                        <p className="text-sm opacity-80 leading-relaxed">{item.description}</p>
+                        </div>
+                      </motion.li>
+                    ))}
+                  </ul>
+                  
+                  <motion.button
+                    onClick={() => {router.push('/signup')}}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="mt-8 px-6 py-2 bg-gradient-to-r from-[#d56c4e]/80 to-[#d56c4e] text-white rounded-full text-sm font-medium"
+                  >
+                    Start Your Journey
+                  </motion.button>
+              </motion.div>
+            </div>
             
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.98 }}
-              className="mt-8 px-6 py-2 bg-gradient-to-r from-[#d56c4e]/80 to-[#d56c4e] text-white rounded-full text-sm font-medium"
+            {/* Bottom decorative element */}
+            <motion.div 
+              className="mt-16 flex justify-center"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.8 }}
             >
-              Start Your Journey
-            </motion.button>
-        </motion.div>
-      </div>
-      
-      {/* Bottom decorative element */}
-      <motion.div 
-        className="mt-16 flex justify-center"
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.8 }}
-      >
-        <div className="w-24 h-1 bg-gradient-to-r from-transparent via-[#d56c4e]/40 to-transparent rounded-full" />
-      </motion.div>
-    </motion.div>
-  </section>
+              <div className="w-24 h-1 bg-gradient-to-r from-transparent via-[#d56c4e]/40 to-transparent rounded-full" />
+            </motion.div>
+          </motion.div>
+        </section>
 
         {/* How It Works Section */}
         <section 
@@ -768,7 +770,7 @@ export default function LandingPage() {
                       alt={demo.title}
                       width={500}
                       height={500}
-                      className="w-full h-64 object-cover"
+                      className="w-full h-64 object-cover object-top"
                     />
                   </motion.div>
                   
@@ -1023,7 +1025,21 @@ export default function LandingPage() {
               </div>
               
               <div className="col-span-1">
-                <h4 className="text-lg font-bold mb-4">Company</h4>
+                <h4 
+                  className="text-lg font-bold mb-4 cursor-default" 
+                  onClick={() => {
+                    const easterEggElement = document.getElementById('easter-egg');
+                    console.log('%c🥚 Shh… you found it! Cheers from the Tokenomists!', 'font-style:italic;');
+                    if (easterEggElement) {
+                      easterEggElement.style.opacity = '0.5';
+                      setTimeout(() => {
+                        easterEggElement.style.opacity = '0';
+                      }, 7000)
+                    }
+                  }}
+                >
+                  Company
+                </h4>
                 <ul className="space-y-2 opacity-80">
                   <li><a href="#" className="hover:text-[#d56c4e] transition-colors">About Us</a></li>
                   <li><a href="#" className="hover:text-[#d56c4e] transition-colors">Careers</a></li>
@@ -1043,8 +1059,19 @@ export default function LandingPage() {
               </div>
             </div>
             
-            <div className="mt-12 pt-8 border-t border-[#fcf9ea]/20 text-center opacity-60 text-sm">
+            <div className="mt-12 pt-8 border-t border-[#fcf9ea]/20 text-center opacity-60 text-sm relative">
               <p>&copy; {new Date().getFullYear()} Gradia. All rights reserved.</p>
+              
+              <div id="easter-egg" className="absolute w-full text-center opacity-0 transition-opacity duration-500 mb-2" style={{ top: '125%' }}>
+                <div className="flex items-center justify-center text-xs">
+                  <span>Made with </span>
+                  <svg className="w-3 h-3 mx-1 text-[#d56c4e] fill-current" viewBox="0 0 24 24">
+                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                  </svg>
+                  <span> by Tokenomists - AMR, AE, NBK, MVP</span>
+                </div>
+              </div>
+
             </div>
           </div>
         </footer>

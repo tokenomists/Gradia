@@ -7,7 +7,7 @@ import Class from "../models/Class.js";
 import Student from "../models/Student.js";
 import Submission from "../models/Submission.js";
 
-export const gradeSubmission = async (submissionId) => {
+export const gradingSubmission = async (submissionId) => {
   const submission = await Submission.findById(submissionId);
   if (!submission) throw new Error("Submission not found");
 
@@ -56,7 +56,7 @@ export const gradeSubmission = async (submissionId) => {
     else if (question.type === "coding") {
       try {
         const source_code = ans.codeAnswer;
-        const language = "python3";
+        const language = ans.codingLanguage;
 
         const test_cases = question.testCases.map((tc) => ({
           input: tc.input,
@@ -110,7 +110,7 @@ export const gradeSubmission = async (submissionId) => {
           score = Math.round(scaledTestCaseScore + codeScore);
         }
     
-        feedback = `${passed_test_cases}/${total_test_cases} test cases passed. Code Feedback: ${codeFeedback}`;
+        feedback = `${passed_test_cases}/${total_test_cases} test cases passed.\nCode Feedback: ${codeFeedback}`;
       } catch (err) {
         console.error(`Grading failed for coding question ${ans.questionId}:`, err.message);
       }
@@ -316,7 +316,7 @@ export const submitTest = async (req, res) => {
 
     await submission.save();
 
-    gradeSubmission(submission._id).catch((err) => {
+    gradingSubmission(submission._id).catch((err) => {
       console.error("Failed to trigger grading:", err.message);
     });
 

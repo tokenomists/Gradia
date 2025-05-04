@@ -99,12 +99,9 @@ export default function TestDetailPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-[#fdf9ea] to-[#fff5e9] flex justify-center items-center">
-        <div className="flex flex-col items-center">
-          <div className="relative w-24 h-24">
-            <div className="absolute top-0 left-0 w-full h-full border-8 border-[#f8d9c7] rounded-full opacity-30"></div>
-            <div className="absolute top-0 left-0 w-full h-full border-8 border-t-[#dd7a5f] rounded-full animate-spin"></div>
-          </div>
-          <p className="mt-4 text-xl font-medium text-[#dd7a5f]">Loading your results...</p>
+        <div className="flex flex-col justify-center items-center min-h-[90vh]">
+          <div className="w-12 h-12 rounded-full border-4 border-[#f8e2d8] border-t-[#dd7a5f] animate-spin mb-4"></div>
+          <p className="text-[#d56c4e] text-lg font-medium">Fetching your results...</p>
         </div>
       </div>
     );
@@ -152,7 +149,7 @@ export default function TestDetailPage() {
       codeAnswer: answer.codeAnswer || '',
       fileUrl: answer.fileUrl || '',
       feedback: answer.feedback || 'No feedback provided',
-      codingLanguage: question.codingLanguage || 'python3'
+      codingLanguage: answer.codingLanguage
     };
   });
 
@@ -414,7 +411,7 @@ export default function TestDetailPage() {
                           </svg>
                         </div>
                       </div>
-                      <div>
+                      <div className="whitespace-pre-wrap">
                         {questionsWithAnswers[activeQuestion].feedback}
                       </div>
                     </div>

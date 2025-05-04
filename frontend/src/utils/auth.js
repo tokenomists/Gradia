@@ -12,7 +12,7 @@ export const isAuthenticated = async () => {
             profilePic: data.profilePic,
         };
     } catch (error) {
-        console.log('Auth Check failed:', error);
+        console.error('Auth Check failed:', error);
         return false;
     }
 };

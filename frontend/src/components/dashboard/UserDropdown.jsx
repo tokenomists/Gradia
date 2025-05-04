@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { User, Settings, LogOut } from "lucide-react";
+import { User, LogOut } from "lucide-react";
 import { logout, isAuthenticated } from "../../utils/auth.js";
 import { useRouter } from "next/navigation";
 import Image from "next/image.js";
@@ -28,7 +28,6 @@ export const UserDropdown = () => {
     // router.refresh();
   };
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -63,8 +62,22 @@ export const UserDropdown = () => {
   };
 
   const menuItems = [
-    { icon: <User size={16} />, label: "Profile", action: () => console.log("Profile clicked") },
-    { icon: <LogOut size={16} />, label: "Logout", action: handleLogout },
+    {
+      icon: <User size={16} />,
+      label: "Profile",
+      action: () => {
+        if (!user?.role) {
+          return;
+        }
+        const route = user.role === "student" ? "/student/profile" : "/teacher/profile";
+        router.push(route);
+      },
+    },
+    { 
+      icon: <LogOut size={16} />, 
+      label: "Logout", 
+      action: handleLogout 
+    },
   ];
 
   return (

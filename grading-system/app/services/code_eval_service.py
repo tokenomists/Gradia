@@ -16,9 +16,33 @@ LANGUAGE_CONFIGS = {
         'template': '''
 {user_code}
 
-# Input handling
-input_value = input().strip()
-result = solution(int(input_value))
+import ast, sys
+
+raw = sys.stdin.read().strip()
+
+try:
+    data = ast.literal_eval(raw)
+except (ValueError, SyntaxError):
+    if ',' in raw:
+        parts = [p.strip() for p in raw.split(',')]
+        parsed = []
+        for part in parts:
+            try:
+                parsed.append(ast.literal_eval(part))
+            except (ValueError, SyntaxError):
+                parsed.append(part)
+        data = parsed
+    else:
+        data = raw
+
+if isinstance(data, (list, tuple)):
+    if raw.startswith('[') and raw.endswith(']'):
+        result = solution(data)
+    else:
+        result = solution(*data)
+else:
+    result = solution(data)
+
 print(result)
 '''
     },
@@ -27,15 +51,39 @@ print(result)
         'template': '''
 {user_code}
 
-const input = require('readline').createInterface({
-    input: process.stdin,
-    output: process.stdout
-});
+const fs = require('fs');
+const raw = fs.readFileSync('/dev/stdin', 'utf8').trim();
 
-input.question('', (value) => {
-    console.log(solution(parseInt(value)));
-    input.close();
-});
+let data;
+try {{
+  data = JSON.parse(raw);
+}} catch (e) {{
+  if (raw.includes(',')) {{
+    data = raw.split(',').map(s => {{
+      const t = s.trim();
+      try {{
+        return JSON.parse(t);
+      }} catch {{
+        return t;
+      }}
+    }});
+  }} else {{
+    data = raw;
+  }}
+}}
+
+let result;
+if (Array.isArray(data)) {{
+  if (raw.startsWith('[') && raw.endsWith(']')) {{
+    result = solution(data);
+  }} else {{
+    result = solution(...data);
+  }}
+}} else {{
+  result = solution(data);
+}}
+
+console.log(result);
 '''
     }
 }

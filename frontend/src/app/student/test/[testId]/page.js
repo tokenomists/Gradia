@@ -81,6 +81,18 @@ const xs = '@media (min-width: 480px)';
               : q
           )
         };
+      case 'SET_LANGUAGE':
+        return {
+          ...state,
+          questions: state.questions.map(q =>
+            q.id === action.payload.id
+              ? { 
+                  ...q, 
+                  selectedLanguage: action.payload.language 
+                }
+              : q
+          )
+        };
       case 'ADD_IMAGE':
         return {
           ...state,
@@ -288,6 +300,8 @@ const TestPage = () => {
           id: q._id,
           type: q.type,
           text: q.questionText,
+          codingLanguage: q.codingLanguage,
+          selectedLanguage: "python3",
           status: 'not-visited',
           answer: '',
           images: [],
@@ -311,7 +325,7 @@ const TestPage = () => {
         }
         const session = await resData.session;
         if (session.isStarted) {
-          const isResumed = localStorage.getItem('Resume Test: ');
+          const isResumed = localStorage.getItem('Resume Test');
           if (isResumed === 'true') {
             setShowResumePage(true);
             setShowInstructions(false);
@@ -390,7 +404,7 @@ const TestPage = () => {
       setTestStarted(true);
     }
     // Reset the localStorage flag
-    localStorage.setItem('Resume Test: ', 'false');
+    localStorage.setItem('Resume Test', 'false');
   };
 
   useEffect(() => {
@@ -503,6 +517,7 @@ const TestPage = () => {
                 })}
                 dispatch={dispatch}
                 currentQuestionId={currentQuestion.id}
+                allowedLanguage={currentQuestion.codingLanguage}
                 className="min-h-[200px] md:min-h-[300px]"
               />
               
@@ -591,8 +606,8 @@ const TestPage = () => {
       const answers = state.questions
         .map(q => {
           const answer = {
-            questionId: q.id, // Use MongoDB _id from fetched test data
-            questionType: q.type, // Preserve original type (don't convert typed→typed)
+            questionId: q.id, 
+            questionType: q.type,
           };
   
           // Handle different answer types
@@ -600,13 +615,14 @@ const TestPage = () => {
             answer.answerText = q.answer;
           } else if(q.type === 'coding') {
             answer.codeAnswer = q.answer;
+            answer.codingLanguage = q.selectedLanguage;
           } else if (q.type === 'handwritten') {
             answer.fileUrl = q.images[0] || null;
           }
   
           return answer;
         });
-  
+
       // console.log('Submission payload:', { answers }); // Debug log
       await instance.post(`/api/test-session/${state.sessionId}/submit`);
       await submitTest(state.testId, { answers });
