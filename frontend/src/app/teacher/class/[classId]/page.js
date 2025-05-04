@@ -19,6 +19,7 @@ export default function ClassPage() {
   const [classDetails, setClassDetails] = useState(null);
   const [classFiles, setClassFiles] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [materialsLoading, setMaterialsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [deleteConfirmation, setDeleteConfirmation] = useState({ isOpen: false, fileName: null });
   const [deleteStatus, setDeleteStatus] = useState({ isDeleting: false, fileName: null });
@@ -70,6 +71,8 @@ export default function ClassPage() {
       }
     } catch (err) {
       console.error('Error fetching class materials:', err);
+    } finally {
+      setMaterialsLoading(false);
     }
   }, [classId]);
  
@@ -388,7 +391,13 @@ export default function ClassPage() {
               />
             </div>
                    
-            {classFiles.length === 0 ? (
+            {materialsLoading ? (
+              <div className="flex flex-col justify-center items-center h-48">
+                <div className="relative">
+                  <div className="w-10 h-10 rounded-full border-4 border-[#f8e2d8] border-t-[#dd7a5f] animate-spin"></div>
+                </div>
+              </div>
+            ) : classFiles.length === 0 ? (
               <div className="flex justify-center items-center h-48">
                 <p className="text-gray-500">No materials uploaded yet.</p>
               </div>
