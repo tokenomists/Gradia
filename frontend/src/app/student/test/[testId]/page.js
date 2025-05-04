@@ -558,8 +558,8 @@ const TestPage = () => {
               <input 
                 type="file" 
                 accept="image/*" 
-                onChange={() => {
-                  handleImageUpload();
+                onChange={(e) => {
+                  handleImageUpload(e);
                   const elem = document.documentElement;
                   if (elem.requestFullscreen) {
                     elem.requestFullscreen();

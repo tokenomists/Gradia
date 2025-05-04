@@ -332,55 +332,53 @@ export const submitTest = async (req, res) => {
 
 export const getHeatmapData = async (req, res) => {
   try {
-    // Decode token to get teacher ID
     const token = req.cookies.token;
-    if (!token) return res.status(401).json({ message: "Unauthorized: No token provided" });
+    if (!token) {
+      return res.status(401).json({ message: "Unauthorized: No token provided" });
+    }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const teacherId = decoded.id;
 
-    // Fetch only classes associated with the logged-in teacher
-    const classes = await Class.find({ teacher: teacherId }, 'name _id');
+    const classes = await Class.find({ teacher: teacherId }, '_id name students');
 
     const heatmapData = {};
 
-    for (const classDoc of classes) {
-      const classId = classDoc._id;
-      heatmapData[classDoc.name] = {};
+    for (const classData of classes) {
+      const classId = classData._id;
+      heatmapData[classId] = {};
 
-      const tests = await Test.find({ classAssignment: classId }, '_id title questions createdAt', { sort: { createdAt: -1 } });
+      const tests = await Test.find({ classAssignment: classId }, '_id title maxMarks createdAt', { sort: { createdAt: -1 } });
 
       for (const test of tests) {
         const testId = test._id;
-        const totalPossibleMarks = test.questions.reduce((sum, q) => sum + q.maxMarks, 0);
         const submissions = await Submission.find({ test: testId, graded: true }, 'totalScore student');
 
         if (submissions.length === 0) {
-          heatmapData[classDoc.name][test.title] = { 
-            percentage: 'NA', 
-            color: 'bg-gray-200',
-            createdAt: test.createdAt // Include createdAt timestamp
+          heatmapData[classId][testId] = { 
+            title: test.title,
+            attendedStudents: 0,
+            totalStudents: classData.students.length,
+            percentage: 0, 
+            createdAt: test.createdAt
           };
           continue;
         }
 
         const totalScoreSum = submissions.reduce((sum, sub) => sum + sub.totalScore, 0);
         const numStudents = submissions.length;
-        const averagePercentage = (totalScoreSum * 100) / (numStudents * totalPossibleMarks);
+        const averagePercentage = (totalScoreSum * 100) / (numStudents * test.maxMarks);
 
-        let color = 'bg-green-500';
-        if (averagePercentage < 50) color = 'bg-red-500';
-        else if (averagePercentage <= 75) color = 'bg-orange-400';
-
-        heatmapData[classDoc.name][test.title] = { 
-          percentage: averagePercentage.toFixed(2) + '%', 
-          color,
-          createdAt: test.createdAt // Include createdAt timestamp
+        heatmapData[classId][testId] = { 
+          title: test.title,
+          attendedStudents: numStudents,
+          totalStudents: classData.students.length,
+          percentage: averagePercentage.toFixed(2) + "%", 
+          createdAt: test.createdAt
         };
       }
     }
 
-    // console.log('Heatmap data:', heatmapData);
     res.json(heatmapData);
   } catch (error) {
     console.error('Heatmap data error:', error);

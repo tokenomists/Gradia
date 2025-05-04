@@ -5,7 +5,6 @@ import { getTeacherTests } from "../controllers/teacherAuthController.js";
 
 const router = express.Router();
 
-router.get("/heatmap", getHeatmapData);
 router.get("/get-languages", getSupportedLanguages);
 router.post("/create-test", createTest);
 router.get("/tests", getTests);
@@ -13,5 +12,6 @@ router.get("/student-tests", getStudentTests);
 router.get("/teacher-tests", getTeacherTests);
 router.post("/submit/:testId", submitTest);
 router.get("/:testId", getTestById);
+router.get("/heatmapData", getHeatmapData);
 
 export default router;
