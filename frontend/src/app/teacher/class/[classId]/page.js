@@ -9,11 +9,13 @@ import { UserDropdown } from '@/components/dashboard/UserDropdown.jsx';
 import { Copy, Check, Trash, Upload, ArrowLeft, File, Loader2, X } from "lucide-react";
 import axios from 'axios';
 import { useError } from '@/contexts/ErrorContext';
+import { useSuccess } from '@/contexts/SuccessContext';
 
 export default function ClassPage() {
   const router = useRouter();
   const params = useParams();
   const { showError } = useError();
+  const { showSuccess } = useSuccess();
   const classId = params.classId;
   
   const [classDetails, setClassDetails] = useState(null);
@@ -125,10 +127,10 @@ export default function ClassPage() {
         `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/classes/delete`,
         { classId: classId },
         { withCredentials: true },
-        { validateStatus: (status) => status === 201 || status === 207 }
+        { validateStatus: (status) => status === 200 || status === 207 }
       );
-  
-      if (response.status === 201) {
+
+      if (response.status === 200) {
         showSuccess("Class deletion successful");
         router.push("/");
       } else if (response.status === 207) {

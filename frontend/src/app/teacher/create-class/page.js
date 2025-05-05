@@ -88,7 +88,7 @@ export default function CreateClass() {
     }
 
     if (!subject || subject.trim() === '') {
-      showError('Subhject is required');
+      showError('Subject is required');
       return;
     }
     
