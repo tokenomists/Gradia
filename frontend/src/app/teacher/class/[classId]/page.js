@@ -129,10 +129,10 @@ export default function ClassPage() {
       );
   
       if (response.status === 201) {
-        showSuccess("Class deletion successful.");
+        showSuccess("Class deletion successful");
         router.push("/");
       } else if (response.status === 207) {
-        showError("Class deletion successful. File to delete GCS Bucket");
+        showError("Class deletion successful. Failed to delete GCS Bucket");
         router.push("/");
       }
       
@@ -481,7 +481,7 @@ export default function ClassPage() {
         </div>
       </div>
       
-      {classDeleteConfirmation.isOpen && (
+      {classDeleteConfirmation && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
           <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-md mx-4 animate-fade-in">
             <h3 className="text-xl font-bold text-gray-800 mb-4">Confirm Deletion</h3>
