@@ -2,10 +2,15 @@ import fs from 'fs';
 import axios from 'axios';
 import FormData from "form-data"; 
 import jwt from "jsonwebtoken";
-
+import dotenv from "dotenv";
 import Class from "../models/Class.js";
 import Teacher from "../models/Teacher.js";
 import Student from "../models/Student.js";
+
+dotenv.config();
+
+const GRADIA_API_KEY = process.env.GRADIA_API_KEY;
+const GRADIA_PYTHON_BACKEND_URL = process.env.GRADIA_PYTHON_BACKEND_URL;
 
 const getUserFromToken = (token) => {
   if (!token) return null;
@@ -53,19 +58,16 @@ export const createClass = async (req, res) => {
 
     await Teacher.findByIdAndUpdate(teacher._id, { $push: { classes: newClass._id } });
 
-    const gradia_api_key = process.env.GRADIA_API_KEY;
-    const gradia_python_backend_url = process.env.GRADIA_PYTHON_BACKEND_URL;
-
-    if (!gradia_api_key) {
+    if (!GRADIA_API_KEY) {
       await Class.findByIdAndDelete(newClass._id);
       return res.status(500).json({ success: false, message: "API key not configured in environment" });
     }
 
     try {
       const gcsResponse = await axios.post(
-        `${gradia_python_backend_url}/api/gcs/create-bucket`,
+        `${GRADIA_PYTHON_BACKEND_URL}/api/gcs/create-bucket`,
         { bucket_name: newClass._id.toString() },
-        { headers: { "x-api-key": gradia_api_key } }
+        { headers: { "x-api-key": GRADIA_API_KEY } }
       );
 
       if (classFiles && classFiles.length > 0) {
@@ -143,13 +145,16 @@ export const deleteClass = async (req, res) => {
       { classes: classId },
       { $pull: { classes: classId } }
     );
-
+   
     try {
-      await axios.post(
-        `${process.env.GRADIA_PYTHON_BACKEND_URL}/api/gcs/delete-bucket`,
-        { bucket_name: classId },
-        { headers: { "x-api-key": process.env.GRADIA_API_KEY } }
+      await axios.delete(
+        `${GRADIA_PYTHON_BACKEND_URL}/api/gcs/delete-bucket`,
+        {
+          headers: { "x-api-key": GRADIA_API_KEY, "Content-Type": "application/json" },
+          data: { bucket_name: classId }
+        }
       );
+      
     } catch (gcsError) {
       console.error("Failed to delete GCS bucket:", gcsError.message);
 
@@ -305,9 +310,9 @@ export const uploadFilesToGCS = async (files, bucketName) => {
     formData.append("bucket_name", bucketName);
 
     try {
-      const response = await axios.post(`${process.env.GRADIA_PYTHON_BACKEND_URL}/api/gcs/upload-file`, formData, {
+      const response = await axios.post(`${GRADIA_PYTHON_BACKEND_URL}/api/gcs/upload-file`, formData, {
         headers: {
-          "x-api-key": process.env.GRADIA_API_KEY,
+          "x-api-key": GRADIA_API_KEY,
           ...formData.getHeaders(),
         },
       });
@@ -361,11 +366,11 @@ export const getClassMaterials = async (req, res) => {
     }
 
     const response = await axios.post(
-      `${process.env.GRADIA_PYTHON_BACKEND_URL}/api/gcs/list-files`,
+      `${GRADIA_PYTHON_BACKEND_URL}/api/gcs/list-files`,
       { bucket_name: classId },
       {
         headers: {
-          'x-api-key': process.env.GRADIA_API_KEY,
+          'x-api-key': GRADIA_API_KEY,
         },
       }
     );
@@ -417,10 +422,10 @@ export const deleteClassMaterial = async (req, res) => {
     }
     
     const response = await axios.delete(
-      `${process.env.GRADIA_PYTHON_BACKEND_URL}/api/gcs/delete-file`,
+      `${GRADIA_PYTHON_BACKEND_URL}/api/gcs/delete-file`,
       {
         headers: {
-          'x-api-key': process.env.GRADIA_API_KEY,
+          'x-api-key': GRADIA_API_KEY,
         },
         data: { bucket_name: classId, file_name: fileName }
       }
@@ -463,11 +468,11 @@ export const downloadClassMaterial = async (req, res) => {
     }
 
     const response = await axios.post(
-      `${process.env.GRADIA_PYTHON_BACKEND_URL}/api/gcs/download-file`,
+      `${GRADIA_PYTHON_BACKEND_URL}/api/gcs/download-file`,
       { bucket_name: classId, file_name: fileName },
       {
         responseType: 'stream',
-        headers: { 'x-api-key': process.env.GRADIA_API_KEY },
+        headers: { 'x-api-key': GRADIA_API_KEY },
       }
     );
 
