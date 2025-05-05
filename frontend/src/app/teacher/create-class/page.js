@@ -14,14 +14,11 @@ export default function CreateClass() {
   const [className, setClassName] = useState('');
   const [classDescription, setClassDescription] = useState('');
   const [subject, setSubject] = useState('');
-  // const [studentEmail, setStudentEmail] = useState('');
-  // const [studentList, setStudentList] = useState([]);
   const [classCode, setClassCode] = useState('GRD-' + Math.random().toString(36).substring(2, 8).toUpperCase());
   const [loading, setLoading] = useState(false);
   const [codeCopied, setCodeCopied] = useState(false);
   const [classFiles, setClassFiles] = useState([]);
   
-  // const fileInputRef = useRef(null);
   const pdfInputRef = useRef(null);
   const router = useRouter();
   const { showError } = useError();
@@ -44,51 +41,6 @@ export default function CreateClass() {
     
     checkAuth();
   }, [router, showError]);
-  
-  // Handle adding a student email
-  // const handleAddStudent = () => {
-  //   if (studentEmail && !studentList.includes(studentEmail)) {
-  //     // Basic email validation
-  //     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  //     if (!emailRegex.test(studentEmail)) {
-  //       showError('Please enter a valid email address');
-  //       return;
-  //     }
-      
-  //     setStudentList([...studentList, studentEmail]);
-  //     setStudentEmail('');
-  //   }
-  // };
-  
-  // Handle removing a student email
-  // const handleRemoveStudent = (email) => {
-  //   setStudentList(studentList.filter(item => item !== email));
-  // };
-  
-  // Handle file upload for CSV
-  // const handleFileUpload = (event) => {
-  //   const file = event.target.files[0];
-  //   if (file) {
-  //     const reader = new FileReader();
-  //     reader.onload = (e) => {
-  //       const content = e.target.result;
-  //       const emails = content.split(/[\r\n,]+/)
-  //         .map(email => email.trim())
-  //         .filter(email => {
-  //           // Basic email validation
-  //           const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  //           return email && emailRegex.test(email) && !studentList.includes(email);
-  //         });
-        
-  //       if (emails.length > 0) {
-  //         setStudentList([...studentList, ...emails]);
-  //       } else {
-  //         showError('No valid email addresses found in the file');
-  //       }
-  //     };
-  //     reader.readAsText(file);
-  //   }
-  // };
   
   const handlePdfUpload = (event) => {
     const files = Array.from(event.target.files);
@@ -143,7 +95,6 @@ export default function CreateClass() {
       formData.append('name', `${className} - ${subject}`);
       formData.append('description', classDescription);
       formData.append('classCode', classCode);
-      formData.append('invitedEmails', JSON.stringify([])); // Changed from JSON.stringify([studentList]) as feature is not implemented yet
       
       classFiles.forEach(file => {
         formData.append('classFiles', file);
@@ -275,70 +226,6 @@ export default function CreateClass() {
                 Students can join using this code
               </p>
             </div>
-            
-            {/* Student Invites */}
-            {/* <div className="mb-8">
-              <label className="block text-gray-700 font-medium mb-2">
-                Invite Students
-              </label>
-              <div className="flex gap-2 mb-3">
-                <input
-                  type="email"
-                  value={studentEmail}
-                  onChange={(e) => setStudentEmail(e.target.value)}
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#e07a5f]"
-                  placeholder="Enter student email"
-                />
-                <button
-                  type="button"
-                  onClick={handleAddStudent}
-                  className="bg-[#e07a5f] text-white px-4 py-2 rounded-md hover:bg-[#d06a4f] flex items-center"
-                >
-                  <UserPlus size={18} className="mr-1" />
-                  Add
-                </button>
-              </div>
-              
-              <div className="mb-4">
-                <button
-                  type="button"
-                  onClick={() => fileInputRef.current.click()}
-                  className="w-full py-3 border-2 border-dashed border-gray-300 rounded-md text-gray-500 flex items-center justify-center hover:bg-gray-50"
-                >
-                  <Upload size={18} className="mr-2" />
-                  Upload CSV with student emails
-                </button>
-                <input
-                  type="file"
-                  ref={fileInputRef}
-                  onChange={handleFileUpload}
-                  accept=".csv"
-                  className="hidden"
-                />
-              </div>
-              
-              {studentList.length > 0 && (
-                <div className="border border-gray-200 rounded-md p-3 bg-gray-50">
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="font-medium text-gray-700">Student List ({studentList.length})</span>
-                  </div>
-                  <div className="max-h-32 overflow-y-auto">
-                    {studentList.map((email, index) => (
-                      <div key={index} className="flex justify-between items-center py-1 border-b border-gray-100 last:border-b-0">
-                        <span className="text-sm">{email}</span>
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveStudent(email)}
-                          className="text-red-500 hover:text-red-700"
-                        >
-                          <X size={16} />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div> */}
             
             {/* Class Materials (PDF Files) */}
             <div className="mb-8">

@@ -18,7 +18,7 @@ const getUserFromToken = (token) => {
 
 export const createClass = async (req, res) => {
   try {
-    const { name, description, invitedEmails, classCode } = req.body;
+    const { name, description, classCode } = req.body;
     const classFiles = req.files;
 
     if (!name) {
@@ -49,7 +49,6 @@ export const createClass = async (req, res) => {
       description,
       classCode: finalClassCode,
       teacher: teacher._id,
-      invitedEmails: JSON.parse(invitedEmails),
     });
 
     await Teacher.findByIdAndUpdate(teacher._id, { $push: { classes: newClass._id } });
@@ -201,7 +200,6 @@ export const getTeacherClasses = async (req, res) => {
   }
 };
 
-// Join a class (for students)
 export const joinClass = async (req, res) => {
   try {
     const { classCode } = req.body;
@@ -210,7 +208,6 @@ export const joinClass = async (req, res) => {
       return res.status(400).json({ success: false, message: "Class code is required" });
     }
     
-    // Get student from token
     const token = req.cookies.token;
     const decoded = getUserFromToken(token);
     
@@ -218,33 +215,23 @@ export const joinClass = async (req, res) => {
       return res.status(401).json({ success: false, message: "Unauthorized - Only students can join classes" });
     }
     
-    // Find the student
     const student = await Student.findById(decoded.id);
     if (!student) {
       return res.status(404).json({ success: false, message: "Student not found" });
     }
     
-    // Find the class
     const classToJoin = await Class.findOne({ classCode });
     if (!classToJoin) {
       return res.status(404).json({ success: false, message: "Class not found with this code" });
     }
     
-    // Check if student is already in the class
     if (classToJoin.students.includes(student._id)) {
       return res.status(400).json({ success: false, message: "You are already a member of this class" });
     }
     
-    // Add student to class
     classToJoin.students.push(student._id);
     
-    // Also add class to student's classes array
     student.classes.push(classToJoin._id);
-
-    // Remove from invited emails if present
-    if (classToJoin.invitedEmails.includes(student.email)) {
-      classToJoin.invitedEmails = classToJoin.invitedEmails.filter(email => email !== student.email);
-    }
     
     await classToJoin.save();
     await student.save();
@@ -265,7 +252,6 @@ export const joinClass = async (req, res) => {
   }
 };
 
-// Get class details
 export const getClassDetails = async (req, res) => {
   try {
     const { classId } = req.params;
@@ -285,7 +271,6 @@ export const getClassDetails = async (req, res) => {
       return res.status(404).json({ success: false, message: "Class not found" });
     }
     
-    // Verify user has access to this class
     const isTeacher = decoded.role === "teacher" && 
                       classDetails.teacher._id.toString() === decoded.id;
     
