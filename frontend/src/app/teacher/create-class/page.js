@@ -86,6 +86,11 @@ export default function CreateClass() {
       showError('Class name is required');
       return;
     }
+
+    if (!subject || subject.trim() === '') {
+      showError('Subhject is required');
+      return;
+    }
     
     setLoading(true);
     
