@@ -3,7 +3,8 @@ import express from 'express';
 import multer from "multer";
 
 import { 
-  createClass, 
+  createClass,
+  deleteClass,
   joinClass,
   getClassDetails,
   getClassMaterials,
@@ -30,6 +31,7 @@ const upload = multer({ storage: storage });
 const router = express.Router();
 
 router.post('/create', upload.array('classFiles'), createClass);
+router.post('/delete', deleteClass);
 router.post('/join', joinClass);
 router.get('/:classId', getClassDetails);
 router.post('/get-class-materials', getClassMaterials);

@@ -16,7 +16,6 @@ const getUserFromToken = (token) => {
   }
 };
 
-// Create a new class
 export const createClass = async (req, res) => {
   try {
     const { name, description, invitedEmails, classCode } = req.body;
@@ -114,7 +113,67 @@ export const createClass = async (req, res) => {
   }
 };
 
-// Get all classes for a teacher
+export const deleteClass = async (req, res) => {
+  try {
+    const { classId } = req.body;
+
+    const token = req.cookies.token;
+    const decoded = getUserFromToken(token);
+
+    if (!decoded || decoded.role !== "teacher") {
+      return res.status(401).json({ success: false, message: "Unauthorized - Only teachers can delete classes" });
+    }
+
+    const teacher = await Teacher.findById(decoded.id);
+    if (!teacher) {
+      return res.status(404).json({ success: false, message: "Teacher not found" });
+    }
+
+    const classToDelete = await Class.findById(classId);
+    if (!classToDelete) {
+      return res.status(404).json({ success: false, message: "Class not found" });
+    }
+
+    await Class.findByIdAndDelete(classId);
+
+    await Teacher.findByIdAndUpdate(classToDelete.teacher, {
+      $pull: { classes: classId },
+    });
+
+    await Student.updateMany(
+      { classes: classId },
+      { $pull: { classes: classId } }
+    );
+
+    try {
+      await axios.post(
+        `${process.env.GRADIA_PYTHON_BACKEND_URL}/api/gcs/delete-bucket`,
+        { bucket_name: classId },
+        { headers: { "x-api-key": process.env.GRADIA_API_KEY } }
+      );
+    } catch (gcsError) {
+      console.error("Failed to delete GCS bucket:", gcsError.message);
+
+      return res.status(207).json({
+        success: true,
+        message: "Class deleted successfully. Failed to delete GCS bucket",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Class deleted successfully",
+    });
+
+  } catch (error) {
+    console.error("Error deleting class:", error);
+    return res.status(500).json({
+      success: false,
+      message: `Server error while deleting class ${error.message}`
+    });
+  }
+};
+
 export const getTeacherClasses = async (req, res) => {
   try {
     const token = req.cookies.token;
