@@ -2,10 +2,17 @@ import fs from 'fs';
 import axios from 'axios';
 import FormData from "form-data"; 
 import jwt from "jsonwebtoken";
-
+import dotenv from "dotenv";
 import Class from "../models/Class.js";
 import Teacher from "../models/Teacher.js";
 import Student from "../models/Student.js";
+import Test from "../models/Test.js";
+import Submission from "../models/Submission.js";
+
+dotenv.config();
+
+const GRADIA_API_KEY = process.env.GRADIA_API_KEY;
+const GRADIA_PYTHON_BACKEND_URL = process.env.GRADIA_PYTHON_BACKEND_URL;
 
 const getUserFromToken = (token) => {
   if (!token) return null;
@@ -16,10 +23,9 @@ const getUserFromToken = (token) => {
   }
 };
 
-// Create a new class
 export const createClass = async (req, res) => {
   try {
-    const { name, description, invitedEmails, classCode } = req.body;
+    const { name, description, classCode } = req.body;
     const classFiles = req.files;
 
     if (!name) {
@@ -50,24 +56,20 @@ export const createClass = async (req, res) => {
       description,
       classCode: finalClassCode,
       teacher: teacher._id,
-      invitedEmails: JSON.parse(invitedEmails),
     });
 
     await Teacher.findByIdAndUpdate(teacher._id, { $push: { classes: newClass._id } });
 
-    const gradia_api_key = process.env.GRADIA_API_KEY;
-    const gradia_python_backend_url = process.env.GRADIA_PYTHON_BACKEND_URL;
-
-    if (!gradia_api_key) {
+    if (!GRADIA_API_KEY) {
       await Class.findByIdAndDelete(newClass._id);
       return res.status(500).json({ success: false, message: "API key not configured in environment" });
     }
 
     try {
       const gcsResponse = await axios.post(
-        `${gradia_python_backend_url}/api/gcs/create-bucket`,
+        `${GRADIA_PYTHON_BACKEND_URL}/api/gcs/create-bucket`,
         { bucket_name: newClass._id.toString() },
-        { headers: { "x-api-key": gradia_api_key } }
+        { headers: { "x-api-key": GRADIA_API_KEY } }
       );
 
       if (classFiles && classFiles.length > 0) {
@@ -114,7 +116,76 @@ export const createClass = async (req, res) => {
   }
 };
 
-// Get all classes for a teacher
+export const deleteClass = async (req, res) => {
+  try {
+    const { classId } = req.body;
+
+    const token = req.cookies.token;
+    const decoded = getUserFromToken(token);
+
+    if (!decoded || decoded.role !== "teacher") {
+      return res.status(401).json({ success: false, message: "Unauthorized - Only teachers can delete classes" });
+    }
+
+    const teacher = await Teacher.findById(decoded.id);
+    if (!teacher) {
+      return res.status(404).json({ success: false, message: "Teacher not found" });
+    }
+
+    const classToDelete = await Class.findById(classId);
+    if (!classToDelete) {
+      return res.status(404).json({ success: false, message: "Class not found" });
+    }
+
+    await Class.findByIdAndDelete(classId);
+
+    await Teacher.findByIdAndUpdate(classToDelete.teacher, {
+      $pull: { classes: classId },
+    });
+
+    await Student.updateMany(
+      { classes: classId },
+      { $pull: { classes: classId } }
+    );
+
+    const tests = await Test.find({ classAssignment: classId });
+    const testIds = tests.map(test => test._id);
+
+    await Submission.deleteMany({ test: { $in: testIds } });
+    await Test.deleteMany({ _id: { $in: testIds } });
+   
+    try {
+      await axios.delete(
+        `${GRADIA_PYTHON_BACKEND_URL}/api/gcs/delete-bucket`,
+        {
+          headers: { "x-api-key": GRADIA_API_KEY, "Content-Type": "application/json" },
+          data: { bucket_name: classId }
+        }
+      );
+      
+    } catch (gcsError) {
+      console.error("Failed to delete GCS bucket:", gcsError.message);
+
+      return res.status(207).json({
+        success: true,
+        message: "Class deleted successfully. Failed to delete GCS bucket",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Class deleted successfully",
+    });
+
+  } catch (error) {
+    console.error("Error deleting class:", error);
+    return res.status(500).json({
+      success: false,
+      message: `Server error while deleting class ${error.message}`
+    });
+  }
+};
+
 export const getTeacherClasses = async (req, res) => {
   try {
     const token = req.cookies.token;
@@ -142,7 +213,6 @@ export const getTeacherClasses = async (req, res) => {
   }
 };
 
-// Join a class (for students)
 export const joinClass = async (req, res) => {
   try {
     const { classCode } = req.body;
@@ -151,7 +221,6 @@ export const joinClass = async (req, res) => {
       return res.status(400).json({ success: false, message: "Class code is required" });
     }
     
-    // Get student from token
     const token = req.cookies.token;
     const decoded = getUserFromToken(token);
     
@@ -159,33 +228,23 @@ export const joinClass = async (req, res) => {
       return res.status(401).json({ success: false, message: "Unauthorized - Only students can join classes" });
     }
     
-    // Find the student
     const student = await Student.findById(decoded.id);
     if (!student) {
       return res.status(404).json({ success: false, message: "Student not found" });
     }
     
-    // Find the class
     const classToJoin = await Class.findOne({ classCode });
     if (!classToJoin) {
       return res.status(404).json({ success: false, message: "Class not found with this code" });
     }
     
-    // Check if student is already in the class
     if (classToJoin.students.includes(student._id)) {
       return res.status(400).json({ success: false, message: "You are already a member of this class" });
     }
     
-    // Add student to class
     classToJoin.students.push(student._id);
     
-    // Also add class to student's classes array
     student.classes.push(classToJoin._id);
-
-    // Remove from invited emails if present
-    if (classToJoin.invitedEmails.includes(student.email)) {
-      classToJoin.invitedEmails = classToJoin.invitedEmails.filter(email => email !== student.email);
-    }
     
     await classToJoin.save();
     await student.save();
@@ -206,7 +265,6 @@ export const joinClass = async (req, res) => {
   }
 };
 
-// Get class details
 export const getClassDetails = async (req, res) => {
   try {
     const { classId } = req.params;
@@ -226,7 +284,6 @@ export const getClassDetails = async (req, res) => {
       return res.status(404).json({ success: false, message: "Class not found" });
     }
     
-    // Verify user has access to this class
     const isTeacher = decoded.role === "teacher" && 
                       classDetails.teacher._id.toString() === decoded.id;
     
@@ -261,9 +318,9 @@ export const uploadFilesToGCS = async (files, bucketName) => {
     formData.append("bucket_name", bucketName);
 
     try {
-      const response = await axios.post(`${process.env.GRADIA_PYTHON_BACKEND_URL}/api/gcs/upload-file`, formData, {
+      const response = await axios.post(`${GRADIA_PYTHON_BACKEND_URL}/api/gcs/upload-file`, formData, {
         headers: {
-          "x-api-key": process.env.GRADIA_API_KEY,
+          "x-api-key": GRADIA_API_KEY,
           ...formData.getHeaders(),
         },
       });
@@ -317,11 +374,11 @@ export const getClassMaterials = async (req, res) => {
     }
 
     const response = await axios.post(
-      `${process.env.GRADIA_PYTHON_BACKEND_URL}/api/gcs/list-files`,
+      `${GRADIA_PYTHON_BACKEND_URL}/api/gcs/list-files`,
       { bucket_name: classId },
       {
         headers: {
-          'x-api-key': process.env.GRADIA_API_KEY,
+          'x-api-key': GRADIA_API_KEY,
         },
       }
     );
@@ -373,10 +430,10 @@ export const deleteClassMaterial = async (req, res) => {
     }
     
     const response = await axios.delete(
-      `${process.env.GRADIA_PYTHON_BACKEND_URL}/api/gcs/delete-file`,
+      `${GRADIA_PYTHON_BACKEND_URL}/api/gcs/delete-file`,
       {
         headers: {
-          'x-api-key': process.env.GRADIA_API_KEY,
+          'x-api-key': GRADIA_API_KEY,
         },
         data: { bucket_name: classId, file_name: fileName }
       }
@@ -419,11 +476,11 @@ export const downloadClassMaterial = async (req, res) => {
     }
 
     const response = await axios.post(
-      `${process.env.GRADIA_PYTHON_BACKEND_URL}/api/gcs/download-file`,
+      `${GRADIA_PYTHON_BACKEND_URL}/api/gcs/download-file`,
       { bucket_name: classId, file_name: fileName },
       {
         responseType: 'stream',
-        headers: { 'x-api-key': process.env.GRADIA_API_KEY },
+        headers: { 'x-api-key': GRADIA_API_KEY },
       }
     );
 

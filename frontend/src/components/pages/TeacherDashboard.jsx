@@ -197,60 +197,76 @@ export default function TeacherDashboard() {
           </div>
         </div>
       );
-    } else if (Object.keys(heatmapData).length === 0) {
+    } else if (!heatmapData || Object.keys(heatmapData).length === 0) {
       heatmapContent = (
         <div className="flex items-center justify-center h-48">
           <p className="text-gray-700 font-medium text-lg">No Student Analytics Found</p>
         </div>
       );
     } else {
-      // Collect all tests with their createdAt timestamps across all classes
-      const allTests = [];
-      Object.entries(heatmapData).forEach(([className, testData]) => {
-        Object.entries(testData).forEach(([testTitle, data]) => {
-          allTests.push({ 
-            title: testTitle, 
-            createdAt: data.createdAt || new Date(0).toISOString(), // Use unix epoch if no date
-            className: className
-          });
-        });
+      const processedData = {};
+      
+      const getTestColor = (percentage, attendedStudents) => {
+        if (percentage === null || percentage === undefined || attendedStudents === null || attendedStudents === undefined) {
+          return "bg-gray-300";
+        }
+
+        if (attendedStudents === 0) return "bg-gray-300";
+        
+        if (percentage >= 80) return "bg-green-500";
+        if (percentage >= 40) return "bg-orange-400";
+        return "bg-red-500";
+      };
+      
+      Object.entries(heatmapData).forEach(([className, testsData]) => {
+        const sortedTests = Object.entries(testsData)
+          .filter(([_, data]) => data && data.title && data.createdAt)
+          .sort((a, b) => new Date(b[1].createdAt) - new Date(a[1].createdAt))
+          .slice(0, 4)
+          .map(([testId, data]) => ({
+            title: data.title,
+            percentage: data.percentage,
+            attendedStudents: data.attendedStudents || 0,
+            totalStudents: data.totalStudents || 0,
+            createdAt: data.createdAt || new Date().toISOString(),
+            color: getTestColor(data.percentage, data.attendedStudents)
+          }));
+      
+        processedData[className] = sortedTests;
       });
 
-      // Sort by createdAt (latest first) and limit to 4
-      const sortedTests = allTests
-        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-        .slice(0, 4)
-        .map(test => test.title);
-
       heatmapContent = (
-        <table className="w-full text-center border-collapse">
+        <div className="overflow-y-auto overflow-x-hidden h-full pr-6 pt-3">
+          <table className="w-full text-center border-collapse">
             <tbody>
-              {Object.entries(heatmapData).map(([className, testData], index) => (
-                <tr key={index}>
-                <td className="p-2 text-left font-medium border">{className}</td>
-                  {sortedTests.map((test) => {
-                    const data = testData[test] || { percentage: 'NA', color: 'bg-gray-200' };
-                    return (
-                    <td key={test} className="p-2 border">
-                        <motion.div
-                          whileHover={{ scale: 1.05 }}
-                          className={`${data.color} text-black font-medium rounded-sm p-4 mx-auto border border-black relative group`}
-                        >
-                          {data.percentage}
-                          <div className="absolute opacity-0 group-hover:opacity-100 bg-black text-white p-2 rounded text-xs -top-10 left-1/2 transform -translate-x-1/2 whitespace-nowrap transition-opacity duration-200 pointer-events-none z-10">
-                            {test}
+              {Object.entries(processedData).map(([className, tests], classIndex) => {
+                if (tests.length === 0) {
+                  return null;
+                }
+                
+                return (
+                  <tr key={classIndex}>
+                    <td className="p-1 text-left font-medium border">{className}</td>
+                    {tests.map((testData, testIndex) => (
+                      <td key={`${className}-${testIndex}`} className="p-2 border">
+                        <motion.div className={`${testData.color} text-black border border-black font-medium rounded-sm p-4 mx-auto relative group`}>
+                          {testData.attendedStudents !== 0 ? `${testData.percentage}%` : "NA"}
+                          <div className="absolute opacity-0 group-hover:opacity-100 bg-black text-white p-2 rounded text-xs -top-4 left-1/2 transform -translate-x-1/2 transition-opacity duration-200 pointer-events-none z-50 w-40">
+                            <p className="font-bold mb-1 break-words">{testData.title}</p>
+                            <p>Turnout: {testData.attendedStudents}/{testData.totalStudents} students</p>
                           </div>
                         </motion.div>
                       </td>
-                    );
-                  })}
-                </tr>
-              ))}
+                    ))}
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
+        </div>
       );
     }
-
+ 
     return (
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
@@ -262,7 +278,7 @@ export default function TeacherDashboard() {
           <LineChart size={24} className="mr-2 text-gray-800" />
           <h2 className="text-2xl font-bold text-gray-800">Student Performance</h2>
         </div>
-        <div className="h-[calc(100%-120px)]">{heatmapContent}</div>
+        <div className="h-[calc(100%-120px)] overflow-auto">{heatmapContent}</div>
         <button
           onClick={() => router.push('/teacher/detailed-analysis')}
           className="mt-4 bg-[#d56c4e] text-white font-medium py-2 px-4 rounded-lg hover:bg-[#c25c3e] flex mx-auto items-center"

@@ -558,7 +558,17 @@ const TestPage = () => {
               <input 
                 type="file" 
                 accept="image/*" 
-                onChange={handleImageUpload}
+                onChange={(e) => {
+                  handleImageUpload(e);
+                  const elem = document.documentElement;
+                  if (elem.requestFullscreen) {
+                    elem.requestFullscreen();
+                  } else if (elem.webkitRequestFullscreen) {
+                    elem.webkitRequestFullscreen();
+                  } else if (elem.msRequestFullscreen) {
+                    elem.msRequestFullscreen();
+                  }
+                }}
                 className="hidden" 
                 id="image-upload"
               />
@@ -624,8 +634,8 @@ const TestPage = () => {
         });
 
       // console.log('Submission payload:', { answers }); // Debug log
-      await instance.post(`/api/test-session/${state.sessionId}/submit`);
       await submitTest(state.testId, { answers });
+      await instance.post(`/api/test-session/${state.sessionId}/submit`);
       dispatch({ type: 'SUBMIT_TEST' });
       // router.push(`/test/${state.testId}/submitted`);
       localStorage.setItem('notification', JSON.stringify({ type: 'success', message: 'Test submitted successfully!' }));

@@ -22,9 +22,6 @@ const ClassSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId, 
     ref: 'Student' 
   }],
-  invitedEmails: [{ 
-    type: String 
-  }],
   tests: [{ 
     type: mongoose.Schema.Types.ObjectId, 
     ref: 'Test'
