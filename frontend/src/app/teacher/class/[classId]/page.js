@@ -131,7 +131,7 @@ export default function ClassPage() {
       );
 
       if (response.status === 200) {
-        showSuccess("Class deletion successful");
+        showSuccess("Class deletion successful.");
         router.push("/");
       } else if (response.status === 207) {
         showError("Class deletion successful. Failed to delete GCS Bucket");
@@ -470,7 +470,7 @@ export default function ClassPage() {
             <div>
               <h3 className="font-bold text-red-600">Delete this class</h3>
               <p className="text-gray-600">
-                Once you delete this class, all related data will be permanently removed.
+                Once you delete this class, all related data - materials, tests, submissions, etc. will be permanently deleted.
               </p>
             </div>
             <button 

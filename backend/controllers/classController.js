@@ -6,6 +6,8 @@ import dotenv from "dotenv";
 import Class from "../models/Class.js";
 import Teacher from "../models/Teacher.js";
 import Student from "../models/Student.js";
+import Test from "../models/Test.js";
+import Submission from "../models/Submission.js";
 
 dotenv.config();
 
@@ -145,6 +147,12 @@ export const deleteClass = async (req, res) => {
       { classes: classId },
       { $pull: { classes: classId } }
     );
+
+    const tests = await Test.find({ classAssignment: classId });
+    const testIds = tests.map(test => test._id);
+
+    await Submission.deleteMany({ test: { $in: testIds } });
+    await Test.deleteMany({ _id: { $in: testIds } });
    
     try {
       await axios.delete(
