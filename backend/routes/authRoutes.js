@@ -1,7 +1,7 @@
 import express from 'express';
 const router = express.Router();
 import passport from 'passport';
-import { registerStudent, loginStudent, getStudentProfile, getStudentTests, getStudentSubmissions, getStudentSubmissionByTestId } from '../controllers/studentAuthController.js';
+import { registerStudent, loginStudent, deleteStudent, getStudentProfile, getStudentTests, getStudentSubmissions, getStudentSubmissionByTestId, updateStudentProfile } from '../controllers/studentAuthController.js';
 import { registerTeacher, loginTeacher, getTeacherProfile, getTeacherClasses } from '../controllers/teacherAuthController.js';
 import authMiddleware from '../middlewares/authMiddleware.js';
 import Student from '../models/Student.js';
@@ -192,16 +192,17 @@ router.get("/check", async (req, res) => {
 // Student Auth Routes
 router.post("/student/register", registerStudent);
 router.post("/student/login", loginStudent);
-// router.get("/student/delete", deleteStudent);
-router.get("/student/tests", getStudentTests);
-router.get("/student/submissions", getStudentSubmissions);
-router.get("/student/submission/:testId", getStudentSubmissionByTestId);
+router.put('/student/update-profile', authMiddleware, updateStudentProfile);
+router.delete("/student/delete", authMiddleware, deleteStudent);
+router.get("/student/tests", authMiddleware, getStudentTests);
+router.get("/student/submissions", authMiddleware, getStudentSubmissions);
+router.get("/student/submission/:testId", authMiddleware, getStudentSubmissionByTestId);
 
 // Teacher Auth Routes
 router.post("/teacher/register", registerTeacher);
 router.post("/teacher/login", loginTeacher);
-// router.get("/teacher/delete", deleteTeacher);
-router.get('/teacher/classes', getTeacherClasses);
+// router.delete("/teacher/delete", authMiddleware, deleteTeacher);
+router.get('/teacher/classes', authMiddleware, getTeacherClasses);
 
 router.post("/logout", (req, res) => {
   for(const cookie in req.cookies) {

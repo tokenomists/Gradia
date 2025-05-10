@@ -28,7 +28,10 @@ export default function CreateClass() {
     const checkAuth = async () => {
       try {
         const { isLoggedIn, role } = await isAuthenticated();
-        if (!isLoggedIn || role !== 'teacher') {
+        if (!isLoggedIn) {
+          showError('Login required to create a class');
+          router.push('/');
+        } else if (role !== 'teacher') {
           showError('Only teachers can create classes');
           router.push('/');
         }

@@ -1,8 +1,9 @@
+import jwt from 'jsonwebtoken'
+import bcrypt from "bcryptjs";
 import Student from "../models/Student.js";
 import Teacher from '../models/Teacher.js';
 import Test from "../models/Test.js";
-import jwt from 'jsonwebtoken'
-import bcrypt from "bcryptjs";
+import Class from '../models/Class.js';
 import Submission from "../models/Submission.js";
 
 const generateToken = (id) => {
@@ -125,6 +126,69 @@ export const loginStudent = async (req, res) => {
     res.status(500).json({ success: false, message: "Error logging in", error: error.message });
   }
 };
+
+// 📌 Update Student Profile
+export const updateStudentProfile = async (req, res) => {
+  try {
+    const user = req.user;
+    if(!user) {
+      console.log("User not found in request");
+      return res.status(401).json({ success: false, message: "Unauthorized" });
+    }
+    const studentId = user.id;
+    const { fname, lname, profilePicture } = req.body;
+    const updatedStudent = await Student.findByIdAndUpdate(
+      studentId,
+      { fname, lname, profilePicture },
+      { new: true }
+    );
+    
+    if (!updatedStudent) {
+      console.log("Student not found!");
+      return res.status(404).json({ success: false, message: "Student not found" });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Profile updated successfully",
+      student: updatedStudent
+    });
+    
+  } catch (error) {
+    console.error("Error updating student profile: ", error);
+    res.status(500).json({ success: false, message: "Error updating student profile", error: error.message });
+  }
+}
+
+// 📌 Delete Student Account
+export const deleteStudent = async (req, res) =>{
+  try {
+    const user = req.user;
+    if(!user) {
+      return res.status(401).json({ success: false, message: "Unauthorized" });
+    }
+    const studentId = user.id;
+
+    // 1. Remove student from all classes they joined
+    await Class.updateMany(
+      { students: studentId },
+      { $pull: { students: studentId } }
+    );
+
+    // 2. Delete all submissions made by this student
+    await Submission.deleteMany({ student: studentId });
+
+    // 3. Delete the student account
+    const deletedStudent = await Student.findByIdAndDelete(user.id);
+    if(!deletedStudent) {
+      return res.status(404).json({ success: false, message: "Student not found" });
+    }
+    res.status(200).json({ success: true, message: "Student account deleted successfully!" });
+  } catch (error) {
+    console.error("Error deleting student account: ", error);
+    res.status(500).json({ success: false, message: "Error deleting student account", error: error.message });
+  }
+}
 
 export const getStudentProfile = async (req, res) => {
     const { email, token } = req.cookies;
