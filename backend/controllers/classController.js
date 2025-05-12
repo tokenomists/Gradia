@@ -116,6 +116,47 @@ export const createClass = async (req, res) => {
   }
 };
 
+export const updateClass = async (req, res) => {
+  try {
+    const { name, description } = req.body;
+    const { classId } = req.params;
+
+    if(!classId) {
+      return res.status(400).json({ success: false, message: "Class ID is required!" });
+    }
+
+    const token = getUserFromToken(req.cookies.token);
+    if(!token || token.role !== "teacher") {
+      return res.status(401).json({ success: false, message: "Unauthorized - Only teachers can update classes!" });
+    }
+    const teacher = await Teacher.findById(token.id);
+    if(!teacher) {
+      return res.status(404).json({ success: false, message: "Teacher not found!" });
+    }
+
+    const classToUpdate = await Class.findById(classId);
+    if(!classToUpdate) {
+      return res.status(404).json({ success: false, message: "Class not found!" });
+    }
+    if(classToUpdate.teacher.toString() !== token.id) {
+      return res.status(403).json({ success: false, message: "Unauthorized - You are not the teacher of this class!" });
+    }
+    const updatedClass = await Class.findByIdAndUpdate(
+      classId,
+      { name, description },
+      { new: true }
+    );
+    if(!updateClass) {
+      return res.status(500).json({ success: false, message: "Failed to update class!" });
+    }
+
+    return res.status(200).json({ success: true, message: "Class updated successfully!", class: updatedClass });
+  } catch(error) {
+    console.error("Error updating class:", error);
+    return res.status(500).json({ success: false, message: "Server error while updating class", error: error.message });
+  }
+}
+
 export const deleteClass = async (req, res) => {
   try {
     const { classId } = req.body;

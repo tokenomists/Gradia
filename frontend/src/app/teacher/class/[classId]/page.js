@@ -6,10 +6,11 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter, useParams } from 'next/navigation';
 import { UserDropdown } from '@/components/dashboard/UserDropdown.jsx';
-import { Copy, Check, Trash, Upload, ArrowLeft, File, Loader2, X } from "lucide-react";
+import { Copy, Check, Trash, Upload, ArrowLeft, File, Loader2, X, Edit2, Edit } from "lucide-react";
 import axios from 'axios';
 import { useError } from '@/contexts/ErrorContext';
 import { useSuccess } from '@/contexts/SuccessContext';
+import instance from '@/utils/axios';
 
 export default function ClassPage() {
   const router = useRouter();
@@ -32,6 +33,43 @@ export default function ClassPage() {
   const [uploadSuccess, setUploadSuccess] = useState(false);
   const [uploadError, setUploadError] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editName, setEditName] = useState('');
+  const [editDescription, setEditDescription] = useState('');
+
+  const openEditForm = () => {
+    setEditName(classDetails?.name || '');
+    setEditDescription(classDetails?.description || '');
+    setIsEditing(true);
+  };
+
+  const closeEditForm = () => {
+    setIsEditing(false);
+  };
+
+  const handleSaveEdit = async () => {
+    try {
+      const response = await instance.put(
+        `/api/classes/${classId}/update`,
+        { name: editName, description: editDescription },
+        { withCredentials: true }
+      );
+      if (response.data.success) {
+        setClassDetails(prev => ({
+          ...prev,
+          name: editName,
+          description: editDescription
+        }));
+        showSuccess('Class details updated.');
+        setIsEditing(false);
+      } else {
+        showError(response.data.message || 'Update failed');
+      }
+    } catch (err) {
+      showError(err.response?.data?.message || err.message);
+    }
+  };
+
   
   useEffect(() => {
     if (!classId) return;
@@ -349,8 +387,13 @@ export default function ClassPage() {
         {/* Class Header */}
         <div className="flex justify-between items-center mb-6">
           <div>
-            <h1 className="text-4xl font-bold text-black mb-2">{classDetails?.name || 'Class Name'}</h1>
-            <p className="text-gray-700 mb-2">{classDetails?.description || 'Class description'}</p>
+            <div className="flex items-center space-x-2">
+              <h1 className="text-4xl font-bold text-black">{classDetails?.name}</h1>
+              <button onClick={openEditForm} aria-label="Edit class" className="p-1 hover:bg-gray-200 rounded">
+                <Edit className="w-5 h-5 text-[#d56c4e]" />
+              </button>
+            </div>
+            <p className="text-gray-700 mb-2">{classDetails?.description}</p>
           </div>
           <div className="relative">
             <div className="flex items-center bg-[#e2c3ae] border border-black-200 rounded-lg overflow-hidden min-w-fit">
@@ -544,6 +587,46 @@ export default function ClassPage() {
                 className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition-all duration-200"
               >
                 Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isEditing && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+          <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md mx-4">
+            <h3 className="text-xl font-bold mb-4">Edit Class</h3>
+            <label className="block mb-2">
+              <span className="text-gray-700">Name</span>
+              <input
+                type="text"
+                value={editName}
+                onChange={e => setEditName(e.target.value)}
+                className="mt-1 block w-full border-gray-300 rounded-md"
+              />
+            </label>
+            <label className="block mb-4">
+              <span className="text-gray-700">Description</span>
+              <textarea
+                value={editDescription}
+                onChange={e => setEditDescription(e.target.value)}
+                className="mt-1 block w-full border-gray-300 rounded-md"
+                rows={3}
+              />
+            </label>
+            <div className="flex justify-end space-x-3">
+              <button
+                onClick={closeEditForm}
+                className="px-4 py-2 text-gray-600 hover:text-gray-800"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSaveEdit}
+                className="px-4 py-2 bg-[#d56c4e] text-white rounded-md hover:bg-[#c55636]"
+              >
+                Save
               </button>
             </div>
           </div>

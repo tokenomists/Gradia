@@ -10,7 +10,8 @@ import {
   getClassMaterials,
   deleteClassMaterial,
   uploadClassMaterial,
-  downloadClassMaterial
+  downloadClassMaterial,
+  updateClass
 } from '../controllers/classController.js';
 
 const storage = multer.diskStorage({
@@ -31,6 +32,7 @@ const upload = multer({ storage: storage });
 const router = express.Router();
 
 router.post('/create', upload.array('classFiles'), createClass);
+router.put('/:classId/update', updateClass);
 router.post('/delete', deleteClass);
 router.post('/join', joinClass);
 router.get('/:classId', getClassDetails);
