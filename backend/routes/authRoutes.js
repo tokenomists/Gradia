@@ -2,7 +2,7 @@ import express from 'express';
 const router = express.Router();
 import passport from 'passport';
 import { registerStudent, loginStudent, deleteStudent, getStudentProfile, getStudentTests, getStudentSubmissions, getStudentSubmissionByTestId, updateStudentProfile } from '../controllers/studentAuthController.js';
-import { registerTeacher, loginTeacher, getTeacherProfile, getTeacherClasses } from '../controllers/teacherAuthController.js';
+import { registerTeacher, loginTeacher, getTeacherProfile, getTeacherClasses, updateTeacherProfile, deleteTeacher } from '../controllers/teacherAuthController.js';
 import authMiddleware from '../middlewares/authMiddleware.js';
 import Student from '../models/Student.js';
 import Teacher from '../models/Teacher.js';
@@ -201,7 +201,8 @@ router.get("/student/submission/:testId", authMiddleware, getStudentSubmissionBy
 // Teacher Auth Routes
 router.post("/teacher/register", registerTeacher);
 router.post("/teacher/login", loginTeacher);
-// router.delete("/teacher/delete", authMiddleware, deleteTeacher);
+router.put("/teacher/update-profile", authMiddleware, updateTeacherProfile);
+router.delete("/teacher/delete", authMiddleware, deleteTeacher);
 router.get('/teacher/classes', authMiddleware, getTeacherClasses);
 
 router.post("/logout", (req, res) => {

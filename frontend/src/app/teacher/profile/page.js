@@ -5,13 +5,21 @@ import { motion } from 'framer-motion';
 import { isAuthenticated } from "../../../utils/auth.js";
 import { UserDropdown } from '@/components/dashboard/UserDropdown.jsx';
 import Link from 'next/link.js';
-import { Calendar, Clock, Edit, Pencil } from 'lucide-react';
+import { Calendar, Clock, Edit, Pencil, Trash2 } from 'lucide-react';
 import axios from 'axios';
+import instance from '@/utils/axios.js';
 
 export default function ProfilePage() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [classDetails, setClassDetails] = useState({});
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editForm, setEditForm] = useState({
+    fname: '',
+    lname: '',
+    profilePicture: '',
+  });
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -101,6 +109,45 @@ export default function ProfilePage() {
     });
   };
 
+  const handleDelete = async () => {
+    try {
+      await instance.delete(`/api/auth/teacher/delete`, {
+        withCredentials: true,
+      });
+      alert("Profile deleted. Logging out...");
+      window.location.href = '/';
+    } catch (error) {
+      alert("Error deleting profile");
+      console.error("Delete error:", error);
+    }
+  };
+
+  const handleEditClick = () => {
+    setEditForm({
+      fname: user.fname,
+      lname: user.lname,
+      profilePicture: user.profilePicture || ''
+    });
+    setShowEditModal(true);
+  };
+
+  const handleEditSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await instance.put(`/api/auth/teacher/update-profile`, editForm, {
+        withCredentials: true
+      });
+      if (res.data.success) {
+        setUser({ ...user, ...editForm });
+        setShowEditModal(false);
+        alert("Profile updated!");
+      }
+    } catch (err) {
+      console.error("Profile update failed:", err);
+      alert("Failed to update profile.");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#fcf9ea] pb-10">
       <nav className="bg-[#d56c4e] text-white px-6 py-4 flex justify-between items-center">
@@ -128,9 +175,14 @@ export default function ProfilePage() {
       ) : (
         <div className="max-w-4xl mx-auto mt-10">
           <div className="bg-white rounded-xl shadow-md relative">
-            <button className="absolute top-4 right-4 bg-[#fcf9ea] p-2 rounded-full hover:bg-[#f8e2d8] transition-colors">
-              <Edit className="w-5 h-5 text-[#d56c4e]" />
-            </button>
+            <div className="absolute top-4 right-4 flex space-x-2">
+              <button onClick={handleEditClick} className="bg-[#fcf9ea] p-2 rounded-full hover:bg-[#f8e2d8]">
+                <Edit className="w-5 h-5 text-[#d56c4e]" />
+              </button>
+              <button onClick={() => setShowDeleteConfirm(true)} className="bg-[#fcf9ea] p-2 rounded-full hover:bg-red-200">
+                <Trash2 className="w-5 h-5 text-red-500" />
+              </button>
+            </div>
             
             {/* Profile Section */}
             <div className="p-8">
@@ -147,9 +199,9 @@ export default function ProfilePage() {
                       <span>{user.fname[0]}{user.lname[0]}</span>
                     </div>
                   )}
-                  <button className="absolute bottom-1 right-1 bg-white p-1.5 rounded-full shadow-md hover:bg-[#fcf9ea] transition-colors">
+                  {/* <button className="absolute bottom-1 right-1 bg-white p-1.5 rounded-full shadow-md hover:bg-[#fcf9ea] transition-colors">
                     <Pencil className="w-4 h-4 text-[#d56c4e]" />
-                  </button>
+                  </button> */}
                 </div>
                 
                 {/* Profile Info */}
@@ -205,6 +257,64 @@ export default function ProfilePage() {
               </div>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* 🔒 Delete Confirmation Modal */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 bg-black bg-opacity-30 flex justify-center items-center z-50">
+          <div className="bg-white p-6 rounded-xl shadow-lg max-w-sm w-full text-center">
+            <h2 className="text-lg font-semibold text-red-600 mb-3">Confirm Deletion</h2>
+            <p className="text-sm text-gray-700 mb-6">Are you sure you want to delete your profile? This action cannot be undone.</p>
+            <div className="flex justify-center space-x-4">
+              <button onClick={handleDelete} className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md">
+                Yes, Delete
+              </button>
+              <button onClick={() => setShowDeleteConfirm(false)} className="bg-gray-200 hover:bg-gray-300 px-4 py-2 rounded-md">
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ✏️ Edit Profile Modal */}
+      {showEditModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-30 flex justify-center items-center z-50">
+          <form onSubmit={handleEditSubmit} className="bg-white p-6 rounded-xl shadow-lg max-w-sm w-full">
+            <h2 className="text-xl font-semibold mb-4">Edit Profile</h2>
+            <label className="block mb-3 text-sm">
+              First Name:
+              <input
+                type="text"
+                value={editForm.fname}
+                onChange={(e) => setEditForm({ ...editForm, fname: e.target.value })}
+                className="w-full mt-1 border rounded px-3 py-1"
+              />
+            </label>
+            <label className="block mb-3 text-sm">
+              Last Name:
+              <input
+                type="text"
+                value={editForm.lname}
+                onChange={(e) => setEditForm({ ...editForm, lname: e.target.value })}
+                className="w-full mt-1 border rounded px-3 py-1"
+              />
+            </label>
+            <label className="block mb-4 text-sm">
+              Profile Picture URL:
+              <input
+                type="text"
+                value={editForm.profilePicture}
+                onChange={(e) => setEditForm({ ...editForm, profilePicture: e.target.value })}
+                className="w-full mt-1 border rounded px-3 py-1"
+              />
+            </label>
+            <div className="flex justify-end space-x-3">
+              <button type="submit" className="bg-[#d56c4e] text-white px-4 py-2 rounded-md">Save</button>
+              <button onClick={() => setShowEditModal(false)} type="button" className="bg-gray-200 px-4 py-2 rounded-md">Cancel</button>
+            </div>
+          </form>
         </div>
       )}
     </div>

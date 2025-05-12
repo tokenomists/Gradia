@@ -4,6 +4,7 @@ import jwt from 'jsonwebtoken';
 import bcrypt from "bcryptjs";
 import Test from "../models/Test.js";
 import Class from "../models/Class.js";
+import { deleteClass } from "./classController.js";
 
 const generateToken = (id) => {
   return jwt.sign({ id, role: "teacher" }, process.env.JWT_SECRET, { expiresIn: "7d" });
@@ -95,6 +96,87 @@ export const loginTeacher = async (req, res) => {
     res.status(500).json({ success: false, message: "Error logging in", error: error.message });
   }
 };
+
+// 📌 Update Teacher Profile
+export const updateTeacherProfile = async (req, res) => {
+  try {
+    const user = req.user;
+    if(!user) {
+      console.log("User not found in request");
+      return res.status(401).json({ success: false, message: "Unauthorized" });
+    }
+    const teacherId = user.id;
+    const { fname, lname, profilePicture } = req.body;
+    const updatedTeacher = await Teacher.findByIdAndUpdate(
+      teacherId,
+      { fname, lname, profilePicture },
+      { new: true }
+    );
+    
+    if (!updatedTeacher) {
+      console.log("Teacher not found!");
+      return res.status(404).json({ success: false, message: "Teacher not found" });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Profile updated successfully",
+      teacher: updatedTeacher
+    });
+    
+  } catch (error) {
+    console.error("Error updating teacher profile: ", error);
+    res.status(500).json({ success: false, message: "Error updating teacher profile", error: error.message });
+  }
+}
+
+// 📌 Delete Teacher Account
+export const deleteTeacher = async (req, res) =>{
+  try {
+    const user = req.user;
+    if(!user) {
+      return res.status(401).json({ success: false, message: "Unauthorized" });
+    }
+    const teacherId = user.id;
+
+    // 1. Remove all classes created by this teacher
+    const classes = await Class.find({ teacher: teacherId });
+    if(classes.length > 0) {
+      for(const cls of classes) {
+        const fakeReq = {
+          body: { classId: cls._id.toString() },
+          cookies: req.cookies
+        };
+
+        const fakeRes = {
+          status: (code) => ({
+            json: (data) => {
+              if (code >= 400) {
+                console.error(`Failed to delete class ${cls._id}:`, data);
+              }
+              return data;
+            }
+          })
+        };
+
+        await deleteClass(fakeReq, fakeRes);
+      }
+    }
+
+    // 2. Remove all tests created by this teacher
+    const tests = await Test.deleteMany({ createdBy: teacherId });
+
+    // 3. Delete the teacher account
+    const deletedTeacher = await Teacher.findByIdAndDelete(user.id);
+    if(!deletedTeacher) {
+      return res.status(404).json({ success: false, message: "Teacher not found" });
+    }
+    res.status(200).json({ success: true, message: "Teacher account deleted successfully!" });
+  } catch (error) {
+    console.error("Error deleting teacher account: ", error);
+    res.status(500).json({ success: false, message: "Error deleting teacher account", error: error.message });
+  }
+}
 
 export const getTeacherProfile = async (req, res) => {
   const { email, token } = req.cookies;

@@ -104,7 +104,6 @@ export default function ProfilePage() {
         withCredentials: true,
       });
       alert("Profile deleted. Logging out...");
-      // window.location.href = '/logout';
       window.location.href = '/';
     } catch (error) {
       alert("Error deleting profile");
