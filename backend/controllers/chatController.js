@@ -66,7 +66,7 @@ export const handleChat = async (req, res) => {
     }
 
     const chat = model.chats.create({
-      model: "gemini-2.5-pro-exp-03-25",
+      model: "gemini-2.0-flash",
       history: formattedHistory,
     });
 

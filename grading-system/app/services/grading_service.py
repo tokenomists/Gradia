@@ -109,7 +109,7 @@ def grade_answer(question, student_answer, max_mark, bucket_name, rubrics=None):
 
     for _ in range(MAX_RETRIES):
         response = client.models.generate_content(
-            model="gemini-2.5-pro-exp-03-25",
+            model="gemini-2.0-flash",
             contents=[prompt]
         )
 
@@ -166,7 +166,7 @@ def grade_code(question, student_code, max_mark):
 
     for _ in range(MAX_RETRIES):
         response = client.models.generate_content(
-            model="gemini-2.5-pro-exp-03-25",
+            model="gemini-2.0-flash",
             contents=[prompt]
         )
 
